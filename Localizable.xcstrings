@@ -1,0 +1,244 @@
+{
+  "sourceLanguage" : "en",
+  "strings" : {
+    "app_description" : {
+      "comment" : "App description text",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "JJY is Japan’s longwave standard time signal, operating at 40 kHz and 60 kHz. This app generates a simplified JJY time code by amplitude-modulating the selected carrier. Use the frequency segmented control to switch between test frequencies (13.333 / 15.000 / 20.000 kHz) and JJY bands (40.000 / 60.000 kHz). You can switch test frequencies while generating, but to switch between 40/60 kHz, please stop first."
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "JJYは日本の長波標準電波で、40 kHz と 60 kHz で運用されています。本アプリは、選択可能な搬送波に振幅変調を施して簡易的なJJY時刻コードを生成します。画面の周波数セグメントコントロールで、テスト用周波数（13.333 / 15.000 / 20.000 kHz）と JJY バンド（40.000 / 60.000 kHz）を切り替えられます。テスト用周波数は生成中でも切替可能ですが、40/60 kHz の切替は一度停止してから行ってください。"
+          }
+        }
+      }
+    },
+    "change_to_jjy40_blocked" : {
+      "comment" : "Block switching to 40 kHz while active",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Can't switch to 40 kHz while generating."
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "生成中は40 kHzに切り替えできません。"
+          }
+        }
+      }
+    },
+    "change_to_jjy60_blocked" : {
+      "comment" : "Block switching to 60 kHz while active",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Can't switch to 60 kHz while generating."
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "生成中は60 kHzに切り替えできません。"
+          }
+        }
+      }
+    },
+    "current_time_format" : {
+      "comment" : "Current time label format",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Current time: %@"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "現在時刻: %@"
+          }
+        }
+      }
+    },
+    "error_failed_to_start" : {
+      "comment" : "Generic start error",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Failed to start audio."
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "オーディオの開始に失敗しました。"
+          }
+        }
+      }
+    },
+    "frequency_display_format" : {
+      "comment" : "Frequency label format",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Frequency: %@ | Sample rate: %d kHz"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "周波数: %@ | サンプリングレート: %d kHz"
+          }
+        }
+      }
+    },
+    "generating" : {
+      "comment" : "Generating status",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Generating..."
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "生成中..."
+          }
+        }
+      }
+    },
+    "jjy40_label" : {
+      "comment" : "JJY40 label",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "JJY40"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "JJY40"
+          }
+        }
+      }
+    },
+    "jjy60_label" : {
+      "comment" : "JJY60 label",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "JJY60"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "JJY60"
+          }
+        }
+      }
+    },
+    "ready" : {
+      "comment" : "Initial status",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ready"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "準備完了"
+          }
+        }
+      }
+    },
+    "start_generation" : {
+      "comment" : "Start button title",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Start"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "開始"
+          }
+        }
+      }
+    },
+    "stop_generation" : {
+      "comment" : "Stop button title",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Stop"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "停止"
+          }
+        }
+      }
+    },
+    "stopped" : {
+      "comment" : "Stopped status",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Stopped."
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "停止しました。"
+          }
+        }
+      }
+    },
+    "test_mode_suffix" : {
+      "comment" : "Test mode suffix",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Test"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "テスト"
+          }
+        }
+      }
+    }
+  },
+  "version" : "1.0"
+}

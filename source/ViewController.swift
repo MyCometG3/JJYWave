@@ -42,10 +42,10 @@ class ViewController: NSViewController {
     
     // MARK: - UI Setup
     private func setupUI() {
-        startStopButton?.title = "Start Generation"
+        startStopButton?.title = NSLocalizedString("start_generation", comment: "Start button title")
         startStopButton?.bezelStyle = .rounded
         
-        statusLabel?.stringValue = "Ready"
+        statusLabel?.stringValue = NSLocalizedString("ready", comment: "Initial status")
         
         // Segmented Control を縦スタックに挿入し、旧水平スタックは非表示
         if let vstack = startStopButton?.superview as? NSStackView {
@@ -92,7 +92,7 @@ class ViewController: NSViewController {
             return nil
         }
         guard let textView = findTextView(in: self.view) else { return }
-        let newText = "JJYは日本の長波標準電波で、40 kHz と 60 kHz で運用されています。本アプリは、選択可能な搬送波に振幅変調を施して簡易的なJJY時刻コードを生成します。画面の周波数セグメントコントロールで、テスト用周波数（13.333 / 15.000 / 20.000 kHz）と JJY バンド（40.000 / 60.000 kHz）を切り替えられます。テスト用周波数は生成中でも切替可能ですが、40/60 kHz の切替は一度停止してから行ってください。"
+        let newText = NSLocalizedString("app_description", comment: "App description text")
         textView.string = newText
         textView.textColor = .secondaryLabelColor
         textView.font = NSFont.systemFont(ofSize: NSFont.smallSystemFontSize)
@@ -123,18 +123,23 @@ class ViewController: NSViewController {
     private func updateFrequencyLabel() {
         let freqText: String
         if audioGenerator.isTestModeEnabled {
-            freqText = "\(formatTestFreqKHz()) kHz (Test Mode)"
+            let suffix = NSLocalizedString("test_mode_suffix", comment: "Test mode suffix")
+            freqText = "\(formatTestFreqKHz()) kHz (\(suffix))"
         } else {
-            freqText = (audioGenerator.band == .jjy60) ? "60.000 kHz (JJY60)" : "40.000 kHz (JJY40)"
+            let jjy60 = NSLocalizedString("jjy60_label", comment: "JJY60 label")
+            let jjy40 = NSLocalizedString("jjy40_label", comment: "JJY40 label")
+            freqText = (audioGenerator.band == .jjy60) ? "60.000 kHz (\(jjy60))" : "40.000 kHz (\(jjy40))"
         }
         let srK = Int((audioGenerator.sampleRate / 1000.0).rounded())
-        frequencyLabel?.stringValue = "Frequency: \(freqText) (\(srK) kHz sampling)"
+        let format = NSLocalizedString("frequency_display_format", comment: "Frequency label format")
+        frequencyLabel?.stringValue = String(format: format, freqText, srK)
     }
     
     private func updateTimeDisplay() {
         let formatter = DateFormatter()
         formatter.dateFormat = "yyyy-MM-dd HH:mm:ss"
-        timeLabel?.stringValue = "Current Time: \(formatter.string(from: Date()))"
+        let format = NSLocalizedString("current_time_format", comment: "Current time label format")
+        timeLabel?.stringValue = String(format: format, formatter.string(from: Date()))
     }
     
     // MARK: - JJY40 Signal Generation
@@ -161,7 +166,7 @@ class ViewController: NSViewController {
             audioGenerator.updateTestFrequency(20000)
         case 3: // JJY40 40 kHz
             if audioGenerator.isActive {
-                statusLabel?.stringValue = "Stop first to change to JJY 40 kHz"
+                statusLabel?.stringValue = NSLocalizedString("change_to_jjy40_blocked", comment: "Block switching to 40 kHz while active")
                 sender.selectedSegment = previousSelectedIndex
                 return
             }
@@ -169,7 +174,7 @@ class ViewController: NSViewController {
             _ = audioGenerator.updateBand(.jjy40)
         case 4: // JJY60 60 kHz
             if audioGenerator.isActive {
-                statusLabel?.stringValue = "Stop first to change to JJY 60 kHz"
+                statusLabel?.stringValue = NSLocalizedString("change_to_jjy60_blocked", comment: "Block switching to 60 kHz while active")
                 sender.selectedSegment = previousSelectedIndex
                 return
             }
@@ -219,21 +224,21 @@ class ViewController: NSViewController {
 extension ViewController: JJYAudioGeneratorDelegate {
     func audioGeneratorDidStart() {
         DispatchQueue.main.async {
-            self.startStopButton?.title = "Stop Generation"
-            self.statusLabel?.stringValue = "Generating JJY Signal..."
+            self.startStopButton?.title = NSLocalizedString("stop_generation", comment: "Stop button title")
+            self.statusLabel?.stringValue = NSLocalizedString("generating", comment: "Generating status")
         }
     }
     
     func audioGeneratorDidStop() {
         DispatchQueue.main.async {
-            self.startStopButton?.title = "Start Generation"
-            self.statusLabel?.stringValue = "Stopped JJY Signal Generation"
+            self.startStopButton?.title = NSLocalizedString("start_generation", comment: "Start button title")
+            self.statusLabel?.stringValue = NSLocalizedString("stopped", comment: "Stopped status")
         }
     }
     
     func audioGeneratorDidEncounterError(_ error: String) {
         DispatchQueue.main.async {
-            self.statusLabel?.stringValue = "Error: Failed to start"
+            self.statusLabel?.stringValue = NSLocalizedString("error_failed_to_start", comment: "Generic start error")
         }
     }
 }
