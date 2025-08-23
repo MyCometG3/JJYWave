@@ -23,9 +23,9 @@ JJYWave is an experimental macOS Cocoa application written in Swift that generat
   3. Wait for project to load (may take 1-2 minutes)
   4. Select appropriate development team in Signing & Capabilities if prompted
   5. Choose target device (typically "My Mac")
-  6. Build: ⌘B (Cmd+B) - takes 2-10 minutes, NEVER CANCEL
+  6. Build: ⌘B (Cmd+B) - takes 5-10 minutes, NEVER CANCEL
   7. Run: ⌘R (Cmd+R) - builds and launches application
-- **Build time estimate**: 2-10 minutes for clean build. NEVER CANCEL builds in progress.
+- **Build time estimate**: 5-10 minutes for clean build. NEVER CANCEL builds in progress.
 - **CRITICAL**: No command-line alternatives exist. Must use Xcode IDE.
 
 ### Common Xcode Commands (Keyboard Shortcuts)
