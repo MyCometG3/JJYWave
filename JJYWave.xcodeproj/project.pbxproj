@@ -8,12 +8,16 @@
 
 /* Begin PBXBuildFile section */
 		163F5D322E59A36C004B34CE /* Localizable.xcstrings in Resources */ = {isa = PBXBuildFile; fileRef = 163F5D312E59A36C004B34CE /* Localizable.xcstrings */; };
+		163F5D492E59B237004B34CE /* LICENSE.txt in Resources */ = {isa = PBXBuildFile; fileRef = 163F5D472E59B237004B34CE /* LICENSE.txt */; };
+		163F5D4A2E59B237004B34CE /* README.md in Resources */ = {isa = PBXBuildFile; fileRef = 163F5D482E59B237004B34CE /* README.md */; };
 		16AA8FEB2E598B4F003D8C4F /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 16AA8FE02E598B4F003D8C4F /* Main.storyboard */; };
 		16AA8FEC2E598B4F003D8C4F /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 16AA8FD72E598B4F003D8C4F /* Assets.xcassets */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
 		163F5D312E59A36C004B34CE /* Localizable.xcstrings */ = {isa = PBXFileReference; lastKnownFileType = text.json.xcstrings; path = Localizable.xcstrings; sourceTree = "<group>"; };
+		163F5D472E59B237004B34CE /* LICENSE.txt */ = {isa = PBXFileReference; lastKnownFileType = text; path = LICENSE.txt; sourceTree = "<group>"; };
+		163F5D482E59B237004B34CE /* README.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = README.md; sourceTree = "<group>"; };
 		168B38FE2E53F2B300F5004F /* JJYWave.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = JJYWave.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		16AA8FD72E598B4F003D8C4F /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 		16AA8FD82E598B4F003D8C4F /* JJYWave.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = JJYWave.entitlements; sourceTree = "<group>"; };
@@ -42,6 +46,8 @@
 		168B38F52E53F2B300F5004F = {
 			isa = PBXGroup;
 			children = (
+				163F5D472E59B237004B34CE /* LICENSE.txt */,
+				163F5D482E59B237004B34CE /* README.md */,
 				163F5D312E59A36C004B34CE /* Localizable.xcstrings */,
 				16AA8FD72E598B4F003D8C4F /* Assets.xcassets */,
 				16AA8FD82E598B4F003D8C4F /* JJYWave.entitlements */,
@@ -125,6 +131,8 @@
 			files = (
 				16AA8FEB2E598B4F003D8C4F /* Main.storyboard in Resources */,
 				16AA8FEC2E598B4F003D8C4F /* Assets.xcassets in Resources */,
+				163F5D492E59B237004B34CE /* LICENSE.txt in Resources */,
+				163F5D4A2E59B237004B34CE /* README.md in Resources */,
 				163F5D322E59A36C004B34CE /* Localizable.xcstrings in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
