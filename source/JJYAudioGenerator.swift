@@ -78,9 +78,6 @@ class JJYAudioGenerator {
         case bit0, bit1, mark
         case morse
     }
-    private var currentFrame: [JJYSymbol] = []
-    private var currentSecondIndex: Int = 0
-    private var phase: Double = 0.0
     // JJY長波 40/60kHz の変調度: 通常フレームは10–100%（呼出符号部を除く）。
     // ここでは「振幅10%」を採用（以前は sqrt(0.1) で電力10%相当になっていたためJJY仕様に合わせ修正）。
     private let lowAmplitudeScale: Double = 0.1
