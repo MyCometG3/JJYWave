@@ -320,7 +320,8 @@ class JJYAudioGenerator {
         let cal = jstCalendar()
         let now = Date()
         let currentSecond = cal.component(.second, from: now)
-        let baseTime = nextMinuteStart(from: now, calendar: cal)
+        // フレームは「現在の分」の先頭マーカー時刻を基準に構築する
+        let baseTime = currentMinuteStart(from: now, calendar: cal)
         // フレーム構築をビルダーに委譲
         let frameOptions = JJYFrameBuilder.Options(enableCallsign: enableCallsign,
                                                    enableServiceStatusBits: enableServiceStatusBits,
@@ -329,6 +330,8 @@ class JJYAudioGenerator {
                                                    leapSecondInserted: leapSecondInserted,
                                                    serviceStatusBits: serviceStatusBits)
         currentFrame = JJYFrameBuilder().build(for: baseTime, calendar: cal, options: frameOptions)
+        // デバッグ: 構築したフレームの要約を出力
+        logFrame(currentFrame, baseTime: baseTime, calendar: cal)
         // 初回は次の整数秒境界で (現在秒+1) のシンボルを送る
         currentSecondIndex = (currentSecond + 1) % currentFrame.count
         
@@ -360,6 +363,7 @@ class JJYAudioGenerator {
             // 遅延や進み過ぎを検知して再同期（しきい値: 200ms）
             let toleranceTicks = UInt64(0.2 * self.hostClockFrequency)
             let minLeadTicks = UInt64(0.02 * self.hostClockFrequency)
+            var didRebuildInResync = false
             if hostNowInner > (self.nextHostTime &+ toleranceTicks) || self.nextHostTime <= (hostNowInner &+ minLeadTicks) {
                 // 現在時刻から次の整数秒境界へ再同期
                 let nowEpoch2 = Date().timeIntervalSince1970
@@ -369,7 +373,7 @@ class JJYAudioGenerator {
                 // 現在秒+1のシンボルに合わせ直す
                 let secNow = cal.component(.second, from: Date())
                 self.currentSecondIndex = (secNow + 1) % self.currentFrame.count
-                // 分境界ならフレーム再構築
+                // 分境界ならフレーム再構築（次分の先頭マーカー時刻で構築）
                 if self.currentSecondIndex == 0 {
                     let baseTime2 = self.nextMinuteStart(from: Date(), calendar: cal)
                     let frameOptions2 = JJYFrameBuilder.Options(enableCallsign: self.enableCallsign,
@@ -379,7 +383,21 @@ class JJYAudioGenerator {
                                                                 leapSecondInserted: self.leapSecondInserted,
                                                                 serviceStatusBits: self.serviceStatusBits)
                     self.currentFrame = JJYFrameBuilder().build(for: baseTime2, calendar: cal, options: frameOptions2)
+                    self.logFrame(self.currentFrame, baseTime: baseTime2, calendar: cal)
+                    didRebuildInResync = true
                 }
+            }
+            // 分境界（currentSecondIndex==0）では毎回新しいフレームに切り替える（上で再構築していなければ）
+            if self.currentSecondIndex == 0 && !didRebuildInResync {
+                let baseTime3 = self.nextMinuteStart(from: Date(), calendar: cal)
+                let frameOptions3 = JJYFrameBuilder.Options(enableCallsign: self.enableCallsign,
+                                                            enableServiceStatusBits: self.enableServiceStatusBits,
+                                                            leapSecondPlan: self.leapSecondPlan,
+                                                            leapSecondPending: self.leapSecondPending,
+                                                            leapSecondInserted: self.leapSecondInserted,
+                                                            serviceStatusBits: self.serviceStatusBits)
+                self.currentFrame = JJYFrameBuilder().build(for: baseTime3, calendar: cal, options: frameOptions3)
+                self.logFrame(self.currentFrame, baseTime: baseTime3, calendar: cal)
             }
             let when = AVAudioTime(hostTime: self.nextHostTime)
             self.scheduleSecond(symbol: self.currentFrame[self.currentSecondIndex], secondIndex: self.currentSecondIndex, when: when)
@@ -439,6 +457,63 @@ class JJYAudioGenerator {
         let sec = calendar.component(.second, from: date)
         let floor = calendar.date(byAdding: .second, value: -sec, to: date) ?? date
         return calendar.date(byAdding: .minute, value: 1, to: floor) ?? date
+    }
+    
+    // 現在の分の開始（分床）を返す
+    private func currentMinuteStart(from date: Date, calendar: Calendar) -> Date {
+        let sec = calendar.component(.second, from: date)
+        return calendar.date(byAdding: .second, value: -sec, to: date) ?? date
+    }
+    
+    // デバッグ: フレーム内容を要約して出力
+    private func logFrame(_ frame: [JJYSymbol], baseTime: Date, calendar: Calendar) {
+        let df = DateFormatter()
+        df.calendar = calendar
+        df.timeZone = calendar.timeZone
+        df.dateFormat = "yyyy-MM-dd HH:mm"
+        let ts = df.string(from: baseTime)
+        // 先頭10秒のパターン（:00〜:09）
+        let maxIdx = min(9, frame.count - 1)
+        var pattern = ""
+        if maxIdx >= 0 {
+            for i in 0...maxIdx { pattern.append(symbolChar(frame[i])) }
+        }
+        // 分の値とBCDビット
+        let minute = calendar.component(.minute, from: baseTime)
+        let minT = minute / 10
+        let minO = minute % 10
+        let tenBits = [1,2,3].map { bitValue(in: frame, at: $0) }.map(String.init).joined()
+        let oneBits = [5,6,7,8].map { bitValue(in: frame, at: $0) }.map(String.init).joined()
+        // パリティ（仕様: 偶数）
+        let paHour = bitValue(in: frame, at: 36)
+        let paMin  = bitValue(in: frame, at: 37)
+        let calcPaHour = ([12,13,15,16,17,18].reduce(0) { $0 + bitValue(in: frame, at: $1) }) % 2
+        let calcPaMin  = ([1,2,3,5,6,7,8].reduce(0) { $0 + bitValue(in: frame, at: $1) }) % 2
+        // うるう秒フラグ
+        let ls1 = bitValue(in: frame, at: 53)
+        let ls2 = bitValue(in: frame, at: 54)
+        logger.debug("JJY frame @M:")
+        logger.debug("  Base (JST): \(ts)")
+        logger.debug("  :00-:09     \(pattern)")
+        logger.debug("  Minute      = \(minute)  BCD T=\(minT) O=\(minO)  bits T(1..3)=\(tenBits) O(5..8)=\(oneBits)")
+        logger.debug("  Parity(H)   = sent \(paHour) / calc \(calcPaHour)  Parity(M) = sent \(paMin) / calc \(calcPaMin)")
+        logger.debug("  LS1/LS2     = \(ls1)/\(ls2)")
+        // フレーム長（59/60/61）
+        logger.debug("  Frame secs  = \(frame.count))")
+    }
+    
+    private func symbolChar(_ s: JJYSymbol) -> Character {
+        switch s {
+        case .mark: return "M"
+        case .bit1: return "1"
+        case .bit0: return "0"
+        case .morse: return "M" // 呼出符号期間は便宜的に M
+        }
+    }
+    
+    private func bitValue(in frame: [JJYSymbol], at index: Int) -> Int {
+        guard index >= 0 && index < frame.count else { return 0 }
+        return (frame[index] == .bit1) ? 1 : 0
     }
     
     // MARK: - Private Helpers (Hardware Sample Rate)
