@@ -12,32 +12,35 @@ protocol JJYAudioGeneratorDelegate: AnyObject {
 
 class JJYAudioGenerator {
     
+    // MARK: - Thread Safety
+    private let concurrencyQueue = DispatchQueue(label: "com.MyCometG3.JJYWave.AudioGenerator", qos: .userInitiated)
+    
     // MARK: - Properties
     private let audioEngineManager = AudioEngineManager()
     private let frameService = JJYFrameService()
     private let scheduler: JJYScheduler
-    private var isGenerating = false
+    private var _isGenerating = false
     private let logger = Logger(subsystem: "com.MyCometG3.JJYWave", category: "JJY")
     
     weak var delegate: JJYAudioGeneratorDelegate?
     
     // MARK: - Bands
     enum CarrierBand { case jjy40, jjy60 }
-    private(set) var band: CarrierBand = .jjy40
+    private var _band: CarrierBand = .jjy40
     
     // MARK: - Waveform
     enum Waveform { case sine, square }
-    public var waveform: Waveform = .sine
+    private var _waveform: Waveform = .sine
     
     // MARK: - Audio Configuration (Public Parameters)
-    public var sampleRate: Double = 96000
-    public var testFrequency: Double = 13333
-    public var actualFrequency: Double = 40000
-    private var carrierFrequency: Double = 13333
-    public var channelCount: AVAudioChannelCount = 2
+    private var _sampleRate: Double = 96000
+    private var _testFrequency: Double = 13333
+    private var _actualFrequency: Double = 40000
+    private var _carrierFrequency: Double = 13333
+    private var _channelCount: AVAudioChannelCount = 2
     
     // 設定オブジェクト（将来の主API）。現行publicプロパティと双方向同期。
-    private(set) var configuration: JJYConfiguration = JJYConfiguration(
+    private var _configuration: JJYConfiguration = JJYConfiguration(
         sampleRate: 96000,
         channelCount: 2,
         isTestModeEnabled: true,
@@ -53,25 +56,19 @@ class JJYAudioGenerator {
     )
     
     // MARK: - Frequency Control
-    var isTestModeEnabled: Bool = true {
-        didSet {
-            carrierFrequency = isTestModeEnabled ? testFrequency : actualFrequency
-            // テストモード=矩形、JJYモード=正弦 に強制
-            updateWaveform(isTestModeEnabled ? .square : .sine)
-        }
-    }
+    private var _isTestModeEnabled: Bool = true
     
     // MARK: - Options: Callsign / ST / Leap Second
-    public var enableCallsign: Bool = true
-    public var enableServiceStatusBits: Bool = true
+    private var _enableCallsign: Bool = true
+    private var _enableServiceStatusBits: Bool = true
     // 手動テスト用（計画が未設定のときのみ使用）
-    public var leapSecondPending: Bool = false
-    public var leapSecondInserted: Bool = true // true=+1秒挿入, false=−1秒削除
-    public var serviceStatusBits: (st1: Bool, st2: Bool, st3: Bool, st4: Bool, st5: Bool, st6: Bool) = (false,false,false,false,false,false)
+    private var _leapSecondPending: Bool = false
+    private var _leapSecondInserted: Bool = true // true=+1秒挿入, false=−1秒削除
+    private var _serviceStatusBits: (st1: Bool, st2: Bool, st3: Bool, st4: Bool, st5: Bool, st6: Bool) = (false,false,false,false,false,false)
     
     // 運用計画（自動スケジュール）: 指定のUTC月末で+1/−1秒
     enum LeapKind { case insert, delete }
-    public var leapSecondPlan: (yearUTC: Int, monthUTC: Int, kind: LeapKind)? = nil
+    private var _leapSecondPlan: (yearUTC: Int, monthUTC: Int, kind: LeapKind)? = nil
     
     // MARK: - JJY Symbol & State
     enum JJYSymbol {
@@ -83,7 +80,77 @@ class JJYAudioGenerator {
     private let lowAmplitudeScale: Double = 0.1
     private let outputGain: Double = 0.3
     // State that was previously managed directly
-    private var phase: Double = 0.0
+    private var _phase: Double = 0.0
+
+    // MARK: - Thread-Safe Public Properties
+    
+    var band: CarrierBand {
+        return concurrencyQueue.sync { _band }
+    }
+    
+    public var waveform: Waveform {
+        get { concurrencyQueue.sync { _waveform } }
+        set { concurrencyQueue.async { [weak self] in self?._updateWaveform(newValue) } }
+    }
+    
+    public var sampleRate: Double {
+        get { concurrencyQueue.sync { _sampleRate } }
+        set { concurrencyQueue.async { [weak self] in self?._updateSampleRate(newValue) } }
+    }
+    
+    public var testFrequency: Double {
+        get { concurrencyQueue.sync { _testFrequency } }
+        set { concurrencyQueue.async { [weak self] in self?._updateTestFrequency(newValue) } }
+    }
+    
+    public var actualFrequency: Double {
+        get { concurrencyQueue.sync { _actualFrequency } }
+        set { concurrencyQueue.async { [weak self] in self?._updateActualFrequency(newValue) } }
+    }
+    
+    public var channelCount: AVAudioChannelCount {
+        get { concurrencyQueue.sync { _channelCount } }
+        set { concurrencyQueue.async { [weak self] in self?._updateChannelCount(newValue) } }
+    }
+    
+    var configuration: JJYConfiguration {
+        return concurrencyQueue.sync { _configuration }
+    }
+    
+    var isTestModeEnabled: Bool {
+        get { concurrencyQueue.sync { _isTestModeEnabled } }
+        set { concurrencyQueue.async { [weak self] in self?._updateIsTestModeEnabled(newValue) } }
+    }
+    
+    public var enableCallsign: Bool {
+        get { concurrencyQueue.sync { _enableCallsign } }
+        set { concurrencyQueue.async { [weak self] in self?._enableCallsign = newValue } }
+    }
+    
+    public var enableServiceStatusBits: Bool {
+        get { concurrencyQueue.sync { _enableServiceStatusBits } }
+        set { concurrencyQueue.async { [weak self] in self?._enableServiceStatusBits = newValue } }
+    }
+    
+    public var leapSecondPending: Bool {
+        get { concurrencyQueue.sync { _leapSecondPending } }
+        set { concurrencyQueue.async { [weak self] in self?._leapSecondPending = newValue } }
+    }
+    
+    public var leapSecondInserted: Bool {
+        get { concurrencyQueue.sync { _leapSecondInserted } }
+        set { concurrencyQueue.async { [weak self] in self?._leapSecondInserted = newValue } }
+    }
+    
+    public var serviceStatusBits: (st1: Bool, st2: Bool, st3: Bool, st4: Bool, st5: Bool, st6: Bool) {
+        get { concurrencyQueue.sync { _serviceStatusBits } }
+        set { concurrencyQueue.async { [weak self] in self?._serviceStatusBits = newValue } }
+    }
+    
+    public var leapSecondPlan: (yearUTC: Int, monthUTC: Int, kind: LeapKind)? {
+        get { concurrencyQueue.sync { _leapSecondPlan } }
+        set { concurrencyQueue.async { [weak self] in self?._leapSecondPlan = newValue } }
+    }
 
     // MARK: - Initialization
     init() {
@@ -91,87 +158,174 @@ class JJYAudioGenerator {
         scheduler = JJYScheduler(frameService: frameService)
         scheduler.delegate = self
         
-        setupAudioEngine()
-        // 初期構成をpublicプロパティへ同期
-        syncFromConfiguration()
-        // 初期キャリア周波数を現行状態から再計算
-        carrierFrequency = isTestModeEnabled ? testFrequency : actualFrequency
-        // 初期波形をモードに合わせて強制
-        updateWaveform(isTestModeEnabled ? .square : .sine)
+        concurrencyQueue.sync {
+            setupAudioEngine()
+            // 初期構成をpublicプロパティへ同期
+            syncFromConfiguration()
+            // 初期キャリア周波数を現行状態から再計算
+            _carrierFrequency = _isTestModeEnabled ? _testFrequency : _actualFrequency
+            // 初期波形をモードに合わせて強制
+            _updateWaveform(_isTestModeEnabled ? .square : .sine)
+        }
     }
     
     deinit {
-        stopGeneration()
+        concurrencyQueue.sync {
+            stopGeneration()
+        }
+    }
+    
+    // MARK: - Thread-Safe Property Update Methods
+    
+    private func _updateWaveform(_ newWaveform: Waveform) {
+        _waveform = newWaveform
+        _configuration.waveform = newWaveform
+    }
+    
+    private func _updateSampleRate(_ newSampleRate: Double) {
+        if _isGenerating {
+            logger.error("Cannot change sampleRate while generating")
+            return
+        }
+        _sampleRate = newSampleRate
+        _configuration.sampleRate = newSampleRate
+        // まずHW SRの引き上げを試行
+        _ = audioEngineManager.trySetHardwareSampleRate(_sampleRate)
+        setupAudioEngine()
+        logger.info("Sample rate updated to: \(self._sampleRate, format: .fixed(precision: 0)) Hz")
+    }
+    
+    private func _updateTestFrequency(_ newFrequency: Double) {
+        _testFrequency = newFrequency
+        _configuration.testFrequency = newFrequency
+        if _isTestModeEnabled {
+            _carrierFrequency = _testFrequency
+        }
+        logger.info("Test frequency updated to: \(self._testFrequency, format: .fixed(precision: 0)) Hz")
+    }
+    
+    private func _updateActualFrequency(_ newFrequency: Double) {
+        _actualFrequency = newFrequency
+        _configuration.actualFrequency = newFrequency
+        if !_isTestModeEnabled {
+            _carrierFrequency = _actualFrequency
+        }
+        logger.info("Actual frequency updated to: \(self._actualFrequency, format: .fixed(precision: 0)) Hz")
+    }
+    
+    private func _updateChannelCount(_ newChannelCount: AVAudioChannelCount) {
+        if _isGenerating {
+            logger.error("Cannot change channelCount while generating")
+            return
+        }
+        _channelCount = newChannelCount
+        _configuration.channelCount = UInt32(newChannelCount)
+        setupAudioEngine()
+    }
+    
+    private func _updateIsTestModeEnabled(_ newValue: Bool) {
+        _isTestModeEnabled = newValue
+        _carrierFrequency = _isTestModeEnabled ? _testFrequency : _actualFrequency
+        // テストモード=矩形、JJYモード=正弦 に強制
+        _updateWaveform(_isTestModeEnabled ? .square : .sine)
     }
     
     // MARK: - Public Methods
     func startGeneration() {
-        guard !isGenerating else { return }
+        concurrencyQueue.async { [weak self] in
+            self?._startGeneration()
+        }
+    }
+    
+    func stopGeneration() {
+        concurrencyQueue.async { [weak self] in
+            self?._stopGeneration()
+        }
+    }
+    
+    var isActive: Bool {
+        return concurrencyQueue.sync { _isGenerating }
+    }
+    
+    // MARK: - Private Implementation Methods
+    private func _startGeneration() {
+        guard !_isGenerating else { return }
         
         do {
             try audioEngineManager.startEngine()
             audioEngineManager.startPlayer()
-            isGenerating = true
+            _isGenerating = true
             
-            delegate?.audioGeneratorDidStart()
+            // Ensure delegate callback is on main queue
+            DispatchQueue.main.async { [weak self] in
+                self?.delegate?.audioGeneratorDidStart()
+            }
             
             // Update scheduler configuration and start
             scheduler.updateConfiguration(
-                enableCallsign: enableCallsign,
-                enableServiceStatusBits: enableServiceStatusBits,
-                leapSecondPlan: leapSecondPlan,
-                leapSecondPending: leapSecondPending,
-                leapSecondInserted: leapSecondInserted,
-                serviceStatusBits: serviceStatusBits
+                enableCallsign: _enableCallsign,
+                enableServiceStatusBits: _enableServiceStatusBits,
+                leapSecondPlan: _leapSecondPlan,
+                leapSecondPending: _leapSecondPending,
+                leapSecondInserted: _leapSecondInserted,
+                serviceStatusBits: _serviceStatusBits
             )
             scheduler.startScheduling()
             
         } catch {
             let message = "Failed to start audio engine: \(String(describing: error))"
             logger.error("\(message)")
-            delegate?.audioGeneratorDidEncounterError(message)
+            // Ensure delegate callback is on main queue
+            DispatchQueue.main.async { [weak self] in
+                self?.delegate?.audioGeneratorDidEncounterError(message)
+            }
         }
     }
     
-    func stopGeneration() {
-        guard isGenerating else { return }
+    private func _stopGeneration() {
+        guard _isGenerating else { return }
         
         audioEngineManager.stopEngine()
         scheduler.stopScheduling()
         
         // 状態リセット（次回開始時のクリーンスタート用）
-        phase = 0.0
+        _phase = 0.0
         
-        isGenerating = false
+        _isGenerating = false
         
-        delegate?.audioGeneratorDidStop()
-    }
-    
-    var isActive: Bool {
-        return isGenerating
+        // Ensure delegate callback is on main queue
+        DispatchQueue.main.async { [weak self] in
+            self?.delegate?.audioGeneratorDidStop()
+        }
     }
     
     // MARK: - Band API
     /// 40kHz/60kHz を切替。停止中のみ。60kHz時は必要に応じてサンプルレートを 192kHz に自動変更。
     @discardableResult
     func updateBand(_ newBand: CarrierBand) -> Bool {
-        if isGenerating {
+        return concurrencyQueue.sync {
+            return _updateBand(newBand)
+        }
+    }
+    
+    private func _updateBand(_ newBand: CarrierBand) -> Bool {
+        if _isGenerating {
             logger.error("Cannot change band while generating")
             return false
         }
         
-        band = newBand
+        _band = newBand
         switch newBand {
         case .jjy40:
-            actualFrequency = 40000
-            if sampleRate < 80000 { sampleRate = 96000 }
+            _actualFrequency = 40000
+            if _sampleRate < 80000 { _sampleRate = 96000 }
         case .jjy60:
-            actualFrequency = 60000
-            if sampleRate < 120000 { sampleRate = 192000 }
+            _actualFrequency = 60000
+            if _sampleRate < 120000 { _sampleRate = 192000 }
         }
-        carrierFrequency = isTestModeEnabled ? testFrequency : actualFrequency
+        _carrierFrequency = _isTestModeEnabled ? _testFrequency : _actualFrequency
         // まずHW SRの引き上げを試行
-        _ = audioEngineManager.trySetHardwareSampleRate(sampleRate)
+        _ = audioEngineManager.trySetHardwareSampleRate(_sampleRate)
         // エンジン再セットアップ
         setupAudioEngine()
         return true
@@ -179,8 +333,9 @@ class JJYAudioGenerator {
     
     /// 波形の更新（設定と本体の両方を同期）
     public func updateWaveform(_ newWaveform: Waveform) {
-        self.waveform = newWaveform
-        self.configuration.waveform = newWaveform
+        concurrencyQueue.async { [weak self] in
+            self?._updateWaveform(newWaveform)
+        }
     }
     
     // MARK: - Configuration API
@@ -189,105 +344,104 @@ class JJYAudioGenerator {
     /// - 戻り値: 全項目が適用できた場合に true。適用不可項目があれば false を返し、それ以外は適用される。
     @discardableResult
     func applyConfiguration(_ newConfig: JJYConfiguration) -> Bool {
+        return concurrencyQueue.sync {
+            return _applyConfiguration(newConfig)
+        }
+    }
+    
+    private func _applyConfiguration(_ newConfig: JJYConfiguration) -> Bool {
         // フォーマット影響項目の検査
-        let formatChanged = (newConfig.sampleRate != sampleRate) || (AVAudioChannelCount(newConfig.channelCount) != channelCount)
-        if formatChanged && isGenerating {
+        let formatChanged = (newConfig.sampleRate != _sampleRate) || (AVAudioChannelCount(newConfig.channelCount) != _channelCount)
+        if formatChanged && _isGenerating {
             logger.error("Cannot change sampleRate/channelCount while generating")
             return false
         }
         // 非フォーマット項目は即時反映
-        isTestModeEnabled = newConfig.isTestModeEnabled
-        testFrequency = newConfig.testFrequency
-        actualFrequency = newConfig.actualFrequency
-        enableCallsign = newConfig.enableCallsign
-        enableServiceStatusBits = newConfig.enableServiceStatusBits
-        leapSecondPending = newConfig.leapSecondPending
-        leapSecondInserted = newConfig.leapSecondInserted
-        serviceStatusBits = newConfig.serviceStatusBits
-        leapSecondPlan = newConfig.leapSecondPlan
+        _isTestModeEnabled = newConfig.isTestModeEnabled
+        _testFrequency = newConfig.testFrequency
+        _actualFrequency = newConfig.actualFrequency
+        _enableCallsign = newConfig.enableCallsign
+        _enableServiceStatusBits = newConfig.enableServiceStatusBits
+        _leapSecondPending = newConfig.leapSecondPending
+        _leapSecondInserted = newConfig.leapSecondInserted
+        _serviceStatusBits = newConfig.serviceStatusBits
+        _leapSecondPlan = newConfig.leapSecondPlan
         // モードに応じて波形を強制
-        updateWaveform(isTestModeEnabled ? .square : .sine)
+        _updateWaveform(_isTestModeEnabled ? .square : .sine)
         // 搬送周波数の再計算
-        carrierFrequency = isTestModeEnabled ? testFrequency : actualFrequency
+        _carrierFrequency = _isTestModeEnabled ? _testFrequency : _actualFrequency
         // フォーマット変更の適用（停止中のみ）
-        if formatChanged && !isGenerating {
-            sampleRate = newConfig.sampleRate
-            channelCount = AVAudioChannelCount(newConfig.channelCount)
+        if formatChanged && !_isGenerating {
+            _sampleRate = newConfig.sampleRate
+            _channelCount = AVAudioChannelCount(newConfig.channelCount)
             setupAudioEngine()
         }
         // 最後に保持（派生の waveform は上書き）
-        configuration = newConfig
-        configuration.waveform = waveform
+        _configuration = newConfig
+        _configuration.waveform = _waveform
         return true
     }
     
     /// 現在のpublicプロパティからconfigurationへ同期（初期化時に使用）。
     private func syncFromConfiguration() {
         let current = JJYConfiguration(
-            sampleRate: sampleRate,
-            channelCount: UInt32(channelCount),
-            isTestModeEnabled: isTestModeEnabled,
-            testFrequency: testFrequency,
-            actualFrequency: actualFrequency,
-            enableCallsign: enableCallsign,
-            enableServiceStatusBits: enableServiceStatusBits,
-            leapSecondPending: leapSecondPending,
-            leapSecondInserted: leapSecondInserted,
-            serviceStatusBits: serviceStatusBits,
-            leapSecondPlan: leapSecondPlan,
-            waveform: waveform
+            sampleRate: _sampleRate,
+            channelCount: UInt32(_channelCount),
+            isTestModeEnabled: _isTestModeEnabled,
+            testFrequency: _testFrequency,
+            actualFrequency: _actualFrequency,
+            enableCallsign: _enableCallsign,
+            enableServiceStatusBits: _enableServiceStatusBits,
+            leapSecondPending: _leapSecondPending,
+            leapSecondInserted: _leapSecondInserted,
+            serviceStatusBits: _serviceStatusBits,
+            leapSecondPlan: _leapSecondPlan,
+            waveform: _waveform
         )
-        configuration = current
+        _configuration = current
     }
     
     // MARK: - Public Configuration Methods（従来API: 互換のため残置）
     public func updateSampleRate(_ newSampleRate: Double) {
-        if isGenerating {
-            logger.error("Cannot change sampleRate while generating")
-            return
+        concurrencyQueue.async { [weak self] in
+            self?._updateSampleRate(newSampleRate)
         }
-        sampleRate = newSampleRate
-        configuration.sampleRate = newSampleRate
-        // まずHW SRの引き上げを試行
-        _ = audioEngineManager.trySetHardwareSampleRate(sampleRate)
-        setupAudioEngine()
-        logger.info("Sample rate updated to: \(self.sampleRate, format: .fixed(precision: 0)) Hz")
     }
     
     public func updateTestFrequency(_ newFrequency: Double) {
-        testFrequency = newFrequency
-        configuration.testFrequency = newFrequency
-        if isTestModeEnabled {
-            carrierFrequency = testFrequency
+        concurrencyQueue.async { [weak self] in
+            self?._updateTestFrequency(newFrequency)
         }
-        // 明示的に self を付与（Logger の補間はクロージャ評価）
-        logger.info("Test frequency updated to: \(self.testFrequency, format: .fixed(precision: 0)) Hz")
     }
     
     public func updateActualFrequency(_ newFrequency: Double) {
-        actualFrequency = newFrequency
-        configuration.actualFrequency = newFrequency
-        if !isTestModeEnabled {
-            carrierFrequency = actualFrequency
+        concurrencyQueue.async { [weak self] in
+            self?._updateActualFrequency(newFrequency)
         }
-        // 明示的に self を付与（Logger の補間はクロージャ評価）
-        logger.info("Actual frequency updated to: \(self.actualFrequency, format: .fixed(precision: 0)) Hz")
     }
     
     public func getCurrentConfiguration() -> (sampleRate: Double, testFreq: Double, actualFreq: Double, isTestMode: Bool) {
-        return (sampleRate: sampleRate,
-                testFreq: testFrequency,
-                actualFreq: actualFrequency,
-                isTestMode: isTestModeEnabled)
+        return concurrencyQueue.sync {
+            return (sampleRate: _sampleRate,
+                    testFreq: _testFrequency,
+                    actualFreq: _actualFrequency,
+                    isTestMode: _isTestModeEnabled)
+        }
     }
     
     // MARK: - Private Methods - Audio Setup
     private func setupAudioEngine() {
-        audioEngineManager.setupAudioEngine(sampleRate: sampleRate, channelCount: channelCount)
+        audioEngineManager.setupAudioEngine(sampleRate: _sampleRate, channelCount: _channelCount)
     }
     
     // MARK: - Buffer generation per second（ディスパッチャ）
     private func scheduleSecond(symbol: JJYSymbol, secondIndex: Int, when: AVAudioTime?) {
+        concurrencyQueue.async { [weak self] in
+            self?._scheduleSecond(symbol: symbol, secondIndex: secondIndex, when: when)
+        }
+    }
+    
+    private func _scheduleSecond(symbol: JJYSymbol, secondIndex: Int, when: AVAudioTime?) {
         // プレーヤーノードの出力フォーマット（接続時に指定した希望SR）を使用
         guard let playerFormat = audioEngineManager.getPlayerFormat() else {
             logger.error("Player format not available")
@@ -306,12 +460,12 @@ class JJYAudioGenerator {
         guard let buffer = AudioBufferFactory.makeSecondBuffer(symbol: symbol,
                                                                secondIndex: secondIndex,
                                                                format: format,
-                                                               carrierFrequency: carrierFrequency,
+                                                               carrierFrequency: _carrierFrequency,
                                                                outputGain: outputGain,
                                                                lowAmplitudeScale: lowAmplitudeScale,
-                                                               phase: &phase,
+                                                               phase: &_phase,
                                                                morse: morse,
-                                                               waveform: waveform) else {
+                                                               waveform: _waveform) else {
             logger.error("Failed to create PCM buffer")
             return
         }
