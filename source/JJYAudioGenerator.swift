@@ -90,27 +90,47 @@ class JJYAudioGenerator {
     
     public var waveform: Waveform {
         get { concurrencyQueue.sync { _waveform } }
-        set { concurrencyQueue.async { [weak self] in self?._updateWaveform(newValue) } }
+        set { 
+            concurrencyQueue.sync { [weak self] in 
+                self?._updateWaveform(newValue) 
+            }
+        }
     }
     
     public var sampleRate: Double {
         get { concurrencyQueue.sync { _sampleRate } }
-        set { concurrencyQueue.async { [weak self] in self?._updateSampleRate(newValue) } }
+        set { 
+            concurrencyQueue.sync { [weak self] in 
+                self?._updateSampleRate(newValue) 
+            }
+        }
     }
     
     public var testFrequency: Double {
         get { concurrencyQueue.sync { _testFrequency } }
-        set { concurrencyQueue.async { [weak self] in self?._updateTestFrequency(newValue) } }
+        set { 
+            concurrencyQueue.sync { [weak self] in 
+                self?._updateTestFrequency(newValue) 
+            }
+        }
     }
     
     public var actualFrequency: Double {
         get { concurrencyQueue.sync { _actualFrequency } }
-        set { concurrencyQueue.async { [weak self] in self?._updateActualFrequency(newValue) } }
+        set { 
+            concurrencyQueue.sync { [weak self] in 
+                self?._updateActualFrequency(newValue) 
+            }
+        }
     }
     
     public var channelCount: AVAudioChannelCount {
         get { concurrencyQueue.sync { _channelCount } }
-        set { concurrencyQueue.async { [weak self] in self?._updateChannelCount(newValue) } }
+        set { 
+            concurrencyQueue.sync { [weak self] in 
+                self?._updateChannelCount(newValue) 
+            }
+        }
     }
     
     var configuration: JJYConfiguration {
@@ -119,37 +139,65 @@ class JJYAudioGenerator {
     
     var isTestModeEnabled: Bool {
         get { concurrencyQueue.sync { _isTestModeEnabled } }
-        set { concurrencyQueue.async { [weak self] in self?._updateIsTestModeEnabled(newValue) } }
+        set { 
+            concurrencyQueue.sync { [weak self] in 
+                self?._updateIsTestModeEnabled(newValue) 
+            }
+        }
     }
     
     public var enableCallsign: Bool {
         get { concurrencyQueue.sync { _enableCallsign } }
-        set { concurrencyQueue.async { [weak self] in self?._enableCallsign = newValue } }
+        set { 
+            concurrencyQueue.sync { [weak self] in 
+                self?._enableCallsign = newValue 
+            }
+        }
     }
     
     public var enableServiceStatusBits: Bool {
         get { concurrencyQueue.sync { _enableServiceStatusBits } }
-        set { concurrencyQueue.async { [weak self] in self?._enableServiceStatusBits = newValue } }
+        set { 
+            concurrencyQueue.sync { [weak self] in 
+                self?._enableServiceStatusBits = newValue 
+            }
+        }
     }
     
     public var leapSecondPending: Bool {
         get { concurrencyQueue.sync { _leapSecondPending } }
-        set { concurrencyQueue.async { [weak self] in self?._leapSecondPending = newValue } }
+        set { 
+            concurrencyQueue.sync { [weak self] in 
+                self?._leapSecondPending = newValue 
+            }
+        }
     }
     
     public var leapSecondInserted: Bool {
         get { concurrencyQueue.sync { _leapSecondInserted } }
-        set { concurrencyQueue.async { [weak self] in self?._leapSecondInserted = newValue } }
+        set { 
+            concurrencyQueue.sync { [weak self] in 
+                self?._leapSecondInserted = newValue 
+            }
+        }
     }
     
     public var serviceStatusBits: (st1: Bool, st2: Bool, st3: Bool, st4: Bool, st5: Bool, st6: Bool) {
         get { concurrencyQueue.sync { _serviceStatusBits } }
-        set { concurrencyQueue.async { [weak self] in self?._serviceStatusBits = newValue } }
+        set { 
+            concurrencyQueue.sync { [weak self] in 
+                self?._serviceStatusBits = newValue 
+            }
+        }
     }
     
     public var leapSecondPlan: (yearUTC: Int, monthUTC: Int, kind: LeapKind)? {
         get { concurrencyQueue.sync { _leapSecondPlan } }
-        set { concurrencyQueue.async { [weak self] in self?._leapSecondPlan = newValue } }
+        set { 
+            concurrencyQueue.sync { [weak self] in 
+                self?._leapSecondPlan = newValue 
+            }
+        }
     }
 
     // MARK: - Initialization
@@ -333,7 +381,7 @@ class JJYAudioGenerator {
     
     /// 波形の更新（設定と本体の両方を同期）
     public func updateWaveform(_ newWaveform: Waveform) {
-        concurrencyQueue.async { [weak self] in
+        concurrencyQueue.sync { [weak self] in
             self?._updateWaveform(newWaveform)
         }
     }
@@ -403,19 +451,19 @@ class JJYAudioGenerator {
     
     // MARK: - Public Configuration Methods（従来API: 互換のため残置）
     public func updateSampleRate(_ newSampleRate: Double) {
-        concurrencyQueue.async { [weak self] in
+        concurrencyQueue.sync { [weak self] in
             self?._updateSampleRate(newSampleRate)
         }
     }
     
     public func updateTestFrequency(_ newFrequency: Double) {
-        concurrencyQueue.async { [weak self] in
+        concurrencyQueue.sync { [weak self] in
             self?._updateTestFrequency(newFrequency)
         }
     }
     
     public func updateActualFrequency(_ newFrequency: Double) {
-        concurrencyQueue.async { [weak self] in
+        concurrencyQueue.sync { [weak self] in
             self?._updateActualFrequency(newFrequency)
         }
     }
