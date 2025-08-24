@@ -3,10 +3,11 @@ import Foundation
 // MARK: - FrequencyManagementProtocol
 /// Protocol for managing frequency calculations and formatting
 protocol FrequencyManagementProtocol {
-    func formatFrequencyDisplay(for generator: JJYAudioGenerator) -> String
+    func formatFrequencyDisplay(for generator: AudioGeneratorConfigurationProtocol, sampleRate: Double) -> String
     func formatTestFrequency(_ frequency: Double) -> String
-    func getSegmentIndex(for generator: JJYAudioGenerator) -> Int
+    func getSegmentIndex(for generator: AudioGeneratorConfigurationProtocol) -> Int
     func validateFrequencyChange(from currentIndex: Int, to newIndex: Int, isGenerating: Bool) -> FrequencyChangeResult
+    func configureFrequency(for generator: AudioGeneratorConfigurationProtocol, segmentIndex: Int)
 }
 
 // MARK: - FrequencyChangeResult
@@ -36,7 +37,7 @@ class FrequencyManagementService: FrequencyManagementProtocol {
     }
     
     // MARK: - Frequency Display Formatting
-    func formatFrequencyDisplay(for generator: JJYAudioGenerator) -> String {
+    func formatFrequencyDisplay(for generator: AudioGeneratorConfigurationProtocol, sampleRate: Double) -> String {
         let freqText: String
         if generator.isTestModeEnabled {
             let suffix = NSLocalizedString("test_mode_suffix", comment: "Test mode suffix")
@@ -46,7 +47,7 @@ class FrequencyManagementService: FrequencyManagementProtocol {
             let jjy40 = NSLocalizedString("jjy40_label", comment: "JJY40 label")
             freqText = (generator.band == .jjy60) ? "60.000 kHz (\(jjy60))" : "40.000 kHz (\(jjy40))"
         }
-        let srK = Int((generator.sampleRate / 1000.0).rounded())
+        let srK = Int((sampleRate / 1000.0).rounded())
         let format = NSLocalizedString("frequency_display_format", comment: "Frequency label format")
         return String(format: format, freqText, srK)
     }
@@ -57,7 +58,7 @@ class FrequencyManagementService: FrequencyManagementProtocol {
     }
     
     // MARK: - Segment Index Calculation
-    func getSegmentIndex(for generator: JJYAudioGenerator) -> Int {
+    func getSegmentIndex(for generator: AudioGeneratorConfigurationProtocol) -> Int {
         if generator.isTestModeEnabled {
             let tf = generator.testFrequency
             if abs(tf - FrequencyConstants.testFrequency13kHz) < FrequencyConstants.tolerance {
@@ -93,7 +94,7 @@ class FrequencyManagementService: FrequencyManagementProtocol {
     }
     
     // MARK: - Frequency Configuration
-    func configureFrequency(for generator: JJYAudioGenerator, segmentIndex: Int) {
+    func configureFrequency(for generator: AudioGeneratorConfigurationProtocol, segmentIndex: Int) {
         switch segmentIndex {
         case 0: // 13.333 kHz Test
             generator.isTestModeEnabled = true

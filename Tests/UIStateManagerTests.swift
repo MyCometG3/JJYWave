@@ -156,7 +156,7 @@ class MockFrequencyManager: FrequencyManagementProtocol {
     var configureFrequencyWasCalled = false
     var validationResult: FrequencyChangeResult = .allowed
     
-    func formatFrequencyDisplay(for generator: JJYAudioGenerator) -> String {
+    func formatFrequencyDisplay(for generator: AudioGeneratorConfigurationProtocol, sampleRate: Double) -> String {
         return "Mock Frequency Display"
     }
     
@@ -164,7 +164,7 @@ class MockFrequencyManager: FrequencyManagementProtocol {
         return "Mock Test Frequency"
     }
     
-    func getSegmentIndex(for generator: JJYAudioGenerator) -> Int {
+    func getSegmentIndex(for generator: AudioGeneratorConfigurationProtocol) -> Int {
         return 0
     }
     
@@ -173,7 +173,7 @@ class MockFrequencyManager: FrequencyManagementProtocol {
         return validationResult
     }
     
-    func configureFrequency(for generator: JJYAudioGenerator, segmentIndex: Int) {
+    func configureFrequency(for generator: AudioGeneratorConfigurationProtocol, segmentIndex: Int) {
         configureFrequencyWasCalled = true
     }
 }

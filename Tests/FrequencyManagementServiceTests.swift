@@ -107,9 +107,8 @@ class FrequencyManagementServiceTests: XCTestCase {
     func testFormatFrequencyDisplayForTestMode() {
         mockAudioGenerator.isTestModeEnabled = true
         mockAudioGenerator.testFrequency = 13333
-        mockAudioGenerator.sampleRate = 96000
         
-        let display = frequencyService.formatFrequencyDisplay(for: mockAudioGenerator)
+        let display = frequencyService.formatFrequencyDisplay(for: mockAudioGenerator, sampleRate: 96000)
         
         XCTAssertTrue(display.contains("13.333 kHz"), "Should contain test frequency")
         XCTAssertTrue(display.contains("96"), "Should contain sample rate in kHz")
@@ -118,9 +117,8 @@ class FrequencyManagementServiceTests: XCTestCase {
     func testFormatFrequencyDisplayForJJYMode() {
         mockAudioGenerator.isTestModeEnabled = false
         mockAudioGenerator.band = .jjy40
-        mockAudioGenerator.sampleRate = 96000
         
-        let display = frequencyService.formatFrequencyDisplay(for: mockAudioGenerator)
+        let display = frequencyService.formatFrequencyDisplay(for: mockAudioGenerator, sampleRate: 96000)
         
         XCTAssertTrue(display.contains("40.000 kHz"), "Should contain JJY40 frequency")
         XCTAssertTrue(display.contains("96"), "Should contain sample rate in kHz")
@@ -128,7 +126,7 @@ class FrequencyManagementServiceTests: XCTestCase {
 }
 
 // MARK: - Mock JJYAudioGenerator
-class MockJJYAudioGenerator {
+class MockJJYAudioGenerator: AudioGeneratorConfigurationProtocol {
     var isTestModeEnabled: Bool = true
     var testFrequency: Double = 13333
     var band: JJYAudioGenerator.CarrierBand = .jjy40

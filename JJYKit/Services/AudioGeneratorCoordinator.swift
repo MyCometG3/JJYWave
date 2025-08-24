@@ -90,7 +90,7 @@ class AudioGeneratorCoordinator: AudioGeneratorCoordinatorProtocol {
     
     func refreshUIState() {
         // Update frequency display
-        let frequencyDisplay = frequencyManager.formatFrequencyDisplay(for: audioGenerator)
+        let frequencyDisplay = frequencyManager.formatFrequencyDisplay(for: audioGenerator, sampleRate: audioGenerator.sampleRate)
         presentationController?.updateFrequencyDisplay(frequencyDisplay)
         
         // Update segment selection
