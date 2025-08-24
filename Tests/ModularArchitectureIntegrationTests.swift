@@ -14,10 +14,10 @@ class ModularArchitectureIntegrationTests: XCTestCase {
         audioGenerator = JJYAudioGenerator(audioEngine: mockAudioEngine)
         
         mockPresentationController = MockPresentationController()
-        coordinator = AudioGeneratorCoordinator(
-            audioGenerator: audioGenerator,
-            presentationController: mockPresentationController
-        )
+        
+        // Initialize coordinator without automatic delegate setup (weak reference pattern)
+        coordinator = AudioGeneratorCoordinator(audioGenerator: audioGenerator)
+        coordinator.setPresentationController(mockPresentationController)
         coordinator.setupAudioGeneratorDelegate()
     }
     

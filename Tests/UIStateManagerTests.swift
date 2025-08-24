@@ -100,9 +100,9 @@ class AudioGeneratorCoordinatorTests: XCTestCase {
         coordinator = AudioGeneratorCoordinator(
             audioGenerator: realAudioGenerator,
             frequencyManager: mockFrequencyManager,
-            uiStateManager: mockUIStateManager,
-            presentationController: mockPresentationController
+            uiStateManager: mockUIStateManager
         )
+        coordinator.setPresentationController(mockPresentationController)
         coordinator.setupAudioGeneratorDelegate()
     }
     

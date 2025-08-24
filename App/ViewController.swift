@@ -38,10 +38,9 @@ class ViewController: NSViewController {
     }
     
     private func setupCoordinator() {
-        audioGeneratorCoordinator = AudioGeneratorCoordinator(
-            audioGenerator: audioGenerator,
-            presentationController: self
-        )
+        // Initialize coordinator without automatic delegate setup (weak reference pattern)
+        audioGeneratorCoordinator = AudioGeneratorCoordinator(audioGenerator: audioGenerator)
+        audioGeneratorCoordinator.setPresentationController(self)
         audioGeneratorCoordinator.setupAudioGeneratorDelegate()
     }
     
