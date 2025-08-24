@@ -23,17 +23,13 @@ class AudioEngineProtocolTests: XCTestCase {
     func testAudioEngineConformsToProtocol() {
         // Verify that AudioEngine conforms to AudioEngineProtocol
         XCTAssertNotNil(realAudioEngine, "AudioEngine should be initialized")
-        if let engine = realAudioEngine {
-            XCTAssertTrue(engine is AudioEngineProtocol, "AudioEngine should conform to AudioEngineProtocol")
-        }
+        XCTAssertTrue(realAudioEngine is AudioEngineProtocol, "AudioEngine should conform to AudioEngineProtocol")
     }
     
     func testMockAudioEngineConformsToProtocol() {
         // Verify that mock also conforms to the protocol
         XCTAssertNotNil(mockAudioEngine, "MockAudioEngine should be initialized")
-        if let mock = mockAudioEngine {
-            XCTAssertTrue(mock is AudioEngineProtocol, "MockAudioEngine should conform to AudioEngineProtocol")
-        }
+        XCTAssertTrue(mockAudioEngine is AudioEngineProtocol, "MockAudioEngine should conform to AudioEngineProtocol")
     }
     
     // MARK: - Mock Audio Engine Tests

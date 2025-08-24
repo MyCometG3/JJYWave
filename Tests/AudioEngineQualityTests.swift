@@ -207,7 +207,7 @@ final class AudioEngineQualityTests: XCTestCase {
                     let sampleRate = 96000.0
                     let amplitude = 0.1
                     let phase = 2.0 * .pi * frequency * Double(frame) / sampleRate
-                    channelData[frame] = sin(phase) * amplitude // 440Hz at low volume
+                    channelData[frame] = Float(sin(phase) * amplitude) // 440Hz at low volume
                 }
             }
         }
