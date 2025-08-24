@@ -34,8 +34,6 @@
 		123678AA81AC4FD98B312CF7 /* JJYAudioGenerator+Configuration.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "JJYAudioGenerator+Configuration.swift"; sourceTree = "<group>"; };
 		854EA55DA6C44AABAA045DDE /* JJYAudioGenerator+Index.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "JJYAudioGenerator+Index.swift"; sourceTree = "<group>"; };
 		E3C93FC5A41A4F4982F2FD77 /* JJYAudioGenerator+Morse.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "JJYAudioGenerator+Morse.swift"; sourceTree = "<group>"; };
-		FA4FF781A30F49DFAA4D8A33 /* JJYTestingExample.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "JJYTestingExample.swift"; sourceTree = "<group>"; };
-		78DAFF96FFF14353A6F65503 /* JJYAudioGeneratorThreadSafetyTest.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "JJYAudioGeneratorThreadSafetyTest.swift"; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -60,7 +58,6 @@
 				16AA8FE02E598B4F003D8C4F /* Main.storyboard */,
 				D1E862CD28794EA9BAB85A60 /* App */,
 				2A01F1C1E61C4ACF923F7FB1 /* JJYKit */,
-				29D9D423149B4223971F9015 /* Examples */,
 				168B38FF2E53F2B300F5004F /* Products */,
 			);
 			sourceTree = "<group>";
@@ -129,15 +126,6 @@
 				E3C93FC5A41A4F4982F2FD77 /* JJYAudioGenerator+Morse.swift */,
 			);
 			path = Generator;
-			sourceTree = "<group>";
-		};
-		29D9D423149B4223971F9015 /* Examples */ = {
-			isa = PBXGroup;
-			children = (
-				FA4FF781A30F49DFAA4D8A33 /* JJYTestingExample.swift */,
-				78DAFF96FFF14353A6F65503 /* JJYAudioGeneratorThreadSafetyTest.swift */,
-			);
-			path = Examples;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -228,8 +216,6 @@
 				123678AA81AC4FD98B312CF7 /* JJYAudioGenerator+Configuration.swift in Sources */,
 				854EA55DA6C44AABAA045DDE /* JJYAudioGenerator+Index.swift in Sources */,
 				E3C93FC5A41A4F4982F2FD77 /* JJYAudioGenerator+Morse.swift in Sources */,
-				FA4FF781A30F49DFAA4D8A33 /* JJYTestingExample.swift in Sources */,
-				78DAFF96FFF14353A6F65503 /* JJYAudioGeneratorThreadSafetyTest.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
