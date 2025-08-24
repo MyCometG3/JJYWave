@@ -73,12 +73,12 @@ class JJYAudioGeneratorThreadSafetyTest {
                 for i in 0..<iterations {
                     if i % 2 == 0 {
                         generator.startGeneration()
-                        // Small delay to allow start to process
-                        usleep(1000) // 1ms
+                        // Deterministic delay using RunLoop scheduling
+                        RunLoop.current.run(until: Date(timeIntervalSinceNow: 0.001))
                     } else {
                         generator.stopGeneration()
-                        // Small delay to allow stop to process
-                        usleep(1000) // 1ms
+                        // Deterministic delay using RunLoop scheduling  
+                        RunLoop.current.run(until: Date(timeIntervalSinceNow: 0.001))
                     }
                     
                     // Check state safely

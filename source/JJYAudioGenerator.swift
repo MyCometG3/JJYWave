@@ -218,8 +218,8 @@ class JJYAudioGenerator {
     }
     
     deinit {
-        concurrencyQueue.sync {
-            stopGeneration()
+        concurrencyQueue.async { [weak self] in
+            self?.stopGeneration()
         }
     }
     
