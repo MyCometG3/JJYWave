@@ -1,9 +1,9 @@
 //
-//  JJYClockTests.swift
+//  ClockTests.swift
 //  JJYWave Tests
 //
 //  Created by GitHub Copilot on 2025/01/24.
-//  Unit tests for JJYClock protocol and SystemClock implementation
+//  Unit tests for Clock protocol and SystemClock implementation
 //
 
 import XCTest
@@ -11,7 +11,7 @@ import Foundation
 import AudioToolbox
 @testable import JJYWave
 
-final class JJYClockTests: XCTestCase {
+final class ClockTests: XCTestCase {
     
     // MARK: - SystemClock Tests
     
@@ -113,7 +113,7 @@ final class JJYClockTests: XCTestCase {
     // MARK: - Protocol Conformance Tests
     
     func testClockProtocolConformance() {
-        func testClockInterface(_ clock: JJYClock) {
+        func testClockInterface(_ clock: Clock) {
             _ = clock.currentDate()
             _ = clock.currentHostTime()
             _ = clock.hostClockFrequency()

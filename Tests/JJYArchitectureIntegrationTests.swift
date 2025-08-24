@@ -14,9 +14,9 @@ import AVFoundation
 final class JJYArchitectureIntegrationTests: XCTestCase {
     
     var mockClock: MockClock!
-    var frameService: JJYFrameService!
-    var scheduler: JJYScheduler!
-    var audioEngineManager: AudioEngineManager!
+    var frameService: FrameService!
+    var scheduler: TransmissionScheduler!
+    var audioEngineManager: AudioEngine!
     var mockDelegate: MockSchedulerDelegate!
     
     override func setUp() {
@@ -45,9 +45,9 @@ final class JJYArchitectureIntegrationTests: XCTestCase {
         let testDate = calWithJST.date(from: DateComponents(year: 2025, month: 1, day: 15, hour: 14, minute: 30, second: 0)) ?? Date()
         mockClock = MockClock(date: testDate, hostTime: 1000000, frequency: 1000000000)
         
-        frameService = JJYFrameService(clock: mockClock)
-        scheduler = JJYScheduler(clock: mockClock, frameService: frameService)
-        audioEngineManager = AudioEngineManager()
+        frameService = FrameService(clock: mockClock)
+        scheduler = TransmissionScheduler(clock: mockClock, frameService: frameService)
+        audioEngineManager = AudioEngine()
         mockDelegate = MockSchedulerDelegate()
         scheduler.delegate = mockDelegate
     }

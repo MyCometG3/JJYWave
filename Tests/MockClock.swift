@@ -10,7 +10,7 @@ import Foundation
 @testable import JJYWave
 
 /// Enhanced mock clock for deterministic testing with additional features
-public class MockClock: JJYClock {
+public class MockClock: Clock {
     private var mockDate: Date
     private var mockHostTime: UInt64
     private var mockFrequency: Double
@@ -26,7 +26,7 @@ public class MockClock: JJYClock {
         self.mockFrequency = frequency
     }
     
-    // MARK: - JJYClock Protocol
+    // MARK: - Clock Protocol
     
     public func currentDate() -> Date {
         return queue.sync { mockDate }

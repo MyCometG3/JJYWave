@@ -1,9 +1,9 @@
 import Foundation
 import AudioToolbox
 
-// MARK: - JJYClock Protocol
+// MARK: - Clock Protocol
 /// Abstract interface for time access to enable testability
-protocol JJYClock {
+protocol Clock {
     func currentDate() -> Date
     func currentHostTime() -> UInt64
     func hostClockFrequency() -> Double
@@ -11,7 +11,7 @@ protocol JJYClock {
 
 // MARK: - SystemClock Implementation
 /// Real system clock implementation
-struct SystemClock: JJYClock {
+struct SystemClock: Clock {
     func currentDate() -> Date {
         return Date()
     }
