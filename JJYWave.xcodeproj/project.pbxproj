@@ -12,7 +12,18 @@
 		163F5D4A2E59B237004B34CE /* README.md in Resources */ = {isa = PBXBuildFile; fileRef = 163F5D482E59B237004B34CE /* README.md */; };
 		16AA8FEB2E598B4F003D8C4F /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 16AA8FE02E598B4F003D8C4F /* Main.storyboard */; };
 		16AA8FEC2E598B4F003D8C4F /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 16AA8FD72E598B4F003D8C4F /* Assets.xcassets */; };
+		168B39102E53F2B400F5004F /* JJYWave.app in Resources */ = {isa = PBXBuildFile; fileRef = 168B38FE2E53F2B300F5004F /* JJYWave.app */; };
 /* End PBXBuildFile section */
+
+/* Begin PBXContainerItemProxy section */
+		168B39112E53F2B400F5004F /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 168B38F62E53F2B300F5004F /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = 168B38FD2E53F2B300F5004F;
+			remoteInfo = JJYWave;
+		};
+/* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
 		163F5D312E59A36C004B34CE /* Localizable.xcstrings */ = {isa = PBXFileReference; lastKnownFileType = text.json.xcstrings; path = Localizable.xcstrings; sourceTree = "<group>"; };
@@ -34,10 +45,18 @@
 		123678AA81AC4FD98B312CF7 /* JJYAudioGenerator+Configuration.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "JJYAudioGenerator+Configuration.swift"; sourceTree = "<group>"; };
 		854EA55DA6C44AABAA045DDE /* JJYAudioGenerator+Index.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "JJYAudioGenerator+Index.swift"; sourceTree = "<group>"; };
 		E3C93FC5A41A4F4982F2FD77 /* JJYAudioGenerator+Morse.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "JJYAudioGenerator+Morse.swift"; sourceTree = "<group>"; };
+		168B390F2E53F2B400F5004F /* JJYWaveTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = JJYWaveTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
 		168B38FB2E53F2B300F5004F /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		168B390C2E53F2B400F5004F /* Frameworks */ = {
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
@@ -58,6 +77,7 @@
 				16AA8FE02E598B4F003D8C4F /* Main.storyboard */,
 				D1E862CD28794EA9BAB85A60 /* App */,
 				2A01F1C1E61C4ACF923F7FB1 /* JJYKit */,
+				168B39132E53F2B400F5004F /* Tests */,
 				168B38FF2E53F2B300F5004F /* Products */,
 			);
 			sourceTree = "<group>";
@@ -66,6 +86,7 @@
 			isa = PBXGroup;
 			children = (
 				168B38FE2E53F2B300F5004F /* JJYWave.app */,
+				168B390F2E53F2B400F5004F /* JJYWaveTests.xctest */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -128,6 +149,13 @@
 			path = Generator;
 			sourceTree = "<group>";
 		};
+		168B39132E53F2B400F5004F /* Tests */ = {
+			isa = PBXGroup;
+			children = (
+			);
+			path = Tests;
+			sourceTree = "<group>";
+		};
 /* End PBXGroup section */
 
 /* Begin PBXNativeTarget section */
@@ -150,7 +178,35 @@
 			productReference = 168B38FE2E53F2B300F5004F /* JJYWave.app */;
 			productType = "com.apple.product-type.application";
 		};
+		168B390E2E53F2B400F5004F /* JJYWaveTests */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 168B39172E53F2B400F5004F /* Build configuration list for PBXNativeTarget "JJYWaveTests" */;
+			buildPhases = (
+				168B390B2E53F2B400F5004F /* Sources */,
+				168B390C2E53F2B400F5004F /* Frameworks */,
+				168B390D2E53F2B400F5004F /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+				168B39122E53F2B400F5004F /* PBXTargetDependency */,
+			);
+			name = JJYWaveTests;
+			packageProductDependencies = (
+			);
+			productName = JJYWaveTests;
+			productReference = 168B390F2E53F2B400F5004F /* JJYWaveTests.xctest */;
+			productType = "com.apple.product-type.bundle.unit-test";
+		};
 /* End PBXNativeTarget section */
+
+/* Begin PBXTargetDependency section */
+		168B39122E53F2B400F5004F /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = 168B38FD2E53F2B300F5004F /* JJYWave */;
+			targetProxy = 168B39112E53F2B400F5004F /* PBXContainerItemProxy */;
+		};
+/* End PBXTargetDependency section */
 
 /* Begin PBXProject section */
 		168B38F62E53F2B300F5004F /* Project object */ = {
@@ -162,6 +218,10 @@
 				TargetAttributes = {
 					168B38FD2E53F2B300F5004F = {
 						CreatedOnToolsVersion = 16.4;
+					};
+					168B390E2E53F2B400F5004F = {
+						CreatedOnToolsVersion = 16.4;
+						TestTargetID = 168B38FD2E53F2B300F5004F;
 					};
 				};
 			};
@@ -180,6 +240,7 @@
 			projectRoot = "";
 			targets = (
 				168B38FD2E53F2B300F5004F /* JJYWave */,
+				168B390E2E53F2B400F5004F /* JJYWaveTests */,
 			);
 		};
 /* End PBXProject section */
@@ -194,6 +255,14 @@
 				163F5D492E59B237004B34CE /* LICENSE.txt in Resources */,
 				163F5D4A2E59B237004B34CE /* README.md in Resources */,
 				163F5D322E59A36C004B34CE /* Localizable.xcstrings in Resources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		168B390D2E53F2B400F5004F /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				168B39102E53F2B400F5004F /* JJYWave.app in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -219,6 +288,13 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
+		168B390B2E53F2B400F5004F /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 /* End PBXSourcesBuildPhase section */
 
 /* Begin PBXVariantGroup section */
@@ -241,6 +317,8 @@
 				CLANG_ANALYZER_LOCALIZABILITY_NONLOCALIZED = YES;
 				CLANG_ANALYZER_NONNULL = YES;
 				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+				CLANG_STATIC_ANALYZER_MODE = deep;
+				RUN_CLANG_STATIC_ANALYZER = YES;
 				CLANG_CXX_LANGUAGE_STANDARD = "gnu++20";
 				CLANG_ENABLE_MODULES = YES;
 				CLANG_ENABLE_OBJC_ARC = YES;
@@ -296,6 +374,8 @@
 				SWIFT_ACTIVE_COMPILATION_CONDITIONS = "DEBUG $(inherited)";
 				SWIFT_EMIT_LOC_STRINGS = YES;
 				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
+				SWIFT_TREAT_WARNINGS_AS_ERRORS = YES;
+				GCC_TREAT_WARNINGS_AS_ERRORS = YES;
 			};
 			name = Debug;
 		};
@@ -307,6 +387,8 @@
 				CLANG_ANALYZER_LOCALIZABILITY_NONLOCALIZED = YES;
 				CLANG_ANALYZER_NONNULL = YES;
 				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+				CLANG_STATIC_ANALYZER_MODE = deep;
+				RUN_CLANG_STATIC_ANALYZER = YES;
 				CLANG_CXX_LANGUAGE_STANDARD = "gnu++20";
 				CLANG_ENABLE_MODULES = YES;
 				CLANG_ENABLE_OBJC_ARC = YES;
@@ -354,6 +436,8 @@
 				SDKROOT = macosx;
 				SWIFT_COMPILATION_MODE = wholemodule;
 				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_TREAT_WARNINGS_AS_ERRORS = YES;
+				GCC_TREAT_WARNINGS_AS_ERRORS = YES;
 			};
 			name = Release;
 		};
@@ -413,6 +497,42 @@
 			};
 			name = Release;
 		};
+		168B39142E53F2B400F5004F /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				BUNDLE_LOADER = "$(TEST_HOST)";
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = BV5C4YNA4Z;
+				GENERATE_INFOPLIST_FILE = YES;
+				MACOSX_DEPLOYMENT_TARGET = 15.5;
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = com.MyCometG3.JJYWaveTests;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_EMIT_LOC_STRINGS = NO;
+				SWIFT_VERSION = 5.0;
+				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/JJYWave.app/$(BUNDLE_EXECUTABLE_FOLDER_PATH)/JJYWave";
+			};
+			name = Debug;
+		};
+		168B39152E53F2B400F5004F /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				BUNDLE_LOADER = "$(TEST_HOST)";
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = BV5C4YNA4Z;
+				GENERATE_INFOPLIST_FILE = YES;
+				MACOSX_DEPLOYMENT_TARGET = 15.5;
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = com.MyCometG3.JJYWaveTests;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_EMIT_LOC_STRINGS = NO;
+				SWIFT_VERSION = 5.0;
+				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/JJYWave.app/$(BUNDLE_EXECUTABLE_FOLDER_PATH)/JJYWave";
+			};
+			name = Release;
+		};
 /* End XCBuildConfiguration section */
 
 /* Begin XCConfigurationList section */
@@ -430,6 +550,15 @@
 			buildConfigurations = (
 				168B390E2E53F2B400F5004F /* Debug */,
 				168B390F2E53F2B400F5004F /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		168B39172E53F2B400F5004F /* Build configuration list for PBXNativeTarget "JJYWaveTests" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				168B39142E53F2B400F5004F /* Debug */,
+				168B39152E53F2B400F5004F /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
