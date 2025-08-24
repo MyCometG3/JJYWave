@@ -22,15 +22,21 @@
 		16AA8FD72E598B4F003D8C4F /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 		16AA8FD82E598B4F003D8C4F /* JJYWave.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = JJYWave.entitlements; sourceTree = "<group>"; };
 		16AA8FE22E598B4F003D8C4F /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/Main.storyboard; sourceTree = "<group>"; };
+		3CFD2AE6DBC34153ACBBC4BC /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "AppDelegate.swift"; sourceTree = "<group>"; };
+		347AEB15482546968D9DF7CF /* ViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "ViewController.swift"; sourceTree = "<group>"; };
+		F48EC4E758AB44C499A15A7C /* AudioEngineManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "AudioEngineManager.swift"; sourceTree = "<group>"; };
+		20946AC07B1E462D9EF7AA72 /* JJYAudioGenerator+AudioBufferFactory.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "JJYAudioGenerator+AudioBufferFactory.swift"; sourceTree = "<group>"; };
+		A7FEF5858C554C168F770C70 /* JJYClock.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "JJYClock.swift"; sourceTree = "<group>"; };
+		A322856674BF4CC79717552E /* JJYScheduler.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "JJYScheduler.swift"; sourceTree = "<group>"; };
+		A3EB8346676A48BCA010E60E /* JJYFrameService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "JJYFrameService.swift"; sourceTree = "<group>"; };
+		2A731CB13852432B84EA4BC7 /* JJYAudioGenerator+FrameBuilder.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "JJYAudioGenerator+FrameBuilder.swift"; sourceTree = "<group>"; };
+		372C1BCF6C764F319F028F93 /* JJYAudioGenerator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "JJYAudioGenerator.swift"; sourceTree = "<group>"; };
+		123678AA81AC4FD98B312CF7 /* JJYAudioGenerator+Configuration.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "JJYAudioGenerator+Configuration.swift"; sourceTree = "<group>"; };
+		854EA55DA6C44AABAA045DDE /* JJYAudioGenerator+Index.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "JJYAudioGenerator+Index.swift"; sourceTree = "<group>"; };
+		E3C93FC5A41A4F4982F2FD77 /* JJYAudioGenerator+Morse.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "JJYAudioGenerator+Morse.swift"; sourceTree = "<group>"; };
+		FA4FF781A30F49DFAA4D8A33 /* JJYTestingExample.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "JJYTestingExample.swift"; sourceTree = "<group>"; };
+		78DAFF96FFF14353A6F65503 /* JJYAudioGeneratorThreadSafetyTest.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "JJYAudioGeneratorThreadSafetyTest.swift"; sourceTree = "<group>"; };
 /* End PBXFileReference section */
-
-/* Begin PBXFileSystemSynchronizedRootGroup section */
-		168B39002E53F2B300F5004F /* source */ = {
-			isa = PBXFileSystemSynchronizedRootGroup;
-			path = source;
-			sourceTree = "<group>";
-		};
-/* End PBXFileSystemSynchronizedRootGroup section */
 
 /* Begin PBXFrameworksBuildPhase section */
 		168B38FB2E53F2B300F5004F /* Frameworks */ = {
@@ -52,7 +58,9 @@
 				16AA8FD72E598B4F003D8C4F /* Assets.xcassets */,
 				16AA8FD82E598B4F003D8C4F /* JJYWave.entitlements */,
 				16AA8FE02E598B4F003D8C4F /* Main.storyboard */,
-				168B39002E53F2B300F5004F /* source */,
+				D1E862CD28794EA9BAB85A60 /* App */,
+				2A01F1C1E61C4ACF923F7FB1 /* JJYKit */,
+				29D9D423149B4223971F9015 /* Examples */,
 				168B38FF2E53F2B300F5004F /* Products */,
 			);
 			sourceTree = "<group>";
@@ -63,6 +71,73 @@
 				168B38FE2E53F2B300F5004F /* JJYWave.app */,
 			);
 			name = Products;
+			sourceTree = "<group>";
+		};
+		D1E862CD28794EA9BAB85A60 /* App */ = {
+			isa = PBXGroup;
+			children = (
+				3CFD2AE6DBC34153ACBBC4BC /* AppDelegate.swift */,
+				347AEB15482546968D9DF7CF /* ViewController.swift */,
+			);
+			path = App;
+			sourceTree = "<group>";
+		};
+		2A01F1C1E61C4ACF923F7FB1 /* JJYKit */ = {
+			isa = PBXGroup;
+			children = (
+				7A1625382BF649B9AE780971 /* Audio */,
+				CD4D1F1C024842409786055C /* Time */,
+				1E116708391C4FF4A5B9F4E5 /* Frames */,
+				3E46ABC8990646E38FA97B7C /* Generator */,
+			);
+			path = JJYKit;
+			sourceTree = "<group>";
+		};
+		7A1625382BF649B9AE780971 /* Audio */ = {
+			isa = PBXGroup;
+			children = (
+				F48EC4E758AB44C499A15A7C /* AudioEngineManager.swift */,
+				20946AC07B1E462D9EF7AA72 /* JJYAudioGenerator+AudioBufferFactory.swift */,
+			);
+			path = Audio;
+			sourceTree = "<group>";
+		};
+		CD4D1F1C024842409786055C /* Time */ = {
+			isa = PBXGroup;
+			children = (
+				A7FEF5858C554C168F770C70 /* JJYClock.swift */,
+				A322856674BF4CC79717552E /* JJYScheduler.swift */,
+			);
+			path = Time;
+			sourceTree = "<group>";
+		};
+		1E116708391C4FF4A5B9F4E5 /* Frames */ = {
+			isa = PBXGroup;
+			children = (
+				A3EB8346676A48BCA010E60E /* JJYFrameService.swift */,
+				2A731CB13852432B84EA4BC7 /* JJYAudioGenerator+FrameBuilder.swift */,
+			);
+			path = Frames;
+			sourceTree = "<group>";
+		};
+		3E46ABC8990646E38FA97B7C /* Generator */ = {
+			isa = PBXGroup;
+			children = (
+				372C1BCF6C764F319F028F93 /* JJYAudioGenerator.swift */,
+				123678AA81AC4FD98B312CF7 /* JJYAudioGenerator+Configuration.swift */,
+				854EA55DA6C44AABAA045DDE /* JJYAudioGenerator+Index.swift */,
+				E3C93FC5A41A4F4982F2FD77 /* JJYAudioGenerator+Morse.swift */,
+			);
+			path = Generator;
+			sourceTree = "<group>";
+		};
+		29D9D423149B4223971F9015 /* Examples */ = {
+			isa = PBXGroup;
+			children = (
+				FA4FF781A30F49DFAA4D8A33 /* JJYTestingExample.swift */,
+				78DAFF96FFF14353A6F65503 /* JJYAudioGeneratorThreadSafetyTest.swift */,
+			);
+			path = Examples;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -79,9 +154,6 @@
 			buildRules = (
 			);
 			dependencies = (
-			);
-			fileSystemSynchronizedGroups = (
-				168B39002E53F2B300F5004F /* source */,
 			);
 			name = JJYWave;
 			packageProductDependencies = (
@@ -144,6 +216,20 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				3CFD2AE6DBC34153ACBBC4BC /* AppDelegate.swift in Sources */,
+				347AEB15482546968D9DF7CF /* ViewController.swift in Sources */,
+				F48EC4E758AB44C499A15A7C /* AudioEngineManager.swift in Sources */,
+				20946AC07B1E462D9EF7AA72 /* JJYAudioGenerator+AudioBufferFactory.swift in Sources */,
+				A7FEF5858C554C168F770C70 /* JJYClock.swift in Sources */,
+				A322856674BF4CC79717552E /* JJYScheduler.swift in Sources */,
+				A3EB8346676A48BCA010E60E /* JJYFrameService.swift in Sources */,
+				2A731CB13852432B84EA4BC7 /* JJYAudioGenerator+FrameBuilder.swift in Sources */,
+				372C1BCF6C764F319F028F93 /* JJYAudioGenerator.swift in Sources */,
+				123678AA81AC4FD98B312CF7 /* JJYAudioGenerator+Configuration.swift in Sources */,
+				854EA55DA6C44AABAA045DDE /* JJYAudioGenerator+Index.swift in Sources */,
+				E3C93FC5A41A4F4982F2FD77 /* JJYAudioGenerator+Morse.swift in Sources */,
+				FA4FF781A30F49DFAA4D8A33 /* JJYTestingExample.swift in Sources */,
+				78DAFF96FFF14353A6F65503 /* JJYAudioGeneratorThreadSafetyTest.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
