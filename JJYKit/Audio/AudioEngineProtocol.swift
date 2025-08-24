@@ -3,7 +3,7 @@ import AVFoundation
 
 // MARK: - AudioEngineProtocol
 /// Protocol abstraction for audio engine to improve testability and reduce coupling
-protocol AudioEngineProtocol {
+protocol AudioEngineProtocol: AnyObject {
     // MARK: - State Properties
     var isEngineRunning: Bool { get }
     var isPlayerPlaying: Bool { get }
@@ -19,6 +19,12 @@ protocol AudioEngineProtocol {
     
     // MARK: - Audio Scheduling
     func scheduleBuffer(_ buffer: AVAudioPCMBuffer, at when: AVAudioTime?, completionHandler: AVAudioNodeCompletionHandler?)
+
+    // MARK: - Hardware Interaction
+    func trySetHardwareSampleRate(_ desired: Double) -> Bool
+    
+    // MARK: - Format Retrieval
+    func getPlayerFormat() -> AVAudioFormat?
 }
 
 // MARK: - AudioEngine Conformance

@@ -2,7 +2,7 @@ import Foundation
 
 // MARK: - AudioGeneratorConfigurationProtocol
 /// Protocol for configuring audio generator frequency settings
-protocol AudioGeneratorConfigurationProtocol {
+protocol AudioGeneratorConfigurationProtocol: AnyObject {
     var isTestModeEnabled: Bool { get set }
     var testFrequency: Double { get }
     var band: JJYAudioGenerator.CarrierBand { get }

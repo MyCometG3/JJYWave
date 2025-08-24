@@ -12,19 +12,34 @@
 		163F5D4A2E59B237004B34CE /* README.md in Resources */ = {isa = PBXBuildFile; fileRef = 163F5D482E59B237004B34CE /* README.md */; };
 		164BC53D2E5AC94400E93007 /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 164BC51A2E5AC94400E93007 /* AppDelegate.swift */; };
 		164BC53E2E5AC94400E93007 /* ViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 164BC51B2E5AC94400E93007 /* ViewController.swift */; };
-		164BC5402E5AC94400E93007 /* JJYAudioGenerator+Index.swift in Sources */ = {isa = PBXBuildFile; fileRef = 164BC5282E5AC94400E93007 /* JJYAudioGenerator+Index.swift */; };
-		164BC5442E5AC94400E93007 /* TransmissionScheduler.swift in Sources */ = {isa = PBXBuildFile; fileRef = 164BC52C2E5AC94400E93007 /* TransmissionScheduler.swift */; };
-		164BC5462E5AC94400E93007 /* AudioBufferFactory.swift in Sources */ = {isa = PBXBuildFile; fileRef = 164BC5212E5AC94400E93007 /* AudioBufferFactory.swift */; };
-		164BC5472E5AC94400E93007 /* Clock.swift in Sources */ = {isa = PBXBuildFile; fileRef = 164BC52B2E5AC94400E93007 /* Clock.swift */; };
-		164BC5482E5AC94400E93007 /* MorseCodeGenerator.swift in Sources */ = {isa = PBXBuildFile; fileRef = 164BC5292E5AC94400E93007 /* MorseCodeGenerator.swift */; };
-		164BC5492E5AC94400E93007 /* FrameService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 164BC5242E5AC94400E93007 /* FrameService.swift */; };
-		164BC54C2E5AC94400E93007 /* FrameBuilder.swift in Sources */ = {isa = PBXBuildFile; fileRef = 164BC5232E5AC94400E93007 /* FrameBuilder.swift */; };
-		164BC54E2E5AC94400E93007 /* Configuration.swift in Sources */ = {isa = PBXBuildFile; fileRef = 164BC5272E5AC94400E93007 /* Configuration.swift */; };
-		164BC54F2E5AC94400E93007 /* JJYAudioGenerator.swift in Sources */ = {isa = PBXBuildFile; fileRef = 164BC5262E5AC94400E93007 /* JJYAudioGenerator.swift */; };
-		164BC5512E5AC94400E93007 /* AudioEngine.swift in Sources */ = {isa = PBXBuildFile; fileRef = 164BC5202E5AC94400E93007 /* AudioEngine.swift */; };
 		16AA8FEB2E598B4F003D8C4F /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 16AA8FE02E598B4F003D8C4F /* Main.storyboard */; };
 		16AA8FEC2E598B4F003D8C4F /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 16AA8FD72E598B4F003D8C4F /* Assets.xcassets */; };
+		16B3D30C2E5ADC8200D1100F /* AudioGeneratorCoordinator.swift in Sources */ = {isa = PBXBuildFile; fileRef = 16B3D3042E5ADC8200D1100F /* AudioGeneratorCoordinator.swift */; };
+		16B3D30D2E5ADC8200D1100F /* AudioGeneratorConfigurationProtocol.swift in Sources */ = {isa = PBXBuildFile; fileRef = 16B3D3032E5ADC8200D1100F /* AudioGeneratorConfigurationProtocol.swift */; };
+		16B3D30E2E5ADC8200D1100F /* AudioBufferFactory.swift in Sources */ = {isa = PBXBuildFile; fileRef = 16B3D2F72E5ADC8200D1100F /* AudioBufferFactory.swift */; };
+		16B3D30F2E5ADC8200D1100F /* FrameService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 16B3D2FC2E5ADC8200D1100F /* FrameService.swift */; };
+		16B3D3102E5ADC8200D1100F /* MorseCodeGenerator.swift in Sources */ = {isa = PBXBuildFile; fileRef = 16B3D3012E5ADC8200D1100F /* MorseCodeGenerator.swift */; };
+		16B3D3112E5ADC8200D1100F /* FrameBuilder.swift in Sources */ = {isa = PBXBuildFile; fileRef = 16B3D2FB2E5ADC8200D1100F /* FrameBuilder.swift */; };
+		16B3D3122E5ADC8200D1100F /* UIStateManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 16B3D3062E5ADC8200D1100F /* UIStateManager.swift */; };
+		16B3D3132E5ADC8200D1100F /* Configuration.swift in Sources */ = {isa = PBXBuildFile; fileRef = 16B3D2FE2E5ADC8200D1100F /* Configuration.swift */; };
+		16B3D3142E5ADC8200D1100F /* AudioEngineProtocol.swift in Sources */ = {isa = PBXBuildFile; fileRef = 16B3D2F92E5ADC8200D1100F /* AudioEngineProtocol.swift */; };
+		16B3D3152E5ADC8200D1100F /* Clock.swift in Sources */ = {isa = PBXBuildFile; fileRef = 16B3D3082E5ADC8200D1100F /* Clock.swift */; };
+		16B3D3162E5ADC8200D1100F /* FrequencyManagementService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 16B3D3052E5ADC8200D1100F /* FrequencyManagementService.swift */; };
+		16B3D3172E5ADC8200D1100F /* TransmissionScheduler.swift in Sources */ = {isa = PBXBuildFile; fileRef = 16B3D3092E5ADC8200D1100F /* TransmissionScheduler.swift */; };
+		16B3D3182E5ADC8200D1100F /* JJYAudioGenerator.swift in Sources */ = {isa = PBXBuildFile; fileRef = 16B3D2FF2E5ADC8200D1100F /* JJYAudioGenerator.swift */; };
+		16B3D3192E5ADC8200D1100F /* AudioEngine.swift in Sources */ = {isa = PBXBuildFile; fileRef = 16B3D2F82E5ADC8200D1100F /* AudioEngine.swift */; };
+		16B3D31A2E5ADC8200D1100F /* JJYAudioGenerator+Index.swift in Sources */ = {isa = PBXBuildFile; fileRef = 16B3D3002E5ADC8200D1100F /* JJYAudioGenerator+Index.swift */; };
 /* End PBXBuildFile section */
+
+/* Begin PBXContainerItemProxy section */
+		16B3D3232E5ADEB600D1100F /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 168B38F62E53F2B300F5004F /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = 168B38FD2E53F2B300F5004F;
+			remoteInfo = JJYWave;
+		};
+/* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
 		163F5D312E59A36C004B34CE /* Localizable.xcstrings */ = {isa = PBXFileReference; lastKnownFileType = text.json.xcstrings; path = Localizable.xcstrings; sourceTree = "<group>"; };
@@ -32,24 +47,66 @@
 		163F5D482E59B237004B34CE /* README.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = README.md; sourceTree = "<group>"; };
 		164BC51A2E5AC94400E93007 /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
 		164BC51B2E5AC94400E93007 /* ViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ViewController.swift; sourceTree = "<group>"; };
-		164BC5202E5AC94400E93007 /* AudioEngine.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AudioEngine.swift; sourceTree = "<group>"; };
-		164BC5212E5AC94400E93007 /* AudioBufferFactory.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AudioBufferFactory.swift; sourceTree = "<group>"; };
-		164BC5232E5AC94400E93007 /* FrameBuilder.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FrameBuilder.swift; sourceTree = "<group>"; };
-		164BC5242E5AC94400E93007 /* FrameService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FrameService.swift; sourceTree = "<group>"; };
-		164BC5262E5AC94400E93007 /* JJYAudioGenerator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = JJYAudioGenerator.swift; sourceTree = "<group>"; };
-		164BC5272E5AC94400E93007 /* Configuration.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Configuration.swift; sourceTree = "<group>"; };
-		164BC5282E5AC94400E93007 /* JJYAudioGenerator+Index.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "JJYAudioGenerator+Index.swift"; sourceTree = "<group>"; };
-		164BC5292E5AC94400E93007 /* MorseCodeGenerator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MorseCodeGenerator.swift; sourceTree = "<group>"; };
-		164BC52B2E5AC94400E93007 /* Clock.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Clock.swift; sourceTree = "<group>"; };
-		164BC52C2E5AC94400E93007 /* TransmissionScheduler.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TransmissionScheduler.swift; sourceTree = "<group>"; };
 		168B38FE2E53F2B300F5004F /* JJYWave.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = JJYWave.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		16AA8FD72E598B4F003D8C4F /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 		16AA8FD82E598B4F003D8C4F /* JJYWave.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = JJYWave.entitlements; sourceTree = "<group>"; };
 		16AA8FE22E598B4F003D8C4F /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/Main.storyboard; sourceTree = "<group>"; };
+		16B3D2E02E5ADBB600D1100F /* MockPresentationController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MockPresentationController.swift; sourceTree = "<group>"; };
+		16B3D2E22E5ADBB600D1100F /* AudioBufferFactoryTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AudioBufferFactoryTests.swift; sourceTree = "<group>"; };
+		16B3D2E32E5ADBB600D1100F /* AudioEngineProtocolTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AudioEngineProtocolTests.swift; sourceTree = "<group>"; };
+		16B3D2E42E5ADBB600D1100F /* AudioEngineQualityTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AudioEngineQualityTests.swift; sourceTree = "<group>"; };
+		16B3D2E52E5ADBB600D1100F /* AudioEngineTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AudioEngineTests.swift; sourceTree = "<group>"; };
+		16B3D2E62E5ADBB600D1100F /* ComprehensiveIntegrationTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ComprehensiveIntegrationTests.swift; sourceTree = "<group>"; };
+		16B3D2E72E5ADBB600D1100F /* DeterministicBehaviorTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DeterministicBehaviorTests.swift; sourceTree = "<group>"; };
+		16B3D2E82E5ADBB600D1100F /* FrameServiceTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FrameServiceTests.swift; sourceTree = "<group>"; };
+		16B3D2E92E5ADBB600D1100F /* FrequencyManagementServiceTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FrequencyManagementServiceTests.swift; sourceTree = "<group>"; };
+		16B3D2EA2E5ADBB600D1100F /* JJYArchitectureIntegrationTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = JJYArchitectureIntegrationTests.swift; sourceTree = "<group>"; };
+		16B3D2EB2E5ADBB600D1100F /* JJYArchitectureTestSuite.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = JJYArchitectureTestSuite.swift; sourceTree = "<group>"; };
+		16B3D2EC2E5ADBB600D1100F /* JJYClockTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = JJYClockTests.swift; sourceTree = "<group>"; };
+		16B3D2ED2E5ADBB600D1100F /* JJYWaveTests-Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = "JJYWaveTests-Info.plist"; sourceTree = "<group>"; };
+		16B3D2EE2E5ADBB600D1100F /* MockClock.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MockClock.swift; sourceTree = "<group>"; };
+		16B3D2EF2E5ADBB600D1100F /* ModularArchitectureIntegrationTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ModularArchitectureIntegrationTests.swift; sourceTree = "<group>"; };
+		16B3D2F02E5ADBB600D1100F /* MorseCodeGeneratorTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MorseCodeGeneratorTests.swift; sourceTree = "<group>"; };
+		16B3D2F12E5ADBB600D1100F /* PerformanceAndStressTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PerformanceAndStressTests.swift; sourceTree = "<group>"; };
+		16B3D2F22E5ADBB600D1100F /* README.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = README.md; sourceTree = "<group>"; };
+		16B3D2F32E5ADBB600D1100F /* ThreadSafetyTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ThreadSafetyTests.swift; sourceTree = "<group>"; };
+		16B3D2F42E5ADBB600D1100F /* TransmissionSchedulerTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TransmissionSchedulerTests.swift; sourceTree = "<group>"; };
+		16B3D2F52E5ADBB600D1100F /* UIStateManagerTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UIStateManagerTests.swift; sourceTree = "<group>"; };
+		16B3D2F72E5ADC8200D1100F /* AudioBufferFactory.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AudioBufferFactory.swift; sourceTree = "<group>"; };
+		16B3D2F82E5ADC8200D1100F /* AudioEngine.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AudioEngine.swift; sourceTree = "<group>"; };
+		16B3D2F92E5ADC8200D1100F /* AudioEngineProtocol.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AudioEngineProtocol.swift; sourceTree = "<group>"; };
+		16B3D2FB2E5ADC8200D1100F /* FrameBuilder.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FrameBuilder.swift; sourceTree = "<group>"; };
+		16B3D2FC2E5ADC8200D1100F /* FrameService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FrameService.swift; sourceTree = "<group>"; };
+		16B3D2FE2E5ADC8200D1100F /* Configuration.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Configuration.swift; sourceTree = "<group>"; };
+		16B3D2FF2E5ADC8200D1100F /* JJYAudioGenerator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = JJYAudioGenerator.swift; sourceTree = "<group>"; };
+		16B3D3002E5ADC8200D1100F /* JJYAudioGenerator+Index.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "JJYAudioGenerator+Index.swift"; sourceTree = "<group>"; };
+		16B3D3012E5ADC8200D1100F /* MorseCodeGenerator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MorseCodeGenerator.swift; sourceTree = "<group>"; };
+		16B3D3032E5ADC8200D1100F /* AudioGeneratorConfigurationProtocol.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AudioGeneratorConfigurationProtocol.swift; sourceTree = "<group>"; };
+		16B3D3042E5ADC8200D1100F /* AudioGeneratorCoordinator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AudioGeneratorCoordinator.swift; sourceTree = "<group>"; };
+		16B3D3052E5ADC8200D1100F /* FrequencyManagementService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FrequencyManagementService.swift; sourceTree = "<group>"; };
+		16B3D3062E5ADC8200D1100F /* UIStateManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UIStateManager.swift; sourceTree = "<group>"; };
+		16B3D3082E5ADC8200D1100F /* Clock.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Clock.swift; sourceTree = "<group>"; };
+		16B3D3092E5ADC8200D1100F /* TransmissionScheduler.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TransmissionScheduler.swift; sourceTree = "<group>"; };
+		16B3D31F2E5ADEB600D1100F /* JJYWaveTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = JJYWaveTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
+
+/* Begin PBXFileSystemSynchronizedRootGroup section */
+		16B3D3202E5ADEB600D1100F /* JJYWaveTests */ = {
+			isa = PBXFileSystemSynchronizedRootGroup;
+			path = JJYWaveTests;
+			sourceTree = "<group>";
+		};
+/* End PBXFileSystemSynchronizedRootGroup section */
 
 /* Begin PBXFrameworksBuildPhase section */
 		168B38FB2E53F2B300F5004F /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		16B3D31C2E5ADEB600D1100F /* Frameworks */ = {
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
@@ -68,55 +125,6 @@
 			path = App;
 			sourceTree = "<group>";
 		};
-		164BC5222E5AC94400E93007 /* Audio */ = {
-			isa = PBXGroup;
-			children = (
-				164BC5202E5AC94400E93007 /* AudioEngine.swift */,
-				164BC5212E5AC94400E93007 /* AudioBufferFactory.swift */,
-			);
-			path = Audio;
-			sourceTree = "<group>";
-		};
-		164BC5252E5AC94400E93007 /* Frames */ = {
-			isa = PBXGroup;
-			children = (
-				164BC5232E5AC94400E93007 /* FrameBuilder.swift */,
-				164BC5242E5AC94400E93007 /* FrameService.swift */,
-			);
-			path = Frames;
-			sourceTree = "<group>";
-		};
-		164BC52A2E5AC94400E93007 /* Generator */ = {
-			isa = PBXGroup;
-			children = (
-				164BC5262E5AC94400E93007 /* JJYAudioGenerator.swift */,
-				164BC5272E5AC94400E93007 /* Configuration.swift */,
-				164BC5282E5AC94400E93007 /* JJYAudioGenerator+Index.swift */,
-				164BC5292E5AC94400E93007 /* MorseCodeGenerator.swift */,
-			);
-			path = Generator;
-			sourceTree = "<group>";
-		};
-		164BC52D2E5AC94400E93007 /* Time */ = {
-			isa = PBXGroup;
-			children = (
-				164BC52B2E5AC94400E93007 /* Clock.swift */,
-				164BC52C2E5AC94400E93007 /* TransmissionScheduler.swift */,
-			);
-			path = Time;
-			sourceTree = "<group>";
-		};
-		164BC52E2E5AC94400E93007 /* JJYKit */ = {
-			isa = PBXGroup;
-			children = (
-				164BC5222E5AC94400E93007 /* Audio */,
-				164BC5252E5AC94400E93007 /* Frames */,
-				164BC52A2E5AC94400E93007 /* Generator */,
-				164BC52D2E5AC94400E93007 /* Time */,
-			);
-			path = JJYKit;
-			sourceTree = "<group>";
-		};
 		168B38F52E53F2B300F5004F = {
 			isa = PBXGroup;
 			children = (
@@ -127,7 +135,9 @@
 				16AA8FD82E598B4F003D8C4F /* JJYWave.entitlements */,
 				16AA8FE02E598B4F003D8C4F /* Main.storyboard */,
 				164BC51C2E5AC94400E93007 /* App */,
-				164BC52E2E5AC94400E93007 /* JJYKit */,
+				16B3D30B2E5ADC8200D1100F /* JJYKit */,
+				16B3D2F62E5ADBB600D1100F /* Tests */,
+				16B3D3202E5ADEB600D1100F /* JJYWaveTests */,
 				168B38FF2E53F2B300F5004F /* Products */,
 			);
 			sourceTree = "<group>";
@@ -136,8 +146,107 @@
 			isa = PBXGroup;
 			children = (
 				168B38FE2E53F2B300F5004F /* JJYWave.app */,
+				16B3D31F2E5ADEB600D1100F /* JJYWaveTests.xctest */,
 			);
 			name = Products;
+			sourceTree = "<group>";
+		};
+		16B3D2E12E5ADBB600D1100F /* Shared */ = {
+			isa = PBXGroup;
+			children = (
+				16B3D2E02E5ADBB600D1100F /* MockPresentationController.swift */,
+			);
+			path = Shared;
+			sourceTree = "<group>";
+		};
+		16B3D2F62E5ADBB600D1100F /* Tests */ = {
+			isa = PBXGroup;
+			children = (
+				16B3D2E12E5ADBB600D1100F /* Shared */,
+				16B3D2E22E5ADBB600D1100F /* AudioBufferFactoryTests.swift */,
+				16B3D2E32E5ADBB600D1100F /* AudioEngineProtocolTests.swift */,
+				16B3D2E42E5ADBB600D1100F /* AudioEngineQualityTests.swift */,
+				16B3D2E52E5ADBB600D1100F /* AudioEngineTests.swift */,
+				16B3D2E62E5ADBB600D1100F /* ComprehensiveIntegrationTests.swift */,
+				16B3D2E72E5ADBB600D1100F /* DeterministicBehaviorTests.swift */,
+				16B3D2E82E5ADBB600D1100F /* FrameServiceTests.swift */,
+				16B3D2E92E5ADBB600D1100F /* FrequencyManagementServiceTests.swift */,
+				16B3D2EA2E5ADBB600D1100F /* JJYArchitectureIntegrationTests.swift */,
+				16B3D2EB2E5ADBB600D1100F /* JJYArchitectureTestSuite.swift */,
+				16B3D2EC2E5ADBB600D1100F /* JJYClockTests.swift */,
+				16B3D2ED2E5ADBB600D1100F /* JJYWaveTests-Info.plist */,
+				16B3D2EE2E5ADBB600D1100F /* MockClock.swift */,
+				16B3D2EF2E5ADBB600D1100F /* ModularArchitectureIntegrationTests.swift */,
+				16B3D2F02E5ADBB600D1100F /* MorseCodeGeneratorTests.swift */,
+				16B3D2F12E5ADBB600D1100F /* PerformanceAndStressTests.swift */,
+				16B3D2F22E5ADBB600D1100F /* README.md */,
+				16B3D2F32E5ADBB600D1100F /* ThreadSafetyTests.swift */,
+				16B3D2F42E5ADBB600D1100F /* TransmissionSchedulerTests.swift */,
+				16B3D2F52E5ADBB600D1100F /* UIStateManagerTests.swift */,
+			);
+			path = Tests;
+			sourceTree = "<group>";
+		};
+		16B3D2FA2E5ADC8200D1100F /* Audio */ = {
+			isa = PBXGroup;
+			children = (
+				16B3D2F72E5ADC8200D1100F /* AudioBufferFactory.swift */,
+				16B3D2F82E5ADC8200D1100F /* AudioEngine.swift */,
+				16B3D2F92E5ADC8200D1100F /* AudioEngineProtocol.swift */,
+			);
+			path = Audio;
+			sourceTree = "<group>";
+		};
+		16B3D2FD2E5ADC8200D1100F /* Frames */ = {
+			isa = PBXGroup;
+			children = (
+				16B3D2FB2E5ADC8200D1100F /* FrameBuilder.swift */,
+				16B3D2FC2E5ADC8200D1100F /* FrameService.swift */,
+			);
+			path = Frames;
+			sourceTree = "<group>";
+		};
+		16B3D3022E5ADC8200D1100F /* Generator */ = {
+			isa = PBXGroup;
+			children = (
+				16B3D2FE2E5ADC8200D1100F /* Configuration.swift */,
+				16B3D2FF2E5ADC8200D1100F /* JJYAudioGenerator.swift */,
+				16B3D3002E5ADC8200D1100F /* JJYAudioGenerator+Index.swift */,
+				16B3D3012E5ADC8200D1100F /* MorseCodeGenerator.swift */,
+			);
+			path = Generator;
+			sourceTree = "<group>";
+		};
+		16B3D3072E5ADC8200D1100F /* Services */ = {
+			isa = PBXGroup;
+			children = (
+				16B3D3032E5ADC8200D1100F /* AudioGeneratorConfigurationProtocol.swift */,
+				16B3D3042E5ADC8200D1100F /* AudioGeneratorCoordinator.swift */,
+				16B3D3052E5ADC8200D1100F /* FrequencyManagementService.swift */,
+				16B3D3062E5ADC8200D1100F /* UIStateManager.swift */,
+			);
+			path = Services;
+			sourceTree = "<group>";
+		};
+		16B3D30A2E5ADC8200D1100F /* Time */ = {
+			isa = PBXGroup;
+			children = (
+				16B3D3082E5ADC8200D1100F /* Clock.swift */,
+				16B3D3092E5ADC8200D1100F /* TransmissionScheduler.swift */,
+			);
+			path = Time;
+			sourceTree = "<group>";
+		};
+		16B3D30B2E5ADC8200D1100F /* JJYKit */ = {
+			isa = PBXGroup;
+			children = (
+				16B3D2FA2E5ADC8200D1100F /* Audio */,
+				16B3D2FD2E5ADC8200D1100F /* Frames */,
+				16B3D3022E5ADC8200D1100F /* Generator */,
+				16B3D3072E5ADC8200D1100F /* Services */,
+				16B3D30A2E5ADC8200D1100F /* Time */,
+			);
+			path = JJYKit;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -162,6 +271,29 @@
 			productReference = 168B38FE2E53F2B300F5004F /* JJYWave.app */;
 			productType = "com.apple.product-type.application";
 		};
+		16B3D31E2E5ADEB600D1100F /* JJYWaveTests */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 16B3D3272E5ADEB600D1100F /* Build configuration list for PBXNativeTarget "JJYWaveTests" */;
+			buildPhases = (
+				16B3D31B2E5ADEB600D1100F /* Sources */,
+				16B3D31C2E5ADEB600D1100F /* Frameworks */,
+				16B3D31D2E5ADEB600D1100F /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+				16B3D3242E5ADEB600D1100F /* PBXTargetDependency */,
+			);
+			fileSystemSynchronizedGroups = (
+				16B3D3202E5ADEB600D1100F /* JJYWaveTests */,
+			);
+			name = JJYWaveTests;
+			packageProductDependencies = (
+			);
+			productName = JJYWaveTests;
+			productReference = 16B3D31F2E5ADEB600D1100F /* JJYWaveTests.xctest */;
+			productType = "com.apple.product-type.bundle.unit-test";
+		};
 /* End PBXNativeTarget section */
 
 /* Begin PBXProject section */
@@ -174,6 +306,10 @@
 				TargetAttributes = {
 					168B38FD2E53F2B300F5004F = {
 						CreatedOnToolsVersion = 16.4;
+					};
+					16B3D31E2E5ADEB600D1100F = {
+						CreatedOnToolsVersion = 16.4;
+						TestTargetID = 168B38FD2E53F2B300F5004F;
 					};
 				};
 			};
@@ -192,6 +328,7 @@
 			projectRoot = "";
 			targets = (
 				168B38FD2E53F2B300F5004F /* JJYWave */,
+				16B3D31E2E5ADEB600D1100F /* JJYWaveTests */,
 			);
 		};
 /* End PBXProject section */
@@ -209,6 +346,13 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
+		16B3D31D2E5ADEB600D1100F /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 /* End PBXResourcesBuildPhase section */
 
 /* Begin PBXSourcesBuildPhase section */
@@ -218,20 +362,40 @@
 			files = (
 				164BC53D2E5AC94400E93007 /* AppDelegate.swift in Sources */,
 				164BC53E2E5AC94400E93007 /* ViewController.swift in Sources */,
-				164BC5402E5AC94400E93007 /* JJYAudioGenerator+Index.swift in Sources */,
-				164BC5442E5AC94400E93007 /* TransmissionScheduler.swift in Sources */,
-				164BC5462E5AC94400E93007 /* AudioBufferFactory.swift in Sources */,
-				164BC5472E5AC94400E93007 /* Clock.swift in Sources */,
-				164BC5482E5AC94400E93007 /* MorseCodeGenerator.swift in Sources */,
-				164BC5492E5AC94400E93007 /* FrameService.swift in Sources */,
-				164BC54C2E5AC94400E93007 /* FrameBuilder.swift in Sources */,
-				164BC54E2E5AC94400E93007 /* Configuration.swift in Sources */,
-				164BC54F2E5AC94400E93007 /* JJYAudioGenerator.swift in Sources */,
-				164BC5512E5AC94400E93007 /* AudioEngine.swift in Sources */,
+				16B3D30E2E5ADC8200D1100F /* AudioBufferFactory.swift in Sources */,
+				16B3D3192E5ADC8200D1100F /* AudioEngine.swift in Sources */,
+				16B3D3142E5ADC8200D1100F /* AudioEngineProtocol.swift in Sources */,
+				16B3D3112E5ADC8200D1100F /* FrameBuilder.swift in Sources */,
+				16B3D30F2E5ADC8200D1100F /* FrameService.swift in Sources */,
+				16B3D3132E5ADC8200D1100F /* Configuration.swift in Sources */,
+				16B3D3182E5ADC8200D1100F /* JJYAudioGenerator.swift in Sources */,
+				16B3D31A2E5ADC8200D1100F /* JJYAudioGenerator+Index.swift in Sources */,
+				16B3D3102E5ADC8200D1100F /* MorseCodeGenerator.swift in Sources */,
+				16B3D30D2E5ADC8200D1100F /* AudioGeneratorConfigurationProtocol.swift in Sources */,
+				16B3D30C2E5ADC8200D1100F /* AudioGeneratorCoordinator.swift in Sources */,
+				16B3D3162E5ADC8200D1100F /* FrequencyManagementService.swift in Sources */,
+				16B3D3122E5ADC8200D1100F /* UIStateManager.swift in Sources */,
+				16B3D3152E5ADC8200D1100F /* Clock.swift in Sources */,
+				16B3D3172E5ADC8200D1100F /* TransmissionScheduler.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		16B3D31B2E5ADEB600D1100F /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
 /* End PBXSourcesBuildPhase section */
+
+/* Begin PBXTargetDependency section */
+		16B3D3242E5ADEB600D1100F /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = 168B38FD2E53F2B300F5004F /* JJYWave */;
+			targetProxy = 16B3D3232E5ADEB600D1100F /* PBXContainerItemProxy */;
+		};
+/* End PBXTargetDependency section */
 
 /* Begin PBXVariantGroup section */
 		16AA8FE02E598B4F003D8C4F /* Main.storyboard */ = {
@@ -257,6 +421,7 @@
 				CLANG_ENABLE_MODULES = YES;
 				CLANG_ENABLE_OBJC_ARC = YES;
 				CLANG_ENABLE_OBJC_WEAK = YES;
+				CLANG_STATIC_ANALYZER_MODE = deep;
 				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
 				CLANG_WARN_BOOL_CONVERSION = YES;
 				CLANG_WARN_COMMA = YES;
@@ -304,6 +469,7 @@
 				MTL_ENABLE_DEBUG_INFO = INCLUDE_SOURCE;
 				MTL_FAST_MATH = YES;
 				ONLY_ACTIVE_ARCH = YES;
+				RUN_CLANG_STATIC_ANALYZER = YES;
 				SDKROOT = macosx;
 				SWIFT_ACTIVE_COMPILATION_CONDITIONS = "DEBUG $(inherited)";
 				SWIFT_EMIT_LOC_STRINGS = YES;
@@ -323,6 +489,7 @@
 				CLANG_ENABLE_MODULES = YES;
 				CLANG_ENABLE_OBJC_ARC = YES;
 				CLANG_ENABLE_OBJC_WEAK = YES;
+				CLANG_STATIC_ANALYZER_MODE = deep;
 				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
 				CLANG_WARN_BOOL_CONVERSION = YES;
 				CLANG_WARN_COMMA = YES;
@@ -363,6 +530,7 @@
 				MACOSX_DEPLOYMENT_TARGET = 15.5;
 				MTL_ENABLE_DEBUG_INFO = NO;
 				MTL_FAST_MATH = YES;
+				RUN_CLANG_STATIC_ANALYZER = YES;
 				SDKROOT = macosx;
 				SWIFT_COMPILATION_MODE = wholemodule;
 				SWIFT_EMIT_LOC_STRINGS = YES;
@@ -425,6 +593,42 @@
 			};
 			name = Release;
 		};
+		16B3D3252E5ADEB600D1100F /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				BUNDLE_LOADER = "$(TEST_HOST)";
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = BV5C4YNA4Z;
+				GENERATE_INFOPLIST_FILE = YES;
+				MACOSX_DEPLOYMENT_TARGET = 15.5;
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = com.MyCometG3.JJYWaveTests;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_EMIT_LOC_STRINGS = NO;
+				SWIFT_VERSION = 5.0;
+				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/JJYWave.app/$(BUNDLE_EXECUTABLE_FOLDER_PATH)/JJYWave";
+			};
+			name = Debug;
+		};
+		16B3D3262E5ADEB600D1100F /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				BUNDLE_LOADER = "$(TEST_HOST)";
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = BV5C4YNA4Z;
+				GENERATE_INFOPLIST_FILE = YES;
+				MACOSX_DEPLOYMENT_TARGET = 15.5;
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = com.MyCometG3.JJYWaveTests;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_EMIT_LOC_STRINGS = NO;
+				SWIFT_VERSION = 5.0;
+				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/JJYWave.app/$(BUNDLE_EXECUTABLE_FOLDER_PATH)/JJYWave";
+			};
+			name = Release;
+		};
 /* End XCBuildConfiguration section */
 
 /* Begin XCConfigurationList section */
@@ -442,6 +646,15 @@
 			buildConfigurations = (
 				168B390E2E53F2B400F5004F /* Debug */,
 				168B390F2E53F2B400F5004F /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		16B3D3272E5ADEB600D1100F /* Build configuration list for PBXNativeTarget "JJYWaveTests" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				16B3D3252E5ADEB600D1100F /* Debug */,
+				16B3D3262E5ADEB600D1100F /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;

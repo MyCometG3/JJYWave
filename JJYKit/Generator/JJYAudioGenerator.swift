@@ -519,7 +519,7 @@ class JJYAudioGenerator {
             return
         }
         
-        audioEngineManager.scheduleBuffer(buffer, at: when)
+        audioEngineManager.scheduleBuffer(buffer, at: when) {}
     }
 }
 

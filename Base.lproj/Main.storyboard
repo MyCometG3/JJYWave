@@ -258,7 +258,7 @@
                             <stackView distribution="fill" orientation="vertical" alignment="centerX" spacing="15" horizontalStackHuggingPriority="249.99998474121094" verticalStackHuggingPriority="249.99998474121094" detachesHiddenViews="YES" translatesAutoresizingMaskIntoConstraints="NO" id="JfY-dK-eTh">
                                 <rect key="frame" x="50" y="78" width="500" height="244"/>
                                 <subviews>
-                                    <textField focusRingType="none" horizontalHuggingPriority="251" verticalHuggingPriority="750" translatesAutoresizingMaskIntoConstraints="NO" id="rP9-3s-UmZ">
+                                    <textField horizontalHuggingPriority="251" verticalHuggingPriority="750" translatesAutoresizingMaskIntoConstraints="NO" id="rP9-3s-UmZ">
                                         <rect key="frame" x="82" y="223" width="337" height="21"/>
                                         <textFieldCell key="cell" lineBreakMode="clipping" title="JJY40/60 Radio Clock Wave Generator" id="D8e-vN-5fh">
                                             <font key="font" metaFont="systemBold" size="18"/>
@@ -266,7 +266,7 @@
                                             <color key="backgroundColor" name="textBackgroundColor" catalog="System" colorSpace="catalog"/>
                                         </textFieldCell>
                                     </textField>
-                                    <textField focusRingType="none" horizontalHuggingPriority="251" verticalHuggingPriority="750" translatesAutoresizingMaskIntoConstraints="NO" id="gcd-lm-dYk">
+                                    <textField horizontalHuggingPriority="251" verticalHuggingPriority="750" translatesAutoresizingMaskIntoConstraints="NO" id="gcd-lm-dYk">
                                         <rect key="frame" x="199" y="192" width="103" height="16"/>
                                         <textFieldCell key="cell" lineBreakMode="clipping" title="Current Time: --" id="M2U-b9-6z3">
                                             <font key="font" metaFont="system"/>
@@ -274,7 +274,7 @@
                                             <color key="backgroundColor" name="textBackgroundColor" catalog="System" colorSpace="catalog"/>
                                         </textFieldCell>
                                     </textField>
-                                    <textField focusRingType="none" horizontalHuggingPriority="251" verticalHuggingPriority="750" translatesAutoresizingMaskIntoConstraints="NO" id="zW2-2Q-jPu">
+                                    <textField horizontalHuggingPriority="251" verticalHuggingPriority="750" translatesAutoresizingMaskIntoConstraints="NO" id="zW2-2Q-jPu">
                                         <rect key="frame" x="191" y="161" width="119" height="16"/>
                                         <textFieldCell key="cell" lineBreakMode="clipping" title="Frequency: 40 kHz" id="gaJ-7K-HyW">
                                             <font key="font" metaFont="system"/>
@@ -295,7 +295,7 @@
                                             <action selector="startStopButtonTapped:" target="XfG-lQ-9wD" id="Dgd-lF-5dZ"/>
                                         </connections>
                                     </button>
-                                    <textField focusRingType="none" horizontalHuggingPriority="251" verticalHuggingPriority="750" translatesAutoresizingMaskIntoConstraints="NO" id="gP6-KR-m5m">
+                                    <textField horizontalHuggingPriority="251" verticalHuggingPriority="750" translatesAutoresizingMaskIntoConstraints="NO" id="gP6-KR-m5m">
                                         <rect key="frame" x="229" y="95" width="42" height="16"/>
                                         <textFieldCell key="cell" lineBreakMode="clipping" title="Ready" id="hbU-tg-lGH">
                                             <font key="font" metaFont="system"/>
