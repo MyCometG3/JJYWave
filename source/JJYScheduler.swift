@@ -50,12 +50,14 @@ class JJYScheduler {
         leapSecondInserted: Bool,
         serviceStatusBits: (st1: Bool, st2: Bool, st3: Bool, st4: Bool, st5: Bool, st6: Bool)
     ) {
-        self.enableCallsign = enableCallsign
-        self.enableServiceStatusBits = enableServiceStatusBits
-        self.leapSecondPlan = leapSecondPlan
-        self.leapSecondPending = leapSecondPending
-        self.leapSecondInserted = leapSecondInserted
-        self.serviceStatusBits = serviceStatusBits
+        syncQueue.async { [weak self] in
+            self?.enableCallsign = enableCallsign
+            self?.enableServiceStatusBits = enableServiceStatusBits
+            self?.leapSecondPlan = leapSecondPlan
+            self?.leapSecondPending = leapSecondPending
+            self?.leapSecondInserted = leapSecondInserted
+            self?.serviceStatusBits = serviceStatusBits
+        }
     }
     
     // MARK: - Public Methods
@@ -100,10 +102,16 @@ class JJYScheduler {
     }
     
     func stopScheduling() {
-        syncQueue.sync {
-            dispatchTimer?.cancel()
-            dispatchTimer = nil
+        syncQueue.async { [weak self] in
+            self?._stopScheduling()
         }
+    }
+    
+    private func _stopScheduling() {
+        // Cancel timer atomically
+        dispatchTimer?.cancel()
+        dispatchTimer = nil
+        
         // Reset state
         currentSecondIndex = 0
         currentFrame.removeAll(keepingCapacity: false)

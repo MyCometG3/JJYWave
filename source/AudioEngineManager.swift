@@ -7,17 +7,22 @@ import OSLog
 // MARK: - AudioEngineManager
 /// Manages AVAudioEngine, AVAudioPlayerNode, and hardware sample rate logic
 class AudioEngineManager {
+    private let concurrencyQueue = DispatchQueue(label: "com.MyCometG3.JJYWave.AudioEngine", qos: .userInitiated)
     private var audioEngine: AVAudioEngine!
     private var playerNode: AVAudioPlayerNode!
     private let logger = Logger(subsystem: "com.MyCometG3.JJYWave", category: "AudioEngine")
     
     // MARK: - Properties
     var isEngineRunning: Bool {
-        return audioEngine?.isRunning ?? false
+        return concurrencyQueue.sync {
+            return audioEngine?.isRunning ?? false
+        }
     }
     
     var isPlayerPlaying: Bool {
-        return playerNode?.isPlaying ?? false
+        return concurrencyQueue.sync {
+            return playerNode?.isPlaying ?? false
+        }
     }
     
     // MARK: - Initialization
@@ -27,6 +32,12 @@ class AudioEngineManager {
     
     // MARK: - Public Methods
     func setupAudioEngine(sampleRate: Double, channelCount: AVAudioChannelCount) {
+        concurrencyQueue.sync {
+            _setupAudioEngine(sampleRate: sampleRate, channelCount: channelCount)
+        }
+    }
+    
+    private func _setupAudioEngine(sampleRate: Double, channelCount: AVAudioChannelCount) {
         // 可能ならハードウェアSRを希望SRへ（停止中のみ呼ばれる設計）
         _ = trySetHardwareSampleRate(sampleRate)
         
@@ -45,50 +56,64 @@ class AudioEngineManager {
     }
     
     func startEngine() throws {
-        guard let audioEngine = audioEngine else {
-            throw AudioEngineError.engineNotSetup
+        try concurrencyQueue.sync {
+            guard let audioEngine = audioEngine else {
+                throw AudioEngineError.engineNotSetup
+            }
+            
+            try audioEngine.start()
+            
+            logger.info("Audio engine started successfully")
+            // ログ: プレーヤー接続SR（希望のSR）とハードウェアSRを両方表示
+            let playerSR = self.playerNode.outputFormat(forBus: 0).sampleRate
+            let hwSR = self.audioEngine.outputNode.outputFormat(forBus: 0).sampleRate
+            logger.info("Player sample rate (desired): \(playerSR, format: .fixed(precision: 0))")
+            logger.info("Hardware sample rate: \(hwSR, format: .fixed(precision: 0))")
+            logger.info("Channel count: \(self.audioEngine.outputNode.outputFormat(forBus: 0).channelCount)")
         }
-        
-        try audioEngine.start()
-        
-        logger.info("Audio engine started successfully")
-        // ログ: プレイヤー接続SR（希望のSR）とハードウェアSRを両方表示
-        let playerSR = self.playerNode.outputFormat(forBus: 0).sampleRate
-        let hwSR = self.audioEngine.outputNode.outputFormat(forBus: 0).sampleRate
-        logger.info("Player sample rate (desired): \(playerSR, format: .fixed(precision: 0))")
-        logger.info("Hardware sample rate: \(hwSR, format: .fixed(precision: 0))")
-        logger.info("Channel count: \(self.audioEngine.outputNode.outputFormat(forBus: 0).channelCount)")
     }
     
     func stopEngine() {
-        audioEngine?.stop()
-        playerNode?.stop()
+        concurrencyQueue.async { [weak self] in
+            self?.audioEngine?.stop()
+            self?.playerNode?.stop()
+        }
     }
     
     func startPlayer() {
-        if !isPlayerPlaying {
-            playerNode?.play()
+        concurrencyQueue.async { [weak self] in
+            if !(self?.playerNode?.isPlaying ?? false) {
+                self?.playerNode?.play()
+            }
         }
     }
     
     func stopPlayer() {
-        playerNode?.stop()
+        concurrencyQueue.async { [weak self] in
+            self?.playerNode?.stop()
+        }
     }
     
     func scheduleBuffer(_ buffer: AVAudioPCMBuffer, at when: AVAudioTime?, completionHandler: AVAudioNodeCompletionHandler? = nil) {
-        if let when = when {
-            playerNode?.scheduleBuffer(buffer, at: when, options: [], completionHandler: completionHandler)
-        } else {
-            playerNode?.scheduleBuffer(buffer, completionHandler: completionHandler)
+        concurrencyQueue.async { [weak self] in
+            if let when = when {
+                self?.playerNode?.scheduleBuffer(buffer, at: when, options: [], completionHandler: completionHandler)
+            } else {
+                self?.playerNode?.scheduleBuffer(buffer, completionHandler: completionHandler)
+            }
         }
     }
     
     func getPlayerFormat() -> AVAudioFormat? {
-        return playerNode?.outputFormat(forBus: 0)
+        return concurrencyQueue.sync {
+            return playerNode?.outputFormat(forBus: 0)
+        }
     }
     
     func getOutputChannelCount() -> AVAudioChannelCount {
-        return audioEngine?.outputNode.outputFormat(forBus: 0).channelCount ?? 0
+        return concurrencyQueue.sync {
+            return audioEngine?.outputNode.outputFormat(forBus: 0).channelCount ?? 0
+        }
     }
     
     // MARK: - Hardware Sample Rate Management
