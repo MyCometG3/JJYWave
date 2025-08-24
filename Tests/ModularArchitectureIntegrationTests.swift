@@ -18,6 +18,7 @@ class ModularArchitectureIntegrationTests: XCTestCase {
             audioGenerator: audioGenerator,
             presentationController: mockPresentationController
         )
+        coordinator.setupAudioGeneratorDelegate()
     }
     
     override func tearDown() {
@@ -170,29 +171,5 @@ class ModularArchitectureIntegrationTests: XCTestCase {
         
         wait(for: [expectation], timeout: 3.0)
         XCTAssertTrue(true, "Concurrent operations should complete without crashes")
-    }
-}
-
-// MARK: - Extended Mock Presentation Controller
-extension MockPresentationController {
-    var updateFrequencyDisplayWasCalled = false
-    var updateSegmentSelectionWasCalled = false
-    var updateButtonTitleWasCalled = false
-    var updateTimeDisplayWasCalled = false
-    
-    func updateButtonTitle(_ title: String) {
-        updateButtonTitleWasCalled = true
-    }
-    
-    func updateTimeDisplay(_ timeString: String) {
-        updateTimeDisplayWasCalled = true
-    }
-    
-    func updateFrequencyDisplay(_ frequencyString: String) {
-        updateFrequencyDisplayWasCalled = true
-    }
-    
-    func updateSegmentSelection(_ index: Int) {
-        updateSegmentSelectionWasCalled = true
     }
 }

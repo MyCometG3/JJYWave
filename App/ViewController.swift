@@ -42,6 +42,7 @@ class ViewController: NSViewController {
             audioGenerator: audioGenerator,
             presentationController: self
         )
+        audioGeneratorCoordinator.setupAudioGeneratorDelegate()
     }
     
     // MARK: - UI Setup

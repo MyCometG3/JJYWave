@@ -46,7 +46,12 @@ class AudioGeneratorCoordinator: AudioGeneratorCoordinatorProtocol {
         self.uiStateManager = uiStateManager
         self.presentationController = presentationController
         
-        // Set up audio generator delegate
+        // Note: Set up audio generator delegate externally after initialization to avoid tight coupling.
+        // Call setupAudioGeneratorDelegate() after initialization.
+    }
+    
+    // MARK: - Configuration
+    func setupAudioGeneratorDelegate() {
         self.audioGenerator.delegate = self
     }
     

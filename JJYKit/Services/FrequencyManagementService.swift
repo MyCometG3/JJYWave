@@ -1,5 +1,49 @@
 import Foundation
 
+// MARK: - FrequencyConfiguration
+/// Immutable configuration for frequency settings
+struct FrequencyConfiguration {
+    let isTestModeEnabled: Bool
+    let testFrequency: Double?
+    let band: JJYAudioGenerator.CarrierBand?
+    
+    // MARK: - Builder Methods
+    func withTestModeEnabled(_ enabled: Bool) -> FrequencyConfiguration {
+        return FrequencyConfiguration(
+            isTestModeEnabled: enabled,
+            testFrequency: self.testFrequency,
+            band: self.band
+        )
+    }
+    
+    func withTestFrequency(_ frequency: Double) -> FrequencyConfiguration {
+        return FrequencyConfiguration(
+            isTestModeEnabled: self.isTestModeEnabled,
+            testFrequency: frequency,
+            band: self.band
+        )
+    }
+    
+    func withBand(_ band: JJYAudioGenerator.CarrierBand) -> FrequencyConfiguration {
+        return FrequencyConfiguration(
+            isTestModeEnabled: self.isTestModeEnabled,
+            testFrequency: self.testFrequency,
+            band: band
+        )
+    }
+    
+    // MARK: - Application
+    func apply(to generator: AudioGeneratorConfigurationProtocol) {
+        generator.isTestModeEnabled = self.isTestModeEnabled
+        if let testFreq = self.testFrequency {
+            generator.updateTestFrequency(testFreq)
+        }
+        if let carrierBand = self.band {
+            _ = generator.updateBand(carrierBand)
+        }
+    }
+}
+
 // MARK: - FrequencyManagementProtocol
 /// Protocol for managing frequency calculations and formatting
 protocol FrequencyManagementProtocol {
@@ -7,6 +51,7 @@ protocol FrequencyManagementProtocol {
     func formatTestFrequency(_ frequency: Double) -> String
     func getSegmentIndex(for generator: AudioGeneratorConfigurationProtocol) -> Int
     func validateFrequencyChange(from currentIndex: Int, to newIndex: Int, isGenerating: Bool) -> FrequencyChangeResult
+    func createFrequencyConfiguration(for segmentIndex: Int) -> FrequencyConfiguration
     func configureFrequency(for generator: AudioGeneratorConfigurationProtocol, segmentIndex: Int)
 }
 
@@ -94,25 +139,26 @@ class FrequencyManagementService: FrequencyManagementProtocol {
     }
     
     // MARK: - Frequency Configuration
-    func configureFrequency(for generator: AudioGeneratorConfigurationProtocol, segmentIndex: Int) {
+    func createFrequencyConfiguration(for segmentIndex: Int) -> FrequencyConfiguration {
         switch segmentIndex {
         case 0: // 13.333 kHz Test
-            generator.isTestModeEnabled = true
-            generator.updateTestFrequency(FrequencyConstants.testFrequency13kHz)
+            return FrequencyConfiguration(isTestModeEnabled: true, testFrequency: FrequencyConstants.testFrequency13kHz, band: nil)
         case 1: // 15.000 kHz Test
-            generator.isTestModeEnabled = true
-            generator.updateTestFrequency(FrequencyConstants.testFrequency15kHz)
+            return FrequencyConfiguration(isTestModeEnabled: true, testFrequency: FrequencyConstants.testFrequency15kHz, band: nil)
         case 2: // 20.000 kHz Test
-            generator.isTestModeEnabled = true
-            generator.updateTestFrequency(FrequencyConstants.testFrequency20kHz)
+            return FrequencyConfiguration(isTestModeEnabled: true, testFrequency: FrequencyConstants.testFrequency20kHz, band: nil)
         case 3: // JJY40 40 kHz
-            generator.isTestModeEnabled = false
-            _ = generator.updateBand(.jjy40)
+            return FrequencyConfiguration(isTestModeEnabled: false, testFrequency: nil, band: .jjy40)
         case 4: // JJY60 60 kHz
-            generator.isTestModeEnabled = false
-            _ = generator.updateBand(.jjy60)
+            return FrequencyConfiguration(isTestModeEnabled: false, testFrequency: nil, band: .jjy60)
         default:
-            break
+            // Default to first test frequency
+            return FrequencyConfiguration(isTestModeEnabled: true, testFrequency: FrequencyConstants.testFrequency13kHz, band: nil)
         }
+    }
+    
+    func configureFrequency(for generator: AudioGeneratorConfigurationProtocol, segmentIndex: Int) {
+        let configuration = createFrequencyConfiguration(for: segmentIndex)
+        configuration.apply(to: generator)
     }
 }

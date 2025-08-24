@@ -103,6 +103,7 @@ class AudioGeneratorCoordinatorTests: XCTestCase {
             uiStateManager: mockUIStateManager,
             presentationController: mockPresentationController
         )
+        coordinator.setupAudioGeneratorDelegate()
     }
     
     override func tearDown() {
@@ -176,6 +177,10 @@ class MockFrequencyManager: FrequencyManagementProtocol {
     func configureFrequency(for generator: AudioGeneratorConfigurationProtocol, segmentIndex: Int) {
         configureFrequencyWasCalled = true
     }
+    
+    func createFrequencyConfiguration(for segmentIndex: Int) -> FrequencyConfiguration {
+        return FrequencyConfiguration(isTestModeEnabled: true, testFrequency: 13333, band: nil)
+    }
 }
 
 class MockUIStateManager: UIStateManagerProtocol {
@@ -189,30 +194,5 @@ class MockUIStateManager: UIStateManagerProtocol {
     
     func formatStatusMessage(state: UIState) -> String {
         return "Mock Status Message"
-    }
-}
-
-class MockPresentationController: PresentationControllerProtocol {
-    var updateStatusWasCalled = false
-    var revertSelectionWasCalled = false
-    var lastStatusMessage: String?
-    var lastRevertIndex: Int?
-    
-    func updateButtonTitle(_ title: String) {}
-    
-    func updateStatusMessage(_ message: String) {
-        updateStatusWasCalled = true
-        lastStatusMessage = message
-    }
-    
-    func updateTimeDisplay(_ timeString: String) {}
-    
-    func updateFrequencyDisplay(_ frequencyString: String) {}
-    
-    func updateSegmentSelection(_ index: Int) {}
-    
-    func revertSegmentSelection(to index: Int) {
-        revertSelectionWasCalled = true
-        lastRevertIndex = index
     }
 }
