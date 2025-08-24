@@ -171,7 +171,7 @@ final class DeterministicBehaviorTests: XCTestCase {
             let clock = MockClock(date: testDate)
             let frameService = FrameService(clock: clock)
             let scheduler = TransmissionScheduler(clock: clock, frameService: frameService)
-            let delegate = MockSchedulerDelegate()
+            let delegate = DeterministicMockSchedulerDelegate()
             
             scheduler.delegate = delegate
             scheduler.updateConfiguration(
@@ -302,7 +302,7 @@ final class DeterministicBehaviorTests: XCTestCase {
             let clock = MockClock(date: testDate)
             let frameService = FrameService(clock: clock)
             let scheduler = TransmissionScheduler(clock: clock, frameService: frameService)
-            let delegate = MockSchedulerDelegate()
+            let delegate = DeterministicMockSchedulerDelegate()
             
             scheduler.delegate = delegate
             
@@ -394,7 +394,7 @@ final class DeterministicBehaviorTests: XCTestCase {
 
 // MARK: - Helper Mock Delegate
 
-class MockSchedulerDelegate: TransmissionSchedulerDelegate {
+class DeterministicMockSchedulerDelegate: TransmissionSchedulerDelegate {
     var frameRebuildCallCount = 0
     var frameRebuildTimes: [Date] = []
     var secondSchedulingCallCount = 0
