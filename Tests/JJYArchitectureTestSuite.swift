@@ -22,16 +22,16 @@ final class JJYArchitectureTestSuite: XCTestCase {
         // Individual test files handle the detailed testing
         
         // Clock protocol and implementations
-        let clockTests = JJYClockTests()
+        let clockTests = ClockTests()
         
         // Frame service component
-        let frameServiceTests = JJYFrameServiceTests()
+        let frameServiceTests = FrameServiceTests()
         
         // Scheduler component
-        let schedulerTests = JJYSchedulerTests()
+        let schedulerTests = TransmissionSchedulerTests()
         
         // Audio engine manager
-        let audioEngineTests = AudioEngineManagerTests()
+        let audioEngineTests = AudioEngineTests()
         
         // Audio buffer factory (golden tests)
         let bufferTests = AudioBufferFactoryTests()
@@ -53,9 +53,9 @@ final class JJYArchitectureTestSuite: XCTestCase {
     func testArchitectureStability() {
         // Test that ensures the architecture remains stable and functional
         let mockClock = MockClock.testClock()
-        let frameService = JJYFrameService(clock: mockClock)
-        let scheduler = JJYScheduler(clock: mockClock, frameService: frameService)
-        let audioEngine = AudioEngineManager()
+        let frameService = FrameService(clock: mockClock)
+        let scheduler = TransmissionScheduler(clock: mockClock, frameService: frameService)
+        let audioEngine = AudioEngine()
         
         // Basic component creation should work
         XCTAssertNotNil(frameService)
@@ -95,8 +95,8 @@ final class JJYArchitectureTestSuite: XCTestCase {
     
     func testConfigurationValidation() {
         let mockClock = MockClock.testClock()
-        let frameService = JJYFrameService(clock: mockClock)
-        let scheduler = JJYScheduler(clock: mockClock, frameService: frameService)
+        let frameService = FrameService(clock: mockClock)
+        let scheduler = TransmissionScheduler(clock: mockClock, frameService: frameService)
         
         // Test various configuration combinations
         let testConfigurations = [
@@ -142,7 +142,7 @@ final class JJYArchitectureTestSuite: XCTestCase {
     
     func testTimingAccuracy() {
         let mockClock = MockClock.minuteBoundaryClock()
-        let frameService = JJYFrameService(clock: mockClock)
+        let frameService = FrameService(clock: mockClock)
         
         // Test timing calculations at various minute boundaries
         let calendar = frameService.jstCalendar()
@@ -163,15 +163,15 @@ final class JJYArchitectureTestSuite: XCTestCase {
     
     func testMemoryManagement() {
         // Test that components are properly deallocated
-        weak var weakFrameService: JJYFrameService?
-        weak var weakScheduler: JJYScheduler?
-        weak var weakAudioEngine: AudioEngineManager?
+        weak var weakFrameService: FrameService?
+        weak var weakScheduler: TransmissionScheduler?
+        weak var weakAudioEngine: AudioEngine?
         
         autoreleasepool {
             let mockClock = MockClock.testClock()
-            let frameService = JJYFrameService(clock: mockClock)
-            let scheduler = JJYScheduler(clock: mockClock, frameService: frameService)
-            let audioEngine = AudioEngineManager()
+            let frameService = FrameService(clock: mockClock)
+            let scheduler = TransmissionScheduler(clock: mockClock, frameService: frameService)
+            let audioEngine = AudioEngine()
             
             weakFrameService = frameService
             weakScheduler = scheduler
@@ -211,7 +211,7 @@ final class JJYArchitectureTestSuite: XCTestCase {
     
     func testPerformanceBenchmarks() {
         let mockClock = MockClock.testClock()
-        let frameService = JJYFrameService(clock: mockClock)
+        let frameService = FrameService(clock: mockClock)
         
         // Benchmark frame building performance
         measure {
@@ -245,8 +245,8 @@ final class JJYArchitectureTestSuite: XCTestCase {
             let mockClock = MockClock()
             mockClock.configureFor(scenario: scenario)
             
-            let frameService = JJYFrameService(clock: mockClock)
-            let scheduler = JJYScheduler(clock: mockClock, frameService: frameService)
+            let frameService = FrameService(clock: mockClock)
+            let scheduler = TransmissionScheduler(clock: mockClock, frameService: frameService)
             
             XCTAssertNoThrow({
                 let frame = frameService.buildFrame(
@@ -273,7 +273,7 @@ final class JJYArchitectureTestSuite: XCTestCase {
         
         // For now, verify that the components work with expected patterns
         let mockClock = MockClock.testClock()
-        let frameService = JJYFrameService(clock: mockClock)
+        let frameService = FrameService(clock: mockClock)
         
         // Test that the frame service interface is compatible
         XCTAssertNoThrow({
@@ -309,15 +309,15 @@ final class JJYArchitectureTestSuite: XCTestCase {
         // Test that interfaces are clean and well-defined
         let mockClock = MockClock.testClock()
         
-        // JJYClock protocol should be simple and focused
+        // Clock protocol should be simple and focused
         XCTAssertNotNil(mockClock.currentDate())
         XCTAssertNotNil(mockClock.currentHostTime())
         XCTAssertNotNil(mockClock.hostClockFrequency())
         
         // Components should have clear, single responsibilities
-        let frameService = JJYFrameService(clock: mockClock)
-        let scheduler = JJYScheduler(clock: mockClock, frameService: frameService)
-        let audioEngine = AudioEngineManager()
+        let frameService = FrameService(clock: mockClock)
+        let scheduler = TransmissionScheduler(clock: mockClock, frameService: frameService)
+        let audioEngine = AudioEngine()
         
         // Each component should work independently
         XCTAssertNotNil(frameService)

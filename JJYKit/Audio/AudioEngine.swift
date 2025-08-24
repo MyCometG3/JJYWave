@@ -4,9 +4,9 @@ import AudioToolbox
 import CoreAudio
 import OSLog
 
-// MARK: - AudioEngineManager
+// MARK: - AudioEngine
 /// Manages AVAudioEngine, AVAudioPlayerNode, and hardware sample rate logic
-class AudioEngineManager {
+class AudioEngine {
     private let concurrencyQueue = DispatchQueue(label: "com.MyCometG3.JJYWave.AudioEngine", qos: .userInitiated)
     private var audioEngine: AVAudioEngine!
     private var playerNode: AVAudioPlayerNode!

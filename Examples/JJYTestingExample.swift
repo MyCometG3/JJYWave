@@ -2,7 +2,7 @@ import Foundation
 
 // MARK: - MockClock for Testing
 /// A mock clock that allows setting specific times for testing
-class MockClock: JJYClock {
+class MockClock: Clock {
     private var mockDate: Date
     private var mockHostTime: UInt64
     private var mockFrequency: Double
@@ -56,7 +56,7 @@ class JJYComponentsExample {
         let mockClock = MockClock(date: testDate)
         
         // Create frame service with mock clock
-        let frameService = JJYFrameService(clock: mockClock)
+        let frameService = FrameService(clock: mockClock)
         
         // Build a frame - this will use the mock time
         let frame = frameService.buildFrame(
@@ -84,10 +84,10 @@ class JJYComponentsExample {
     // Example: Testing scheduler in isolation
     static func testSchedulerBehavior() {
         let mockClock = MockClock()
-        let frameService = JJYFrameService(clock: mockClock)
+        let frameService = FrameService(clock: mockClock)
         
         // Create scheduler with mock dependencies
-        let scheduler = JJYScheduler(clock: mockClock, frameService: frameService)
+        let scheduler = TransmissionScheduler(clock: mockClock, frameService: frameService)
         
         // Set up configuration
         scheduler.updateConfiguration(
@@ -119,10 +119,10 @@ print("=== All Tests Passed ===")
 
 // MARK: - Note for Comprehensive Testing
 /// For comprehensive unit and integration tests, see the Tests/ directory:
-/// - JJYClockTests.swift: Tests for JJYClock protocol and implementations
-/// - JJYFrameServiceTests.swift: Tests for frame construction and leap second logic
-/// - JJYSchedulerTests.swift: Tests for timing, scheduling, and drift detection
-/// - AudioEngineManagerTests.swift: Tests for audio engine management
+/// - ClockTests.swift: Tests for Clock protocol and implementations
+/// - FrameServiceTests.swift: Tests for frame construction and leap second logic
+/// - TransmissionSchedulerTests.swift: Tests for timing, scheduling, and drift detection
+/// - AudioEngineTests.swift: Tests for audio engine management
 /// - AudioBufferFactoryTests.swift: Golden tests for audio buffer generation
 /// - JJYArchitectureIntegrationTests.swift: Integration tests for component interactions
 /// - JJYArchitectureTestSuite.swift: Master test suite and regression prevention

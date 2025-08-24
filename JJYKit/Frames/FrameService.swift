@@ -1,13 +1,13 @@
 import Foundation
 import OSLog
 
-// MARK: - JJYFrameService
+// MARK: - FrameService
 /// Responsible for frame construction, logging, and leap second/service bit logic
-class JJYFrameService {
+class FrameService {
     private let logger = Logger(subsystem: "com.MyCometG3.JJYWave", category: "JJYFrame")
-    private let clock: JJYClock
+    private let clock: Clock
     
-    init(clock: JJYClock = SystemClock()) {
+    init(clock: Clock = SystemClock()) {
         self.clock = clock
     }
     
@@ -24,7 +24,7 @@ class JJYFrameService {
         let now = clock.currentDate()
         let baseTime = currentMinuteStart(from: now, calendar: calendar)
         
-        let frameOptions = JJYFrameBuilder.Options(
+        let frameOptions = FrameBuilder.Options(
             enableCallsign: enableCallsign,
             enableServiceStatusBits: enableServiceStatusBits,
             leapSecondPlan: leapSecondPlan,
@@ -33,7 +33,7 @@ class JJYFrameService {
             serviceStatusBits: serviceStatusBits
         )
         
-        let frame = JJYFrameBuilder().build(for: baseTime, calendar: calendar, options: frameOptions)
+        let frame = FrameBuilder().build(for: baseTime, calendar: calendar, options: frameOptions)
         logFrame(frame, baseTime: baseTime, calendar: calendar)
         return frame
     }
@@ -49,7 +49,7 @@ class JJYFrameService {
     ) -> [JJYSymbol] {
         let calendar = jstCalendar()
         
-        let frameOptions = JJYFrameBuilder.Options(
+        let frameOptions = FrameBuilder.Options(
             enableCallsign: enableCallsign,
             enableServiceStatusBits: enableServiceStatusBits,
             leapSecondPlan: leapSecondPlan,
@@ -58,7 +58,7 @@ class JJYFrameService {
             serviceStatusBits: serviceStatusBits
         )
         
-        let frame = JJYFrameBuilder().build(for: baseTime, calendar: calendar, options: frameOptions)
+        let frame = FrameBuilder().build(for: baseTime, calendar: calendar, options: frameOptions)
         logFrame(frame, baseTime: baseTime, calendar: calendar)
         return frame
     }

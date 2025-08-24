@@ -1,9 +1,9 @@
 //
-//  AudioEngineManagerTests.swift
+//  AudioEngineTests.swift
 //  JJYWave Tests
 //
 //  Created by GitHub Copilot on 2025/01/24.
-//  Unit tests for AudioEngineManager component
+//  Unit tests for AudioEngine component
 //
 
 import XCTest
@@ -11,25 +11,25 @@ import Foundation
 import AVFoundation
 @testable import JJYWave
 
-final class AudioEngineManagerTests: XCTestCase {
+final class AudioEngineTests: XCTestCase {
     
-    var audioEngineManager: AudioEngineManager!
+    var audioEngine: AudioEngine!
     
     override func setUp() {
         super.setUp()
-        audioEngineManager = AudioEngineManager()
+        audioEngine = AudioEngine()
     }
     
     override func tearDown() {
-        audioEngineManager.stopEngine()
-        audioEngineManager = nil
+        audioEngine.stopEngine()
+        audioEngine = nil
         super.tearDown()
     }
     
     // MARK: - Initialization Tests
     
     func testInitialization() {
-        let manager = AudioEngineManager()
+        let manager = AudioEngine()
         
         // Initially, engine should not be running
         XCTAssertFalse(manager.isEngineRunning)
@@ -43,7 +43,7 @@ final class AudioEngineManagerTests: XCTestCase {
         let channelCount: AVAudioChannelCount = 2
         
         // Setup should not throw
-        XCTAssertNoThrow(audioEngineManager.setupAudioEngine(sampleRate: sampleRate, channelCount: channelCount))
+        XCTAssertNoThrow(audioEngine.setupAudioEngine(sampleRate: sampleRate, channelCount: channelCount))
         
         // After setup, engine should exist but may not be running yet
         // (running state depends on startEngine() being called)
@@ -51,9 +51,9 @@ final class AudioEngineManagerTests: XCTestCase {
     
     func testSetupAudioEngineMultipleTimes() {
         // Setting up multiple times should not cause issues
-        audioEngineManager.setupAudioEngine(sampleRate: 96000, channelCount: 2)
-        audioEngineManager.setupAudioEngine(sampleRate: 48000, channelCount: 1)
-        audioEngineManager.setupAudioEngine(sampleRate: 44100, channelCount: 2)
+        audioEngine.setupAudioEngine(sampleRate: 96000, channelCount: 2)
+        audioEngine.setupAudioEngine(sampleRate: 48000, channelCount: 1)
+        audioEngine.setupAudioEngine(sampleRate: 44100, channelCount: 2)
         
         // Should complete without throwing
         XCTAssertTrue(true)
@@ -63,7 +63,7 @@ final class AudioEngineManagerTests: XCTestCase {
         let testSampleRates: [Double] = [44100, 48000, 88200, 96000, 192000]
         
         for sampleRate in testSampleRates {
-            XCTAssertNoThrow(audioEngineManager.setupAudioEngine(sampleRate: sampleRate, channelCount: 2),
+            XCTAssertNoThrow(audioEngine.setupAudioEngine(sampleRate: sampleRate, channelCount: 2),
                            "Setup should work with sample rate \(sampleRate)")
         }
     }
@@ -72,7 +72,7 @@ final class AudioEngineManagerTests: XCTestCase {
         let testChannelCounts: [AVAudioChannelCount] = [1, 2, 4, 6, 8]
         
         for channelCount in testChannelCounts {
-            XCTAssertNoThrow(audioEngineManager.setupAudioEngine(sampleRate: 96000, channelCount: channelCount),
+            XCTAssertNoThrow(audioEngine.setupAudioEngine(sampleRate: 96000, channelCount: channelCount),
                            "Setup should work with \(channelCount) channels")
         }
     }
@@ -80,61 +80,61 @@ final class AudioEngineManagerTests: XCTestCase {
     // MARK: - Engine State Tests
     
     func testStartEngine() {
-        audioEngineManager.setupAudioEngine(sampleRate: 96000, channelCount: 2)
+        audioEngine.setupAudioEngine(sampleRate: 96000, channelCount: 2)
         
-        let success = audioEngineManager.startEngine()
+        let success = audioEngine.startEngine()
         
         if success {
-            XCTAssertTrue(audioEngineManager.isEngineRunning)
+            XCTAssertTrue(audioEngine.isEngineRunning)
         } else {
             // Starting might fail in test environment due to audio hardware limitations
             // This is acceptable in unit tests
-            XCTAssertFalse(audioEngineManager.isEngineRunning)
+            XCTAssertFalse(audioEngine.isEngineRunning)
         }
     }
     
     func testStopEngine() {
-        audioEngineManager.setupAudioEngine(sampleRate: 96000, channelCount: 2)
-        let _ = audioEngineManager.startEngine()
+        audioEngine.setupAudioEngine(sampleRate: 96000, channelCount: 2)
+        let _ = audioEngine.startEngine()
         
-        audioEngineManager.stopEngine()
+        audioEngine.stopEngine()
         
-        XCTAssertFalse(audioEngineManager.isEngineRunning)
-        XCTAssertFalse(audioEngineManager.isPlayerPlaying)
+        XCTAssertFalse(audioEngine.isEngineRunning)
+        XCTAssertFalse(audioEngine.isPlayerPlaying)
     }
     
     func testStartEngineMultipleTimes() {
-        audioEngineManager.setupAudioEngine(sampleRate: 96000, channelCount: 2)
+        audioEngine.setupAudioEngine(sampleRate: 96000, channelCount: 2)
         
         // Starting multiple times should not cause issues
-        let _ = audioEngineManager.startEngine()
-        let _ = audioEngineManager.startEngine()
-        let _ = audioEngineManager.startEngine()
+        let _ = audioEngine.startEngine()
+        let _ = audioEngine.startEngine()
+        let _ = audioEngine.startEngine()
         
         // Should complete without throwing
         XCTAssertTrue(true)
     }
     
     func testStopEngineMultipleTimes() {
-        audioEngineManager.setupAudioEngine(sampleRate: 96000, channelCount: 2)
-        let _ = audioEngineManager.startEngine()
+        audioEngine.setupAudioEngine(sampleRate: 96000, channelCount: 2)
+        let _ = audioEngine.startEngine()
         
         // Stopping multiple times should not cause issues
-        audioEngineManager.stopEngine()
-        audioEngineManager.stopEngine()
-        audioEngineManager.stopEngine()
+        audioEngine.stopEngine()
+        audioEngine.stopEngine()
+        audioEngine.stopEngine()
         
-        XCTAssertFalse(audioEngineManager.isEngineRunning)
+        XCTAssertFalse(audioEngine.isEngineRunning)
     }
     
     // MARK: - Player Node Tests
     
     func testStartPlayer() {
-        audioEngineManager.setupAudioEngine(sampleRate: 96000, channelCount: 2)
-        let engineStarted = audioEngineManager.startEngine()
+        audioEngine.setupAudioEngine(sampleRate: 96000, channelCount: 2)
+        let engineStarted = audioEngine.startEngine()
         
         if engineStarted {
-            audioEngineManager.startPlayer()
+            audioEngine.startPlayer()
             
             // Player state might depend on audio hardware availability
             // In test environment, this might not always succeed
@@ -144,29 +144,29 @@ final class AudioEngineManagerTests: XCTestCase {
     }
     
     func testStopPlayer() {
-        audioEngineManager.setupAudioEngine(sampleRate: 96000, channelCount: 2)
-        let _ = audioEngineManager.startEngine()
-        audioEngineManager.startPlayer()
+        audioEngine.setupAudioEngine(sampleRate: 96000, channelCount: 2)
+        let _ = audioEngine.startEngine()
+        audioEngine.startPlayer()
         
-        audioEngineManager.stopPlayer()
+        audioEngine.stopPlayer()
         
-        XCTAssertFalse(audioEngineManager.isPlayerPlaying)
+        XCTAssertFalse(audioEngine.isPlayerPlaying)
     }
     
     func testPlayerOperationsWithoutEngine() {
         // Operations should be safe even without engine setup
-        XCTAssertNoThrow(audioEngineManager.startPlayer())
-        XCTAssertNoThrow(audioEngineManager.stopPlayer())
+        XCTAssertNoThrow(audioEngine.startPlayer())
+        XCTAssertNoThrow(audioEngine.stopPlayer())
         
-        XCTAssertFalse(audioEngineManager.isPlayerPlaying)
+        XCTAssertFalse(audioEngine.isPlayerPlaying)
     }
     
     // MARK: - Format and Buffer Tests
     
     func testGetPlayerFormat() {
-        audioEngineManager.setupAudioEngine(sampleRate: 96000, channelCount: 2)
+        audioEngine.setupAudioEngine(sampleRate: 96000, channelCount: 2)
         
-        let format = audioEngineManager.getPlayerFormat()
+        let format = audioEngine.getPlayerFormat()
         
         if let format = format {
             XCTAssertEqual(format.sampleRate, 96000, accuracy: 0.1)
@@ -177,8 +177,8 @@ final class AudioEngineManagerTests: XCTestCase {
     }
     
     func testScheduleBuffer() {
-        audioEngineManager.setupAudioEngine(sampleRate: 96000, channelCount: 2)
-        let _ = audioEngineManager.startEngine()
+        audioEngine.setupAudioEngine(sampleRate: 96000, channelCount: 2)
+        let _ = audioEngine.startEngine()
         
         // Create a test buffer
         guard let format = AVAudioFormat(standardFormatWithSampleRate: 96000, channels: 2) else {
@@ -204,12 +204,12 @@ final class AudioEngineManagerTests: XCTestCase {
         }
         
         // Scheduling should not throw
-        XCTAssertNoThrow(audioEngineManager.scheduleBuffer(buffer, at: nil))
+        XCTAssertNoThrow(audioEngine.scheduleBuffer(buffer, at: nil))
     }
     
     func testScheduleBufferWithTiming() {
-        audioEngineManager.setupAudioEngine(sampleRate: 96000, channelCount: 2)
-        let _ = audioEngineManager.startEngine()
+        audioEngine.setupAudioEngine(sampleRate: 96000, channelCount: 2)
+        let _ = audioEngine.startEngine()
         
         guard let format = AVAudioFormat(standardFormatWithSampleRate: 96000, channels: 2) else {
             XCTFail("Failed to create audio format")
@@ -227,16 +227,16 @@ final class AudioEngineManagerTests: XCTestCase {
         let audioTime = AVAudioTime(sampleTime: 0, atRate: 96000)
         
         // Scheduling with timing should not throw
-        XCTAssertNoThrow(audioEngineManager.scheduleBuffer(buffer, at: audioTime))
+        XCTAssertNoThrow(audioEngine.scheduleBuffer(buffer, at: audioTime))
     }
     
     // MARK: - Hardware Sample Rate Tests
     
     func testHardwareSampleRateAccess() {
         // Getting hardware sample rate should not throw
-        XCTAssertNoThrow(audioEngineManager.getHardwareSampleRate())
+        XCTAssertNoThrow(audioEngine.getHardwareSampleRate())
         
-        let sampleRate = audioEngineManager.getHardwareSampleRate()
+        let sampleRate = audioEngine.getHardwareSampleRate()
         if sampleRate > 0 {
             // If we get a valid sample rate, it should be reasonable
             XCTAssertGreaterThan(sampleRate, 8000)
@@ -249,7 +249,7 @@ final class AudioEngineManagerTests: XCTestCase {
         let testSampleRates: [Double] = [44100, 48000, 96000]
         
         for sampleRate in testSampleRates {
-            let success = audioEngineManager.trySetHardwareSampleRate(sampleRate)
+            let success = audioEngine.trySetHardwareSampleRate(sampleRate)
             
             // Success or failure is hardware-dependent, just verify no crash
             XCTAssertTrue(success == true || success == false)
@@ -259,7 +259,7 @@ final class AudioEngineManagerTests: XCTestCase {
     // MARK: - Error Handling and Edge Cases
     
     func testOperationsBeforeSetup() {
-        let manager = AudioEngineManager()
+        let manager = AudioEngine()
         
         // Operations should be safe before setup
         XCTAssertFalse(manager.isEngineRunning)
@@ -272,8 +272,8 @@ final class AudioEngineManagerTests: XCTestCase {
     }
     
     func testInvalidBufferScheduling() {
-        audioEngineManager.setupAudioEngine(sampleRate: 96000, channelCount: 2)
-        let _ = audioEngineManager.startEngine()
+        audioEngine.setupAudioEngine(sampleRate: 96000, channelCount: 2)
+        let _ = audioEngine.startEngine()
         
         // Try to schedule a buffer with different format
         guard let wrongFormat = AVAudioFormat(standardFormatWithSampleRate: 44100, channels: 1) else {
@@ -290,7 +290,7 @@ final class AudioEngineManagerTests: XCTestCase {
         
         // Scheduling wrong format buffer should not crash
         // (may or may not work depending on audio engine flexibility)
-        XCTAssertNoThrow(audioEngineManager.scheduleBuffer(wrongBuffer, at: nil))
+        XCTAssertNoThrow(audioEngine.scheduleBuffer(wrongBuffer, at: nil))
     }
     
     // MARK: - Thread Safety Tests
@@ -305,7 +305,7 @@ final class AudioEngineManagerTests: XCTestCase {
                 let sampleRate = [44100.0, 48000.0, 96000.0][i % 3]
                 let channelCount: AVAudioChannelCount = AVAudioChannelCount([1, 2][i % 2])
                 
-                self.audioEngineManager.setupAudioEngine(sampleRate: sampleRate, channelCount: channelCount)
+                self.audioEngine.setupAudioEngine(sampleRate: sampleRate, channelCount: channelCount)
                 group.leave()
             }
         }
@@ -320,7 +320,7 @@ final class AudioEngineManagerTests: XCTestCase {
     }
     
     func testConcurrentStartStop() {
-        audioEngineManager.setupAudioEngine(sampleRate: 96000, channelCount: 2)
+        audioEngine.setupAudioEngine(sampleRate: 96000, channelCount: 2)
         
         let expectation = XCTestExpectation(description: "Concurrent start/stop should complete")
         let group = DispatchGroup()
@@ -328,9 +328,9 @@ final class AudioEngineManagerTests: XCTestCase {
         for _ in 0..<20 {
             group.enter()
             DispatchQueue.global().async {
-                let _ = self.audioEngineManager.startEngine()
+                let _ = self.audioEngine.startEngine()
                 Thread.sleep(forTimeInterval: 0.001)
-                self.audioEngineManager.stopEngine()
+                self.audioEngine.stopEngine()
                 group.leave()
             }
         }
@@ -345,8 +345,8 @@ final class AudioEngineManagerTests: XCTestCase {
     }
     
     func testConcurrentPlayerOperations() {
-        audioEngineManager.setupAudioEngine(sampleRate: 96000, channelCount: 2)
-        let _ = audioEngineManager.startEngine()
+        audioEngine.setupAudioEngine(sampleRate: 96000, channelCount: 2)
+        let _ = audioEngine.startEngine()
         
         let expectation = XCTestExpectation(description: "Concurrent player operations should complete")
         let group = DispatchGroup()
@@ -354,9 +354,9 @@ final class AudioEngineManagerTests: XCTestCase {
         for _ in 0..<10 {
             group.enter()
             DispatchQueue.global().async {
-                self.audioEngineManager.startPlayer()
+                self.audioEngine.startPlayer()
                 Thread.sleep(forTimeInterval: 0.01)
-                self.audioEngineManager.stopPlayer()
+                self.audioEngine.stopPlayer()
                 group.leave()
             }
         }
@@ -374,23 +374,23 @@ final class AudioEngineManagerTests: XCTestCase {
     
     func testStateConsistency() {
         // Test that state properties are consistent
-        audioEngineManager.setupAudioEngine(sampleRate: 96000, channelCount: 2)
+        audioEngine.setupAudioEngine(sampleRate: 96000, channelCount: 2)
         
-        XCTAssertFalse(audioEngineManager.isEngineRunning)
-        XCTAssertFalse(audioEngineManager.isPlayerPlaying)
+        XCTAssertFalse(audioEngine.isEngineRunning)
+        XCTAssertFalse(audioEngine.isPlayerPlaying)
         
-        if audioEngineManager.startEngine() {
-            XCTAssertTrue(audioEngineManager.isEngineRunning)
+        if audioEngine.startEngine() {
+            XCTAssertTrue(audioEngine.isEngineRunning)
             
-            audioEngineManager.startPlayer()
+            audioEngine.startPlayer()
             // Player state might be hardware-dependent in test environment
             
-            audioEngineManager.stopPlayer()
-            XCTAssertFalse(audioEngineManager.isPlayerPlaying)
+            audioEngine.stopPlayer()
+            XCTAssertFalse(audioEngine.isPlayerPlaying)
             
-            audioEngineManager.stopEngine()
-            XCTAssertFalse(audioEngineManager.isEngineRunning)
-            XCTAssertFalse(audioEngineManager.isPlayerPlaying)
+            audioEngine.stopEngine()
+            XCTAssertFalse(audioEngine.isEngineRunning)
+            XCTAssertFalse(audioEngine.isPlayerPlaying)
         }
     }
 }

@@ -1,9 +1,9 @@
 //
-//  JJYSchedulerTests.swift
+//  TransmissionSchedulerTests.swift
 //  JJYWave Tests
 //
 //  Created by GitHub Copilot on 2025/01/24.
-//  Unit tests for JJYScheduler component
+//  Unit tests for TransmissionScheduler component
 //
 
 import XCTest
@@ -11,11 +11,11 @@ import Foundation
 import AVFoundation
 @testable import JJYWave
 
-final class JJYSchedulerTests: XCTestCase {
+final class TransmissionSchedulerTests: XCTestCase {
     
-    var scheduler: JJYScheduler!
+    var scheduler: TransmissionScheduler!
     var mockClock: MockClock!
-    var frameService: JJYFrameService!
+    var frameService: FrameService!
     var mockDelegate: MockSchedulerDelegate!
     
     override func setUp() {
@@ -27,8 +27,8 @@ final class JJYSchedulerTests: XCTestCase {
         
         let testDate = calWithJST.date(from: DateComponents(year: 2025, month: 1, day: 15, hour: 14, minute: 30, second: 0)) ?? Date()
         mockClock = MockClock(date: testDate, hostTime: 1000000, frequency: 1000000000)
-        frameService = JJYFrameService(clock: mockClock)
-        scheduler = JJYScheduler(clock: mockClock, frameService: frameService)
+        frameService = FrameService(clock: mockClock)
+        scheduler = TransmissionScheduler(clock: mockClock, frameService: frameService)
         mockDelegate = MockSchedulerDelegate()
         scheduler.delegate = mockDelegate
     }
@@ -309,7 +309,7 @@ final class JJYSchedulerTests: XCTestCase {
 
 // MARK: - Mock Scheduler Delegate
 
-class MockSchedulerDelegate: JJYSchedulerDelegate {
+class MockSchedulerDelegate: TransmissionSchedulerDelegate {
     var frameRebuildCallCount = 0
     var secondSchedulingCallCount = 0
     var frameRebuildTimes: [Date] = []

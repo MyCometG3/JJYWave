@@ -1,18 +1,18 @@
 //
-//  JJYFrameServiceTests.swift
+//  FrameServiceTests.swift
 //  JJYWave Tests
 //
 //  Created by GitHub Copilot on 2025/01/24.
-//  Unit tests for JJYFrameService component
+//  Unit tests for FrameService component
 //
 
 import XCTest
 import Foundation
 @testable import JJYWave
 
-final class JJYFrameServiceTests: XCTestCase {
+final class FrameServiceTests: XCTestCase {
     
-    var frameService: JJYFrameService!
+    var frameService: FrameService!
     var mockClock: MockClock!
     
     override func setUp() {
@@ -24,7 +24,7 @@ final class JJYFrameServiceTests: XCTestCase {
         
         let testDate = calWithJST.date(from: DateComponents(year: 2025, month: 1, day: 15, hour: 14, minute: 30, second: 25)) ?? Date()
         mockClock = MockClock(date: testDate)
-        frameService = JJYFrameService(clock: mockClock)
+        frameService = FrameService(clock: mockClock)
     }
     
     override func tearDown() {
@@ -216,7 +216,7 @@ final class JJYFrameServiceTests: XCTestCase {
         
         for testTimeZone in [utcTimeZone, pstTimeZone] {
             // Create a new frame service instance for each test
-            let testFrameService = JJYFrameService(clock: mockClock)
+            let testFrameService = FrameService(clock: mockClock)
             let calendar = testFrameService.jstCalendar()
             
             // Should always use JST regardless of system time zone

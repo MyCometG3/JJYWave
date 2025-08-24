@@ -1,7 +1,7 @@
 import Foundation
 
 // フレーム構築（JJY仕様に基づく BCD 配置、パリティ、コールサイン、うるう秒調整）
-struct JJYFrameBuilder {
+struct FrameBuilder {
     typealias LeapKind = JJYAudioGenerator.LeapKind
 
     struct Options {
