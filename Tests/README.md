@@ -99,9 +99,16 @@ This directory contains comprehensive unit and integration tests for the refacto
 
 ### In Xcode (macOS)
 1. Open `JJYWave.xcodeproj` in Xcode
-2. Add the test files to a new test target
-3. Configure the test target to include the source files
+2. The test files are already included in the JJYWaveTests target
+3. All dependencies and imports are properly configured
 4. Run tests with ⌘U (Cmd+U)
+
+### Compilation Fixes Applied
+- All JJYSymbol references use proper namespace (JJYAudioGenerator.JJYSymbol)
+- AudioBufferFactory class wrapper provides instance-based API for tests
+- MockAudioEngine implements complete AudioEngineProtocol interface
+- Memory usage functions import Darwin.Mach for mach_task_basic_info
+- Protocol-compliant scheduleBuffer calls without AVAudioPlayerNode options
 
 ### Test Organization
 - Unit tests focus on individual component functionality

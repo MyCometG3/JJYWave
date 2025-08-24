@@ -9,6 +9,7 @@
 import XCTest
 import Foundation
 import AVFoundation
+import Darwin.Mach
 @testable import JJYWave
 
 final class ComprehensiveIntegrationTests: XCTestCase {
@@ -69,7 +70,7 @@ final class ComprehensiveIntegrationTests: XCTestCase {
                     
                     if let audioBuffer = buffer {
                         // Schedule the buffer (would normally play audio)
-                        audioEngine.scheduleBuffer(audioBuffer, at: nil, options: [], completionHandler: nil)
+                        audioEngine.scheduleBuffer(audioBuffer, at: nil, completionHandler: nil)
                     }
                 }
                 

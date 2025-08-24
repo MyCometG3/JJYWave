@@ -213,7 +213,7 @@ final class AudioEngineQualityTests: XCTestCase {
         }
         
         // Test buffer scheduling - this should not crash even if player is not playing
-        XCTAssertNoThrow(audioEngine.scheduleBuffer(buffer, at: nil, options: [], completionHandler: nil))
+        XCTAssertNoThrow(audioEngine.scheduleBuffer(buffer, at: nil, completionHandler: nil))
         
         audioEngine.stopEngine()
     }

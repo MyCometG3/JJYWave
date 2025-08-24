@@ -9,6 +9,7 @@
 import XCTest
 import Foundation
 import AVFoundation
+import Darwin.Mach
 @testable import JJYWave
 
 final class PerformanceAndStressTests: XCTestCase {
