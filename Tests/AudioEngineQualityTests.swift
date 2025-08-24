@@ -36,13 +36,9 @@ final class AudioEngineQualityTests: XCTestCase {
         // These should not crash
         XCTAssertNoThrow(audioEngine.stopEngine())
         
-        // Starting without setup should throw an error
-        XCTAssertThrowsError(try audioEngine.startEngine()) { error in
-            XCTAssertTrue(error is AudioEngineError, "Should throw AudioEngineError")
-            if let audioError = error as? AudioEngineError {
-                XCTAssertEqual(audioError, AudioEngineError.engineNotSetup, "Should be engineNotSetup error")
-            }
-        }
+        // Starting without setup should fail
+        let success = audioEngine.startEngine()
+        XCTAssertFalse(success, "Starting without setup should fail")
     }
     
     func testMultipleSetupCalls() {
@@ -64,7 +60,8 @@ final class AudioEngineQualityTests: XCTestCase {
         
         // Multiple start/stop cycles should be safe
         for _ in 0..<5 {
-            XCTAssertNoThrow(try audioEngine.startEngine())
+            let success = audioEngine.startEngine()
+            XCTAssertTrue(success, "Engine should start successfully")
             XCTAssertTrue(audioEngine.isEngineRunning, "Engine should be running after start")
             
             audioEngine.stopEngine()
@@ -122,13 +119,9 @@ final class AudioEngineQualityTests: XCTestCase {
         for _ in 0..<5 {
             group.enter()
             DispatchQueue.global().async {
-                do {
-                    try self.audioEngine.startEngine()
-                    usleep(10000) // 10ms
-                    self.audioEngine.stopEngine()
-                } catch {
-                    // Starting may fail if already started, which is acceptable
-                }
+                let _ = self.audioEngine.startEngine()
+                usleep(10000) // 10ms
+                self.audioEngine.stopEngine()
                 group.leave()
             }
         }
@@ -150,7 +143,8 @@ final class AudioEngineQualityTests: XCTestCase {
             weakEngine = localEngine
             
             localEngine.setupAudioEngine(sampleRate: 96000, channelCount: 2)
-            XCTAssertNoThrow(try localEngine.startEngine())
+            let success = localEngine.startEngine()
+            XCTAssertTrue(success, "Local engine should start successfully")
             localEngine.stopEngine()
         }
         
@@ -175,7 +169,8 @@ final class AudioEngineQualityTests: XCTestCase {
             XCTAssertNoThrow(audioEngine.setupAudioEngine(sampleRate: sampleRate, channelCount: 2))
             
             // Should be able to start with any reasonable sample rate
-            XCTAssertNoThrow(try audioEngine.startEngine())
+            let success = audioEngine.startEngine()
+            XCTAssertTrue(success, "Engine should start with sample rate \(sampleRate)")
             audioEngine.stopEngine()
             
             // Allow time for cleanup
@@ -188,7 +183,8 @@ final class AudioEngineQualityTests: XCTestCase {
     func testBufferSchedulingWithoutCrash() {
         audioEngine.setupAudioEngine(sampleRate: 96000, channelCount: 2)
         
-        XCTAssertNoThrow(try audioEngine.startEngine())
+        let success = audioEngine.startEngine()
+        XCTAssertTrue(success, "Engine should start for buffer scheduling tests")
         
         // Create a test buffer
         guard let format = AVAudioFormat(standardFormatWithSampleRate: 96000, channels: 2) else {
@@ -224,14 +220,16 @@ final class AudioEngineQualityTests: XCTestCase {
         // Test operations in various states
         
         // 1. Before setup
-        XCTAssertThrowsError(try audioEngine.startEngine())
+        let successBeforeSetup = audioEngine.startEngine()
+        XCTAssertFalse(successBeforeSetup, "Starting without setup should fail")
         
         // 2. After setup but before start
         audioEngine.setupAudioEngine(sampleRate: 96000, channelCount: 2)
         XCTAssertNoThrow(audioEngine.stopEngine()) // Should be safe
         
         // 3. After start
-        XCTAssertNoThrow(try audioEngine.startEngine())
+        let success = audioEngine.startEngine()
+        XCTAssertTrue(success, "Engine should start successfully")
         XCTAssertNoThrow(audioEngine.stopEngine())
         
         // 4. Multiple stops
@@ -239,7 +237,8 @@ final class AudioEngineQualityTests: XCTestCase {
         XCTAssertNoThrow(audioEngine.stopEngine())
         
         // 5. Start after stop
-        XCTAssertNoThrow(try audioEngine.startEngine())
+        let success2 = audioEngine.startEngine()
+        XCTAssertTrue(success2, "Engine should start again after stop")
         audioEngine.stopEngine()
     }
 }

@@ -48,7 +48,8 @@ class AudioEngineProtocolTests: XCTestCase {
     }
     
     func testMockAudioEngineStartStop() {
-        XCTAssertNoThrow(try mockAudioEngine.startEngine(), "Start engine should not throw")
+        let success = mockAudioEngine.startEngine()
+        XCTAssertTrue(success, "Start engine should succeed")
         XCTAssertTrue(mockAudioEngine.startEngineWasCalled, "Start engine should be called")
         
         mockAudioEngine.startPlayer()
@@ -117,9 +118,10 @@ class MockAudioEngine: AudioEngineProtocol {
         lastChannelCount = channelCount
     }
     
-    func startEngine() throws {
+    func startEngine() -> Bool {
         startEngineWasCalled = true
         _isEngineRunning = true
+        return true
     }
     
     func stopEngine() {

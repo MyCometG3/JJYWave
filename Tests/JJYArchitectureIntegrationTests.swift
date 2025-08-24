@@ -190,10 +190,9 @@ final class JJYArchitectureIntegrationTests: XCTestCase {
         // Test the complete pipeline: Clock -> FrameService -> Scheduler -> AudioEngine
         audioEngineManager.setupAudioEngine(sampleRate: 96000, channelCount: 2)
         
-        do {
-            try audioEngineManager.startEngine()
-        } catch {
-            XCTFail("Failed to start audio engine: \(error)")
+        let engineStarted = audioEngineManager.startEngine()
+        if !engineStarted {
+            XCTFail("Failed to start audio engine")
             return
         }
         
@@ -318,7 +317,7 @@ final class JJYArchitectureIntegrationTests: XCTestCase {
         
         // Should handle gracefully
         XCTAssertNoThrow({
-            let frame = frameService.buildFrame(
+            let frame = self.frameService.buildFrame(
                 enableCallsign: false,
                 enableServiceStatusBits: false,
                 leapSecondPlan: nil,

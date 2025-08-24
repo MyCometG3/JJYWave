@@ -47,7 +47,8 @@ final class ComprehensiveIntegrationTests: XCTestCase {
         
         // Setup audio engine
         XCTAssertNoThrow(audioEngine.setupAudioEngine(sampleRate: 96000, channelCount: 2))
-        XCTAssertNoThrow(try audioEngine.startEngine())
+        let success = audioEngine.startEngine()
+        XCTAssertTrue(success, "Audio engine should start successfully")
         
         // Start transmission scheduling
         scheduler.startScheduling()

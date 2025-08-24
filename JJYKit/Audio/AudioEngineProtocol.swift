@@ -12,7 +12,7 @@ protocol AudioEngineProtocol: AnyObject {
     func setupAudioEngine(sampleRate: Double, channelCount: AVAudioChannelCount)
     
     // MARK: - Lifecycle Management
-    func startEngine() throws
+    func startEngine() -> Bool
     func stopEngine()
     func startPlayer()
     func stopPlayer()

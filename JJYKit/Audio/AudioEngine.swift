@@ -55,21 +55,27 @@ class AudioEngine {
         logger.info("Audio engine setup with sample rate: \(sampleRate, format: .fixed(precision: 0)) Hz, channels: \(channelCount)")
     }
     
-    func startEngine() throws {
-        try concurrencyQueue.sync {
-            guard let audioEngine = audioEngine else {
-                throw AudioEngineError.engineNotSetup
+    func startEngine() -> Bool {
+        do {
+            try concurrencyQueue.sync {
+                guard let audioEngine = audioEngine else {
+                    return false
+                }
+                
+                try audioEngine.start()
+                
+                logger.info("Audio engine started successfully")
+                // ログ: プレーヤー接続SR（希望のSR）とハードウェアSRを両方表示
+                let playerSR = self.playerNode.outputFormat(forBus: 0).sampleRate
+                let hwSR = self.audioEngine.outputNode.outputFormat(forBus: 0).sampleRate
+                logger.info("Player sample rate (desired): \(playerSR, format: .fixed(precision: 0))")
+                logger.info("Hardware sample rate: \(hwSR, format: .fixed(precision: 0))")
+                logger.info("Channel count: \(self.audioEngine.outputNode.outputFormat(forBus: 0).channelCount)")
             }
-            
-            try audioEngine.start()
-            
-            logger.info("Audio engine started successfully")
-            // ログ: プレーヤー接続SR（希望のSR）とハードウェアSRを両方表示
-            let playerSR = self.playerNode.outputFormat(forBus: 0).sampleRate
-            let hwSR = self.audioEngine.outputNode.outputFormat(forBus: 0).sampleRate
-            logger.info("Player sample rate (desired): \(playerSR, format: .fixed(precision: 0))")
-            logger.info("Hardware sample rate: \(hwSR, format: .fixed(precision: 0))")
-            logger.info("Channel count: \(self.audioEngine.outputNode.outputFormat(forBus: 0).channelCount)")
+            return true
+        } catch {
+            logger.error("Failed to start audio engine: \(error)")
+            return false
         }
     }
     
@@ -117,6 +123,31 @@ class AudioEngine {
     }
     
     // MARK: - Hardware Sample Rate Management
+    func getHardwareSampleRate() -> Double {
+        var defaultOutputID = AudioDeviceID(0)
+        var addr = AudioObjectPropertyAddress(
+            mSelector: kAudioHardwarePropertyDefaultOutputDevice,
+            mScope: kAudioObjectPropertyScopeGlobal,
+            mElement: kAudioObjectPropertyElementMain
+        )
+        var dataSize = UInt32(MemoryLayout<AudioDeviceID>.size)
+        var status = AudioObjectGetPropertyData(AudioObjectID(kAudioObjectSystemObject), &addr, 0, nil, &dataSize, &defaultOutputID)
+        if status != noErr || defaultOutputID == 0 { return 0.0 }
+        
+        // 現在のSRを取得
+        var currentSR = 0.0
+        dataSize = UInt32(MemoryLayout<Double>.size)
+        addr = AudioObjectPropertyAddress(
+            mSelector: kAudioDevicePropertyNominalSampleRate,
+            mScope: kAudioDevicePropertyScopeOutput,
+            mElement: kAudioObjectPropertyElementMain
+        )
+        status = AudioObjectGetPropertyData(defaultOutputID, &addr, 0, nil, &dataSize, &currentSR)
+        if status != noErr { return 0.0 }
+        
+        return currentSR
+    }
+    
     @discardableResult
     func trySetHardwareSampleRate(_ desired: Double) -> Bool {
         var defaultOutputID = AudioDeviceID(0)
