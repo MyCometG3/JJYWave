@@ -77,7 +77,7 @@ All existing public APIs of JJYAudioGenerator remain unchanged:
 - Delegate pattern unchanged
 
 ## Testing Examples
-See `JJYTestingExample.swift` for examples of how the new architecture enables better testing with mock dependencies.
+See the comprehensive test suite in the `Tests/` directory for examples of how the new architecture enables better testing with mock dependencies.
 
 ## Migration Notes
 No changes required for existing code using JJYAudioGenerator. The refactoring is purely internal and maintains the same external interface.
