@@ -16,7 +16,7 @@ class JJYAudioGenerator {
     private let concurrencyQueue = DispatchQueue(label: "com.MyCometG3.JJYWave.AudioGenerator", qos: .userInitiated)
     
     // MARK: - Properties
-    private let audioEngineManager = AudioEngine()
+    private let audioEngineManager: AudioEngineProtocol
     private let frameService = FrameService()
     private let scheduler: TransmissionScheduler
     private var _isGenerating = false
@@ -201,7 +201,8 @@ class JJYAudioGenerator {
     }
 
     // MARK: - Initialization
-    init() {
+    init(audioEngine: AudioEngineProtocol = AudioEngine()) {
+        self.audioEngineManager = audioEngine
         // Initialize scheduler with frame service
         scheduler = TransmissionScheduler(frameService: frameService)
         scheduler.delegate = self
