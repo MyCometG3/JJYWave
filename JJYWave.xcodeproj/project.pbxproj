@@ -13,13 +13,11 @@
 		164BC53D2E5AC94400E93007 /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 164BC51A2E5AC94400E93007 /* AppDelegate.swift */; };
 		164BC53E2E5AC94400E93007 /* ViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 164BC51B2E5AC94400E93007 /* ViewController.swift */; };
 		164BC5402E5AC94400E93007 /* JJYAudioGenerator+Index.swift in Sources */ = {isa = PBXBuildFile; fileRef = 164BC5282E5AC94400E93007 /* JJYAudioGenerator+Index.swift */; };
-		164BC5412E5AC94400E93007 /* JJYAudioGeneratorThreadSafetyTest.swift in Sources */ = {isa = PBXBuildFile; fileRef = 164BC51D2E5AC94400E93007 /* JJYAudioGeneratorThreadSafetyTest.swift */; };
 		164BC5442E5AC94400E93007 /* TransmissionScheduler.swift in Sources */ = {isa = PBXBuildFile; fileRef = 164BC52C2E5AC94400E93007 /* TransmissionScheduler.swift */; };
 		164BC5462E5AC94400E93007 /* AudioBufferFactory.swift in Sources */ = {isa = PBXBuildFile; fileRef = 164BC5212E5AC94400E93007 /* AudioBufferFactory.swift */; };
 		164BC5472E5AC94400E93007 /* Clock.swift in Sources */ = {isa = PBXBuildFile; fileRef = 164BC52B2E5AC94400E93007 /* Clock.swift */; };
 		164BC5482E5AC94400E93007 /* MorseCodeGenerator.swift in Sources */ = {isa = PBXBuildFile; fileRef = 164BC5292E5AC94400E93007 /* MorseCodeGenerator.swift */; };
 		164BC5492E5AC94400E93007 /* FrameService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 164BC5242E5AC94400E93007 /* FrameService.swift */; };
-		164BC54A2E5AC94400E93007 /* JJYTestingExample.swift in Sources */ = {isa = PBXBuildFile; fileRef = 164BC51E2E5AC94400E93007 /* JJYTestingExample.swift */; };
 		164BC54C2E5AC94400E93007 /* FrameBuilder.swift in Sources */ = {isa = PBXBuildFile; fileRef = 164BC5232E5AC94400E93007 /* FrameBuilder.swift */; };
 		164BC54E2E5AC94400E93007 /* Configuration.swift in Sources */ = {isa = PBXBuildFile; fileRef = 164BC5272E5AC94400E93007 /* Configuration.swift */; };
 		164BC54F2E5AC94400E93007 /* JJYAudioGenerator.swift in Sources */ = {isa = PBXBuildFile; fileRef = 164BC5262E5AC94400E93007 /* JJYAudioGenerator.swift */; };
@@ -34,8 +32,6 @@
 		163F5D482E59B237004B34CE /* README.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = README.md; sourceTree = "<group>"; };
 		164BC51A2E5AC94400E93007 /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
 		164BC51B2E5AC94400E93007 /* ViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ViewController.swift; sourceTree = "<group>"; };
-		164BC51D2E5AC94400E93007 /* JJYAudioGeneratorThreadSafetyTest.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = JJYAudioGeneratorThreadSafetyTest.swift; sourceTree = "<group>"; };
-		164BC51E2E5AC94400E93007 /* JJYTestingExample.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = JJYTestingExample.swift; sourceTree = "<group>"; };
 		164BC5202E5AC94400E93007 /* AudioEngine.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AudioEngine.swift; sourceTree = "<group>"; };
 		164BC5212E5AC94400E93007 /* AudioBufferFactory.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AudioBufferFactory.swift; sourceTree = "<group>"; };
 		164BC5232E5AC94400E93007 /* FrameBuilder.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FrameBuilder.swift; sourceTree = "<group>"; };
@@ -70,15 +66,6 @@
 				164BC51B2E5AC94400E93007 /* ViewController.swift */,
 			);
 			path = App;
-			sourceTree = "<group>";
-		};
-		164BC51F2E5AC94400E93007 /* Examples */ = {
-			isa = PBXGroup;
-			children = (
-				164BC51D2E5AC94400E93007 /* JJYAudioGeneratorThreadSafetyTest.swift */,
-				164BC51E2E5AC94400E93007 /* JJYTestingExample.swift */,
-			);
-			path = Examples;
 			sourceTree = "<group>";
 		};
 		164BC5222E5AC94400E93007 /* Audio */ = {
@@ -140,7 +127,6 @@
 				16AA8FD82E598B4F003D8C4F /* JJYWave.entitlements */,
 				16AA8FE02E598B4F003D8C4F /* Main.storyboard */,
 				164BC51C2E5AC94400E93007 /* App */,
-				164BC51F2E5AC94400E93007 /* Examples */,
 				164BC52E2E5AC94400E93007 /* JJYKit */,
 				168B38FF2E53F2B300F5004F /* Products */,
 			);
@@ -233,13 +219,11 @@
 				164BC53D2E5AC94400E93007 /* AppDelegate.swift in Sources */,
 				164BC53E2E5AC94400E93007 /* ViewController.swift in Sources */,
 				164BC5402E5AC94400E93007 /* JJYAudioGenerator+Index.swift in Sources */,
-				164BC5412E5AC94400E93007 /* JJYAudioGeneratorThreadSafetyTest.swift in Sources */,
 				164BC5442E5AC94400E93007 /* TransmissionScheduler.swift in Sources */,
 				164BC5462E5AC94400E93007 /* AudioBufferFactory.swift in Sources */,
 				164BC5472E5AC94400E93007 /* Clock.swift in Sources */,
 				164BC5482E5AC94400E93007 /* MorseCodeGenerator.swift in Sources */,
 				164BC5492E5AC94400E93007 /* FrameService.swift in Sources */,
-				164BC54A2E5AC94400E93007 /* JJYTestingExample.swift in Sources */,
 				164BC54C2E5AC94400E93007 /* FrameBuilder.swift in Sources */,
 				164BC54E2E5AC94400E93007 /* Configuration.swift in Sources */,
 				164BC54F2E5AC94400E93007 /* JJYAudioGenerator.swift in Sources */,

@@ -137,7 +137,7 @@ func updateConfiguration(...) {
 
 ## Testing Framework
 
-Created comprehensive test suite (`JJYAudioGeneratorThreadSafetyTest`) with:
+Comprehensive thread safety testing is included in the `Tests/` directory with:
 
 1. **Concurrent Property Access Test**: Validates that concurrent reads/writes don't cause crashes
 2. **Start/Stop Concurrency Test**: Validates that concurrent start/stop operations are handled safely  
@@ -182,7 +182,6 @@ JJYAudioGenerator.runThreadSafetyTests()
 1. **`JJYAudioGenerator.swift`**: Complete thread safety overhaul with dedicated queue
 2. **`AudioEngineManager.swift`**: Added thread safety for audio operations  
 3. **`JJYScheduler.swift`**: Fixed timer race conditions and configuration updates
-4. **`JJYAudioGeneratorThreadSafetyTest.swift`**: New comprehensive test suite
 
 ## Migration Notes
 
