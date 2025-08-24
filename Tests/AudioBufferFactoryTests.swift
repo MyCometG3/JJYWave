@@ -413,7 +413,8 @@ final class AudioBufferFactoryTests: XCTestCase {
     
     func testMultiChannelConsistency() {
         guard testFormat.channelCount > 1 else {
-            XCTSkip("Test requires multi-channel format")
+            XCTFail("Test requires multi-channel format")
+            return
         }
         
         guard let buffer = AudioBufferFactoryStatic.makeSecondBuffer(

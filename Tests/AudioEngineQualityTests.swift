@@ -203,7 +203,11 @@ final class AudioEngineQualityTests: XCTestCase {
         for channel in 0..<Int(buffer.format.channelCount) {
             if let channelData = buffer.floatChannelData?[channel] {
                 for frame in 0..<Int(buffer.frameLength) {
-                    channelData[frame] = sin(2.0 * .pi * 440.0 * Double(frame) / 96000.0) * 0.1 // 440Hz at low volume
+                    let frequency = 440.0
+                    let sampleRate = 96000.0
+                    let amplitude = 0.1
+                    let phase = 2.0 * .pi * frequency * Double(frame) / sampleRate
+                    channelData[frame] = sin(phase) * amplitude // 440Hz at low volume
                 }
             }
         }
@@ -243,17 +247,17 @@ final class AudioEngineQualityTests: XCTestCase {
     }
 }
 
-// MARK: - AudioEngineError Extension for Testing
+// MARK: - AudioEngineError Comparison for Testing
 
-extension AudioEngineError: Equatable {
-    public static func == (lhs: AudioEngineError, rhs: AudioEngineError) -> Bool {
-        switch (lhs, rhs) {
-        case (.engineNotSetup, .engineNotSetup):
-            return true
-        case (.startFailed(let msg1), .startFailed(let msg2)):
-            return msg1 == msg2
-        default:
-            return false
-        }
+/// Helper function to compare AudioEngineError instances for testing
+/// Note: Avoiding extension to prevent conflicts with future conformance
+func areEqual(_ lhs: AudioEngineError, _ rhs: AudioEngineError) -> Bool {
+    switch (lhs, rhs) {
+    case (.engineNotSetup, .engineNotSetup):
+        return true
+    case (.startFailed(let msg1), .startFailed(let msg2)):
+        return msg1 == msg2
+    default:
+        return false
     }
 }
