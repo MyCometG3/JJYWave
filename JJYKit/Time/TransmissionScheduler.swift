@@ -2,20 +2,20 @@ import Foundation
 import AVFoundation
 import OSLog
 
-// MARK: - JJYSchedulerDelegate
-protocol JJYSchedulerDelegate: AnyObject {
+// MARK: - TransmissionSchedulerDelegate
+protocol TransmissionSchedulerDelegate: AnyObject {
     func schedulerDidRequestFrameRebuild(for baseTime: Date)
     func schedulerDidRequestSecondScheduling(symbol: JJYSymbol, secondIndex: Int, when: AVAudioTime)
 }
 
-// MARK: - JJYScheduler
+// MARK: - TransmissionScheduler
 /// Responsible for timer and host time scheduling, drift detection, resync policy
-class JJYScheduler {
-    private let logger = Logger(subsystem: "com.MyCometG3.JJYWave", category: "JJYScheduler")
-    private let clock: JJYClock
-    private let frameService: JJYFrameService
+class TransmissionScheduler {
+    private let logger = Logger(subsystem: "com.MyCometG3.JJYWave", category: "TransmissionScheduler")
+    private let clock: Clock
+    private let frameService: FrameService
     
-    weak var delegate: JJYSchedulerDelegate?
+    weak var delegate: TransmissionSchedulerDelegate?
     
     // MARK: - State
     private var nextHostTime: UInt64 = 0
@@ -25,7 +25,7 @@ class JJYScheduler {
     private var currentFrame: [JJYSymbol] = []
     
     // Timer
-    private let syncQueue = DispatchQueue(label: "JJYScheduler.sync")
+    private let syncQueue = DispatchQueue(label: "TransmissionScheduler.sync")
     private var dispatchTimer: DispatchSourceTimer?
     
     // Configuration
@@ -36,7 +36,7 @@ class JJYScheduler {
     private var leapSecondInserted: Bool = true
     private var serviceStatusBits: (st1: Bool, st2: Bool, st3: Bool, st4: Bool, st5: Bool, st6: Bool) = (false,false,false,false,false,false)
     
-    init(clock: JJYClock = SystemClock(), frameService: JJYFrameService) {
+    init(clock: Clock = SystemClock(), frameService: FrameService) {
         self.clock = clock
         self.frameService = frameService
     }

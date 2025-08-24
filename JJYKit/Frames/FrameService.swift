@@ -1,13 +1,13 @@
 import Foundation
 import OSLog
 
-// MARK: - JJYFrameService
+// MARK: - FrameService
 /// Responsible for frame construction, logging, and leap second/service bit logic
-class JJYFrameService {
+class FrameService {
     private let logger = Logger(subsystem: "com.MyCometG3.JJYWave", category: "JJYFrame")
-    private let clock: JJYClock
+    private let clock: Clock
     
-    init(clock: JJYClock = SystemClock()) {
+    init(clock: Clock = SystemClock()) {
         self.clock = clock
     }
     

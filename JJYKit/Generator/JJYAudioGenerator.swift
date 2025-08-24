@@ -16,9 +16,9 @@ class JJYAudioGenerator {
     private let concurrencyQueue = DispatchQueue(label: "com.MyCometG3.JJYWave.AudioGenerator", qos: .userInitiated)
     
     // MARK: - Properties
-    private let audioEngineManager = AudioEngineManager()
-    private let frameService = JJYFrameService()
-    private let scheduler: JJYScheduler
+    private let audioEngineManager = AudioEngine()
+    private let frameService = FrameService()
+    private let scheduler: TransmissionScheduler
     private var _isGenerating = false
     private let logger = Logger(subsystem: "com.MyCometG3.JJYWave", category: "JJY")
     
@@ -203,7 +203,7 @@ class JJYAudioGenerator {
     // MARK: - Initialization
     init() {
         // Initialize scheduler with frame service
-        scheduler = JJYScheduler(frameService: frameService)
+        scheduler = TransmissionScheduler(frameService: frameService)
         scheduler.delegate = self
         
         concurrencyQueue.sync {
@@ -522,8 +522,8 @@ class JJYAudioGenerator {
     }
 }
 
-// MARK: - JJYSchedulerDelegate
-extension JJYAudioGenerator: JJYSchedulerDelegate {
+// MARK: - TransmissionSchedulerDelegate
+extension JJYAudioGenerator: TransmissionSchedulerDelegate {
     func schedulerDidRequestFrameRebuild(for baseTime: Date) {
         // Frame rebuild is handled by the scheduler itself
         // This delegate method is for future extensibility if needed
