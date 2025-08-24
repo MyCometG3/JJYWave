@@ -12,7 +12,9 @@ class ViewController: NSViewController {
     
     // MARK: - Properties
     private var audioGenerator: JJYAudioGenerator!
-    private var previousSelectedIndex: Int = 0
+    private var audioGeneratorCoordinator: AudioGeneratorCoordinator!
+    private var uiDescriptionManager = UIDescriptionManager()
+    private var timeUpdateTimer: Timer?
     
     // UI Elements
     @IBOutlet weak var startStopButton: NSButton!
@@ -25,19 +27,21 @@ class ViewController: NSViewController {
     override func viewDidLoad() {
         super.viewDidLoad()
         setupAudioGenerator()
+        setupCoordinator()
         setupUI()
-        updateTimeDisplay()
-        
-        // Update time every second
-        Timer.scheduledTimer(withTimeInterval: 1.0, repeats: true) { _ in
-            self.updateTimeDisplay()
-        }
+        setupTimeTimer()
     }
     
     // MARK: - Setup
     private func setupAudioGenerator() {
         audioGenerator = JJYAudioGenerator()
-        audioGenerator.delegate = self
+    }
+    
+    private func setupCoordinator() {
+        // Initialize coordinator without automatic delegate setup (weak reference pattern)
+        audioGeneratorCoordinator = AudioGeneratorCoordinator(audioGenerator: audioGenerator)
+        audioGeneratorCoordinator.setPresentationController(self)
+        audioGeneratorCoordinator.setupAudioGeneratorDelegate()
     }
     
     // MARK: - UI Setup
@@ -47,6 +51,15 @@ class ViewController: NSViewController {
         
         statusLabel?.stringValue = NSLocalizedString("ready", comment: "Initial status")
         
+        setupFrequencySegmentedControl()
+        audioGeneratorCoordinator.refreshUIState()
+        uiDescriptionManager.updateDescriptionText(in: view)
+        
+        view.wantsLayer = true
+        view.layer?.backgroundColor = NSColor.controlBackgroundColor.cgColor
+    }
+    
+    private func setupFrequencySegmentedControl() {
         // Segmented Control を縦スタックに挿入し、旧水平スタックは非表示
         if let vstack = startStopButton?.superview as? NSStackView {
             // 旧の水平StackViewを非表示
@@ -73,172 +86,84 @@ class ViewController: NSViewController {
                 seg.leadingAnchor.constraint(equalTo: startStopButton.leadingAnchor)
             ])
         }
+    }
+    
+    private func setupTimeTimer() {
+        // Update time display immediately
+        audioGeneratorCoordinator.refreshUIState()
         
-        syncSegmentSelectionFromState()
-        updateFrequencyLabel()
-        updateDescriptionTextIfNeeded()
-        
-        view.wantsLayer = true
-        view.layer?.backgroundColor = NSColor.controlBackgroundColor.cgColor
-    }
-    
-    private func updateDescriptionTextIfNeeded() {
-        // View階層から最初のNSTextViewを探し、説明文を現状に合わせて更新
-        func findTextView(in view: NSView) -> NSTextView? {
-            for sub in view.subviews {
-                if let tv = sub as? NSTextView { return tv }
-                if let tv = findTextView(in: sub) { return tv }
-            }
-            return nil
+        // Update time every second
+        timeUpdateTimer = Timer.scheduledTimer(withTimeInterval: 1.0, repeats: true) { [weak self] _ in
+            guard let self = self else { return }
+            let timeDisplay = self.audioGeneratorCoordinator.uiStateManager.updateTimeDisplay()
+            self.updateTimeDisplay(timeDisplay)
         }
-        guard let textView = findTextView(in: self.view) else { return }
-        let newText = NSLocalizedString("app_description", comment: "App description text")
-        textView.string = newText
-        textView.textColor = .secondaryLabelColor
-        textView.font = NSFont.systemFont(ofSize: NSFont.smallSystemFontSize)
     }
     
-    private func syncSegmentSelectionFromState() {
-        guard frequencySegmentedControl != nil else { return }
-        // 現在状態から選択インデックスを決定
-        let idx: Int
-        if audioGenerator.isTestModeEnabled {
-            let tf = audioGenerator.testFrequency
-            if abs(tf - 13333) < 0.5 { idx = 0 }
-            else if abs(tf - 15000) < 0.5 { idx = 1 }
-            else if abs(tf - 20000) < 0.5 { idx = 2 }
-            else { idx = 0 }
-        } else {
-            idx = (audioGenerator.band == .jjy60) ? 4 : 3
-        }
-        frequencySegmentedControl.selectedSegment = idx
-        previousSelectedIndex = idx
-    }
-    
-    private func formatTestFreqKHz() -> String {
-        let khz = audioGenerator.testFrequency / 1000.0
-        return String(format: "%.3f", khz)
-    }
-    
-    private func updateFrequencyLabel() {
-        let freqText: String
-        if audioGenerator.isTestModeEnabled {
-            let suffix = NSLocalizedString("test_mode_suffix", comment: "Test mode suffix")
-            freqText = "\(formatTestFreqKHz()) kHz (\(suffix))"
-        } else {
-            let jjy60 = NSLocalizedString("jjy60_label", comment: "JJY60 label")
-            let jjy40 = NSLocalizedString("jjy40_label", comment: "JJY40 label")
-            freqText = (audioGenerator.band == .jjy60) ? "60.000 kHz (\(jjy60))" : "40.000 kHz (\(jjy40))"
-        }
-        let srK = Int((audioGenerator.sampleRate / 1000.0).rounded())
-        let format = NSLocalizedString("frequency_display_format", comment: "Frequency label format")
-        frequencyLabel?.stringValue = String(format: format, freqText, srK)
-    }
-    
-    private func updateTimeDisplay() {
-        let formatter = DateFormatter()
-        formatter.dateFormat = "yyyy-MM-dd HH:mm:ss"
-        let format = NSLocalizedString("current_time_format", comment: "Current time label format")
-        timeLabel?.stringValue = String(format: format, formatter.string(from: Date()))
-    }
-    
-    // MARK: - JJY40 Signal Generation
+    // MARK: - Action Handlers
     @IBAction func startStopButtonTapped(_ sender: NSButton) {
-        if audioGenerator.isActive {
-            audioGenerator.stopGeneration()
-        } else {
-            audioGenerator.startGeneration()
-        }
+        audioGeneratorCoordinator.handleStartStopAction()
     }
     
-    // MARK: - Frequency Segmented Control
     @IBAction func frequencySegmentChanged(_ sender: NSSegmentedControl) {
-        let idx = sender.selectedSegment
-        switch idx {
-        case 0: // 13.333 kHz Test
-            audioGenerator.isTestModeEnabled = true
-            audioGenerator.updateTestFrequency(13333)
-        case 1: // 15.000 kHz Test
-            audioGenerator.isTestModeEnabled = true
-            audioGenerator.updateTestFrequency(15000)
-        case 2: // 20.000 kHz Test
-            audioGenerator.isTestModeEnabled = true
-            audioGenerator.updateTestFrequency(20000)
-        case 3: // JJY40 40 kHz
-            if audioGenerator.isActive {
-                statusLabel?.stringValue = NSLocalizedString("change_to_jjy40_blocked", comment: "Block switching to 40 kHz while active")
-                sender.selectedSegment = previousSelectedIndex
-                return
-            }
-            audioGenerator.isTestModeEnabled = false
-            _ = audioGenerator.updateBand(.jjy40)
-        case 4: // JJY60 60 kHz
-            if audioGenerator.isActive {
-                statusLabel?.stringValue = NSLocalizedString("change_to_jjy60_blocked", comment: "Block switching to 60 kHz while active")
-                sender.selectedSegment = previousSelectedIndex
-                return
-            }
-            audioGenerator.isTestModeEnabled = false
-            _ = audioGenerator.updateBand(.jjy60)
-        default:
-            break
-        }
-        previousSelectedIndex = sender.selectedSegment
-        updateFrequencyLabel()
+        let newIndex = sender.selectedSegment
+        let currentIndex = audioGeneratorCoordinator.frequencyManager.getSegmentIndex(for: audioGenerator)
+        audioGeneratorCoordinator.handleFrequencyChange(to: newIndex, currentIndex: currentIndex)
     }
     
-    // Storyboardの不要Outlet接続を無視（bandButton/testModeButton）
-    override func setValue(_ value: Any?, forUndefinedKey key: String) {
-        if key == "bandButton" || key == "testModeButton" { return }
-        super.setValue(value, forUndefinedKey: key)
+    // MARK: - Lifecycle
+    deinit {
+        timeUpdateTimer?.invalidate()
     }
     
     override func viewDidLayout() {
         super.viewDidLayout()
-        // 説明欄スクロールビューの高さを拡大（最小120）
-        adjustDescriptionScrollViewHeight(minHeight: 120)
+        // Adjust description scroll view height
+        uiDescriptionManager.adjustDescriptionScrollViewHeight(in: view, minHeight: 120)
     }
     
-    private func adjustDescriptionScrollViewHeight(minHeight: CGFloat) {
-        func findScrollView(in view: NSView) -> NSScrollView? {
-            for sub in view.subviews {
-                if let sv = sub as? NSScrollView { return sv }
-                if let sv = findScrollView(in: sub) { return sv }
-            }
-            return nil
-        }
-        guard let scrollView = findScrollView(in: self.view) else { return }
-        // 高さ制約を検索して更新、なければ追加
-        if let heightConstraint = scrollView.constraints.first(where: { $0.firstAttribute == .height }) {
-            if heightConstraint.constant < minHeight { heightConstraint.constant = minHeight }
-        } else {
-            let c = scrollView.heightAnchor.constraint(equalToConstant: minHeight)
-            c.priority = .required
-            c.isActive = true
-        }
-        scrollView.needsLayout = true
+    // Storyboard outlet connection handling (ignore unused connections)
+    override func setValue(_ value: Any?, forUndefinedKey key: String) {
+        if key == "bandButton" || key == "testModeButton" { return }
+        super.setValue(value, forUndefinedKey: key)
     }
 }
 
-// MARK: - JJYAudioGeneratorDelegate
-extension ViewController: JJYAudioGeneratorDelegate {
-    func audioGeneratorDidStart() {
-        DispatchQueue.main.async {
-            self.startStopButton?.title = NSLocalizedString("stop_generation", comment: "Stop button title")
-            self.statusLabel?.stringValue = NSLocalizedString("generating", comment: "Generating status")
+// MARK: - PresentationControllerProtocol
+extension ViewController: PresentationControllerProtocol {
+    func updateButtonTitle(_ title: String) {
+        DispatchQueue.main.async { [weak self] in
+            self?.startStopButton?.title = title
         }
     }
     
-    func audioGeneratorDidStop() {
-        DispatchQueue.main.async {
-            self.startStopButton?.title = NSLocalizedString("start_generation", comment: "Start button title")
-            self.statusLabel?.stringValue = NSLocalizedString("stopped", comment: "Stopped status")
+    func updateStatusMessage(_ message: String) {
+        DispatchQueue.main.async { [weak self] in
+            self?.statusLabel?.stringValue = message
         }
     }
     
-    func audioGeneratorDidEncounterError(_ error: String) {
-        DispatchQueue.main.async {
-            self.statusLabel?.stringValue = NSLocalizedString("error_failed_to_start", comment: "Generic start error")
+    func updateTimeDisplay(_ timeString: String) {
+        DispatchQueue.main.async { [weak self] in
+            self?.timeLabel?.stringValue = timeString
+        }
+    }
+    
+    func updateFrequencyDisplay(_ frequencyString: String) {
+        DispatchQueue.main.async { [weak self] in
+            self?.frequencyLabel?.stringValue = frequencyString
+        }
+    }
+    
+    func updateSegmentSelection(_ index: Int) {
+        DispatchQueue.main.async { [weak self] in
+            self?.frequencySegmentedControl?.selectedSegment = index
+        }
+    }
+    
+    func revertSegmentSelection(to index: Int) {
+        DispatchQueue.main.async { [weak self] in
+            self?.frequencySegmentedControl?.selectedSegment = index
         }
     }
 }
