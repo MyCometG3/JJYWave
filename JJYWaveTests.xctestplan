@@ -1,0 +1,25 @@
+{
+  "configurations" : [
+    {
+      "id" : "0CD60F3B-E6BF-427F-9654-EE35954BE157",
+      "name" : "Test Scheme Action",
+      "options" : {
+
+      }
+    }
+  ],
+  "defaultOptions" : {
+
+  },
+  "testTargets" : [
+    {
+      "parallelizable" : true,
+      "target" : {
+        "containerPath" : "container:JJYWave.xcodeproj",
+        "identifier" : "16B3D31E2E5ADEB600D1100F",
+        "name" : "JJYWaveTests"
+      }
+    }
+  ],
+  "version" : 1
+}

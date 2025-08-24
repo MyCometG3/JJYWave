@@ -12,6 +12,30 @@
 		163F5D4A2E59B237004B34CE /* README.md in Resources */ = {isa = PBXBuildFile; fileRef = 163F5D482E59B237004B34CE /* README.md */; };
 		164BC53D2E5AC94400E93007 /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 164BC51A2E5AC94400E93007 /* AppDelegate.swift */; };
 		164BC53E2E5AC94400E93007 /* ViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 164BC51B2E5AC94400E93007 /* ViewController.swift */; };
+		1674EA7A2E5B364E00B0F228 /* FrameServiceTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 16B3D2E82E5ADBB600D1100F /* FrameServiceTests.swift */; };
+		1674EA7B2E5B364E00B0F228 /* MorseCodeGeneratorTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 16B3D2F02E5ADBB600D1100F /* MorseCodeGeneratorTests.swift */; };
+		1674EA7C2E5B364E00B0F228 /* JJYArchitectureTestSuite.swift in Sources */ = {isa = PBXBuildFile; fileRef = 16B3D2EB2E5ADBB600D1100F /* JJYArchitectureTestSuite.swift */; };
+		1674EA7D2E5B364E00B0F228 /* JJYArchitectureIntegrationTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 16B3D2EA2E5ADBB600D1100F /* JJYArchitectureIntegrationTests.swift */; };
+		1674EA7E2E5B364E00B0F228 /* AudioEngineTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 16B3D2E52E5ADBB600D1100F /* AudioEngineTests.swift */; };
+		1674EA7F2E5B364E00B0F228 /* MockClock.swift in Sources */ = {isa = PBXBuildFile; fileRef = 16B3D2EE2E5ADBB600D1100F /* MockClock.swift */; };
+		1674EA802E5B364E00B0F228 /* AudioEngineProtocolTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 16B3D2E32E5ADBB600D1100F /* AudioEngineProtocolTests.swift */; };
+		1674EA812E5B364E00B0F228 /* PerformanceAndStressTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 16B3D2F12E5ADBB600D1100F /* PerformanceAndStressTests.swift */; };
+		1674EA822E5B364E00B0F228 /* JJYClockTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 16B3D2EC2E5ADBB600D1100F /* JJYClockTests.swift */; };
+		1674EA832E5B364E00B0F228 /* AudioEngineQualityTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 16B3D2E42E5ADBB600D1100F /* AudioEngineQualityTests.swift */; };
+		1674EA842E5B364E00B0F228 /* ModularArchitectureIntegrationTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 16B3D2EF2E5ADBB600D1100F /* ModularArchitectureIntegrationTests.swift */; };
+		1674EA852E5B364E00B0F228 /* DeterministicBehaviorTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 16B3D2E72E5ADBB600D1100F /* DeterministicBehaviorTests.swift */; };
+		1674EA862E5B364E00B0F228 /* ComprehensiveIntegrationTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 16B3D2E62E5ADBB600D1100F /* ComprehensiveIntegrationTests.swift */; };
+		1674EA872E5B364E00B0F228 /* MockPresentationController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 16B3D2E02E5ADBB600D1100F /* MockPresentationController.swift */; };
+		1674EA882E5B364E00B0F228 /* ThreadSafetyTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 16B3D2F32E5ADBB600D1100F /* ThreadSafetyTests.swift */; };
+		1674EA892E5B364E00B0F228 /* UIStateManagerTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 16B3D2F52E5ADBB600D1100F /* UIStateManagerTests.swift */; };
+		1674EA8A2E5B364E00B0F228 /* AudioBufferFactoryTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 16B3D2E22E5ADBB600D1100F /* AudioBufferFactoryTests.swift */; };
+		1674EA8B2E5B364E00B0F228 /* TransmissionSchedulerTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 16B3D2F42E5ADBB600D1100F /* TransmissionSchedulerTests.swift */; };
+		1674EA8C2E5B364E00B0F228 /* FrequencyManagementServiceTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 16B3D2E92E5ADBB600D1100F /* FrequencyManagementServiceTests.swift */; };
+		1674EA8D2E5B364E00B0F228 /* README.md in Resources */ = {isa = PBXBuildFile; fileRef = 16B3D2F22E5ADBB600D1100F /* README.md */; };
+		1674EA8E2E5B364E00B0F228 /* JJYWaveTests-Info.plist in Resources */ = {isa = PBXBuildFile; fileRef = 16B3D2ED2E5ADBB600D1100F /* JJYWaveTests-Info.plist */; };
+		1674EA922E5B381200B0F228 /* XCTest.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 1674EA912E5B381200B0F228 /* XCTest.framework */; };
+		1674EA932E5B381200B0F228 /* XCTest.framework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = 1674EA912E5B381200B0F228 /* XCTest.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
+		1674EA952E5B38F800B0F228 /* JJYWaveTests.xctestplan in Resources */ = {isa = PBXBuildFile; fileRef = 1674EA8F2E5B36E600B0F228 /* JJYWaveTests.xctestplan */; };
 		16AA8FEB2E598B4F003D8C4F /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 16AA8FE02E598B4F003D8C4F /* Main.storyboard */; };
 		16AA8FEC2E598B4F003D8C4F /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 16AA8FD72E598B4F003D8C4F /* Assets.xcassets */; };
 		16B3D30C2E5ADC8200D1100F /* AudioGeneratorCoordinator.swift in Sources */ = {isa = PBXBuildFile; fileRef = 16B3D3042E5ADC8200D1100F /* AudioGeneratorCoordinator.swift */; };
@@ -41,12 +65,28 @@
 		};
 /* End PBXContainerItemProxy section */
 
+/* Begin PBXCopyFilesBuildPhase section */
+		1674EA942E5B381200B0F228 /* Embed Frameworks */ = {
+			isa = PBXCopyFilesBuildPhase;
+			buildActionMask = 2147483647;
+			dstPath = "";
+			dstSubfolderSpec = 10;
+			files = (
+				1674EA932E5B381200B0F228 /* XCTest.framework in Embed Frameworks */,
+			);
+			name = "Embed Frameworks";
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXCopyFilesBuildPhase section */
+
 /* Begin PBXFileReference section */
 		163F5D312E59A36C004B34CE /* Localizable.xcstrings */ = {isa = PBXFileReference; lastKnownFileType = text.json.xcstrings; path = Localizable.xcstrings; sourceTree = "<group>"; };
 		163F5D472E59B237004B34CE /* LICENSE.txt */ = {isa = PBXFileReference; lastKnownFileType = text; path = LICENSE.txt; sourceTree = "<group>"; };
 		163F5D482E59B237004B34CE /* README.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = README.md; sourceTree = "<group>"; };
 		164BC51A2E5AC94400E93007 /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
 		164BC51B2E5AC94400E93007 /* ViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ViewController.swift; sourceTree = "<group>"; };
+		1674EA8F2E5B36E600B0F228 /* JJYWaveTests.xctestplan */ = {isa = PBXFileReference; lastKnownFileType = text; path = JJYWaveTests.xctestplan; sourceTree = "<group>"; };
+		1674EA912E5B381200B0F228 /* XCTest.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = XCTest.framework; path = Platforms/MacOSX.platform/Developer/Library/Frameworks/XCTest.framework; sourceTree = DEVELOPER_DIR; };
 		168B38FE2E53F2B300F5004F /* JJYWave.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = JJYWave.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		16AA8FD72E598B4F003D8C4F /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 		16AA8FD82E598B4F003D8C4F /* JJYWave.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = JJYWave.entitlements; sourceTree = "<group>"; };
@@ -110,6 +150,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				1674EA922E5B381200B0F228 /* XCTest.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -125,9 +166,18 @@
 			path = App;
 			sourceTree = "<group>";
 		};
+		1674EA902E5B381200B0F228 /* Frameworks */ = {
+			isa = PBXGroup;
+			children = (
+				1674EA912E5B381200B0F228 /* XCTest.framework */,
+			);
+			name = Frameworks;
+			sourceTree = "<group>";
+		};
 		168B38F52E53F2B300F5004F = {
 			isa = PBXGroup;
 			children = (
+				1674EA8F2E5B36E600B0F228 /* JJYWaveTests.xctestplan */,
 				163F5D472E59B237004B34CE /* LICENSE.txt */,
 				163F5D482E59B237004B34CE /* README.md */,
 				163F5D312E59A36C004B34CE /* Localizable.xcstrings */,
@@ -138,6 +188,7 @@
 				16B3D30B2E5ADC8200D1100F /* JJYKit */,
 				16B3D2F62E5ADBB600D1100F /* Tests */,
 				16B3D3202E5ADEB600D1100F /* JJYWaveTests */,
+				1674EA902E5B381200B0F228 /* Frameworks */,
 				168B38FF2E53F2B300F5004F /* Products */,
 			);
 			sourceTree = "<group>";
@@ -278,6 +329,7 @@
 				16B3D31B2E5ADEB600D1100F /* Sources */,
 				16B3D31C2E5ADEB600D1100F /* Frameworks */,
 				16B3D31D2E5ADEB600D1100F /* Resources */,
+				1674EA942E5B381200B0F228 /* Embed Frameworks */,
 			);
 			buildRules = (
 			);
@@ -309,7 +361,6 @@
 					};
 					16B3D31E2E5ADEB600D1100F = {
 						CreatedOnToolsVersion = 16.4;
-						TestTargetID = 168B38FD2E53F2B300F5004F;
 					};
 				};
 			};
@@ -350,6 +401,9 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				1674EA8D2E5B364E00B0F228 /* README.md in Resources */,
+				1674EA8E2E5B364E00B0F228 /* JJYWaveTests-Info.plist in Resources */,
+				1674EA952E5B38F800B0F228 /* JJYWaveTests.xctestplan in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -384,6 +438,25 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				1674EA7A2E5B364E00B0F228 /* FrameServiceTests.swift in Sources */,
+				1674EA7B2E5B364E00B0F228 /* MorseCodeGeneratorTests.swift in Sources */,
+				1674EA7C2E5B364E00B0F228 /* JJYArchitectureTestSuite.swift in Sources */,
+				1674EA7D2E5B364E00B0F228 /* JJYArchitectureIntegrationTests.swift in Sources */,
+				1674EA7E2E5B364E00B0F228 /* AudioEngineTests.swift in Sources */,
+				1674EA7F2E5B364E00B0F228 /* MockClock.swift in Sources */,
+				1674EA802E5B364E00B0F228 /* AudioEngineProtocolTests.swift in Sources */,
+				1674EA812E5B364E00B0F228 /* PerformanceAndStressTests.swift in Sources */,
+				1674EA822E5B364E00B0F228 /* JJYClockTests.swift in Sources */,
+				1674EA832E5B364E00B0F228 /* AudioEngineQualityTests.swift in Sources */,
+				1674EA842E5B364E00B0F228 /* ModularArchitectureIntegrationTests.swift in Sources */,
+				1674EA852E5B364E00B0F228 /* DeterministicBehaviorTests.swift in Sources */,
+				1674EA862E5B364E00B0F228 /* ComprehensiveIntegrationTests.swift in Sources */,
+				1674EA872E5B364E00B0F228 /* MockPresentationController.swift in Sources */,
+				1674EA882E5B364E00B0F228 /* ThreadSafetyTests.swift in Sources */,
+				1674EA892E5B364E00B0F228 /* UIStateManagerTests.swift in Sources */,
+				1674EA8A2E5B364E00B0F228 /* AudioBufferFactoryTests.swift in Sources */,
+				1674EA8B2E5B364E00B0F228 /* TransmissionSchedulerTests.swift in Sources */,
+				1674EA8C2E5B364E00B0F228 /* FrequencyManagementServiceTests.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -557,7 +630,7 @@
 					"@executable_path/../Frameworks",
 				);
 				MARKETING_VERSION = 1.0;
-				PRODUCT_BUNDLE_IDENTIFIER = com.MyCometG3.jjy40;
+				PRODUCT_BUNDLE_IDENTIFIER = com.MyCometG3.JJYWave;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				REGISTER_APP_GROUPS = YES;
 				SWIFT_EMIT_LOC_STRINGS = YES;
@@ -585,7 +658,7 @@
 					"@executable_path/../Frameworks",
 				);
 				MARKETING_VERSION = 1.0;
-				PRODUCT_BUNDLE_IDENTIFIER = com.MyCometG3.jjy40;
+				PRODUCT_BUNDLE_IDENTIFIER = com.MyCometG3.JJYWave;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				REGISTER_APP_GROUPS = YES;
 				SWIFT_EMIT_LOC_STRINGS = YES;
@@ -596,7 +669,6 @@
 		16B3D3252E5ADEB600D1100F /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
-				BUNDLE_LOADER = "$(TEST_HOST)";
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
 				DEVELOPMENT_TEAM = BV5C4YNA4Z;
@@ -607,14 +679,12 @@
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SWIFT_EMIT_LOC_STRINGS = NO;
 				SWIFT_VERSION = 5.0;
-				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/JJYWave.app/$(BUNDLE_EXECUTABLE_FOLDER_PATH)/JJYWave";
 			};
 			name = Debug;
 		};
 		16B3D3262E5ADEB600D1100F /* Release */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
-				BUNDLE_LOADER = "$(TEST_HOST)";
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
 				DEVELOPMENT_TEAM = BV5C4YNA4Z;
@@ -625,7 +695,6 @@
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SWIFT_EMIT_LOC_STRINGS = NO;
 				SWIFT_VERSION = 5.0;
-				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/JJYWave.app/$(BUNDLE_EXECUTABLE_FOLDER_PATH)/JJYWave";
 			};
 			name = Release;
 		};
