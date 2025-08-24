@@ -189,9 +189,15 @@ final class JJYArchitectureIntegrationTests: XCTestCase {
     func testFullPipelineIntegration() {
         // Test the complete pipeline: Clock -> FrameService -> Scheduler -> AudioEngine
         audioEngineManager.setupAudioEngine(sampleRate: 96000, channelCount: 2)
-        let engineStarted = audioEngineManager.startEngine()
         
-        if engineStarted {
+        do {
+            try audioEngineManager.startEngine()
+        } catch {
+            XCTFail("Failed to start audio engine: \(error)")
+            return
+        }
+        
+        if audioEngineManager.isEngineRunning {
             let expectation = XCTestExpectation(description: "Full pipeline should work")
             expectation.expectedFulfillmentCount = 5 // Multiple seconds
             mockDelegate.multipleSecondExpectation = expectation
