@@ -55,9 +55,10 @@ class AudioEngine {
         logger.info("Audio engine setup with sample rate: \(sampleRate, format: .fixed(precision: 0)) Hz, channels: \(channelCount)")
     }
     
+    @discardableResult
     func startEngine() -> Bool {
         do {
-            try concurrencyQueue.sync {
+            return try concurrencyQueue.sync {
                 guard let audioEngine = audioEngine else {
                     return false
                 }
@@ -71,8 +72,8 @@ class AudioEngine {
                 logger.info("Player sample rate (desired): \(playerSR, format: .fixed(precision: 0))")
                 logger.info("Hardware sample rate: \(hwSR, format: .fixed(precision: 0))")
                 logger.info("Channel count: \(self.audioEngine.outputNode.outputFormat(forBus: 0).channelCount)")
+                return true
             }
-            return true
         } catch {
             logger.error("Failed to start audio engine: \(error)")
             return false
