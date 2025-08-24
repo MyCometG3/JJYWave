@@ -7,25 +7,25 @@ This directory contains comprehensive unit and integration tests for the refacto
 ### Unit Tests
 
 #### JJYClockTests.swift
-- Tests for `JJYClock` protocol and `SystemClock` implementation
+- Tests for `Clock` protocol and `SystemClock` implementation
 - Tests for `MockClock` functionality and timing control
 - Protocol conformance and consistency validation
 
-#### JJYFrameServiceTests.swift
+#### FrameServiceTests.swift
 - Frame construction with various configurations
 - Time-based frame generation and BCD encoding validation
 - Leap second plan handling and service status bits
 - Calendar and time zone handling (JST)
 - Edge cases and error handling
 
-#### JJYSchedulerTests.swift
+#### TransmissionSchedulerTests.swift
 - Configuration management and propagation
 - Timing coordination and scheduling accuracy
 - Minute rollover and drift detection
 - Frame symbol sequence validation
 - Thread safety and concurrent operations
 
-#### AudioEngineManagerTests.swift
+#### AudioEngineTests.swift
 - Audio engine setup and configuration
 - Sample rate and channel count handling
 - Buffer scheduling and playback control

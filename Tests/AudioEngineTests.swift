@@ -29,7 +29,7 @@ final class AudioEngineTests: XCTestCase {
     // MARK: - Initialization Tests
     
     func testInitialization() {
-        let manager = AudioEngineManager()
+        let manager = AudioEngine()
         
         // Initially, engine should not be running
         XCTAssertFalse(manager.isEngineRunning)
@@ -259,7 +259,7 @@ final class AudioEngineTests: XCTestCase {
     // MARK: - Error Handling and Edge Cases
     
     func testOperationsBeforeSetup() {
-        let manager = AudioEngineManager()
+        let manager = AudioEngine()
         
         // Operations should be safe before setup
         XCTAssertFalse(manager.isEngineRunning)

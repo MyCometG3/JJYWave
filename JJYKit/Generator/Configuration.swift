@@ -1,4 +1,4 @@
-struct JJYConfiguration {
+struct Configuration {
     // フォーマットに影響する項目（再セットアップが必要）
     var sampleRate: Double
     var channelCount: UInt32

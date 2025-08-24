@@ -40,7 +40,7 @@ class JJYAudioGenerator {
     private var _channelCount: AVAudioChannelCount = 2
     
     // 設定オブジェクト（将来の主API）。現行publicプロパティと双方向同期。
-    private var _configuration: JJYConfiguration = JJYConfiguration(
+    private var _configuration: Configuration = Configuration(
         sampleRate: 96000,
         channelCount: 2,
         isTestModeEnabled: true,
@@ -133,7 +133,7 @@ class JJYAudioGenerator {
         }
     }
     
-    var configuration: JJYConfiguration {
+    var configuration: Configuration {
         return concurrencyQueue.sync { _configuration }
     }
     
@@ -391,13 +391,13 @@ class JJYAudioGenerator {
     /// - 制約: フォーマット影響項目（sampleRate, channelCount）は停止中のみ変更可。
     /// - 戻り値: 全項目が適用できた場合に true。適用不可項目があれば false を返し、それ以外は適用される。
     @discardableResult
-    func applyConfiguration(_ newConfig: JJYConfiguration) -> Bool {
+    func applyConfiguration(_ newConfig: Configuration) -> Bool {
         return concurrencyQueue.sync {
             return _applyConfiguration(newConfig)
         }
     }
     
-    private func _applyConfiguration(_ newConfig: JJYConfiguration) -> Bool {
+    private func _applyConfiguration(_ newConfig: Configuration) -> Bool {
         // フォーマット影響項目の検査
         let formatChanged = (newConfig.sampleRate != _sampleRate) || (AVAudioChannelCount(newConfig.channelCount) != _channelCount)
         if formatChanged && _isGenerating {
@@ -432,7 +432,7 @@ class JJYAudioGenerator {
     
     /// 現在のpublicプロパティからconfigurationへ同期（初期化時に使用）。
     private func syncFromConfiguration() {
-        let current = JJYConfiguration(
+        let current = Configuration(
             sampleRate: _sampleRate,
             channelCount: UInt32(_channelCount),
             isTestModeEnabled: _isTestModeEnabled,

@@ -24,7 +24,7 @@ class FrameService {
         let now = clock.currentDate()
         let baseTime = currentMinuteStart(from: now, calendar: calendar)
         
-        let frameOptions = JJYFrameBuilder.Options(
+        let frameOptions = FrameBuilder.Options(
             enableCallsign: enableCallsign,
             enableServiceStatusBits: enableServiceStatusBits,
             leapSecondPlan: leapSecondPlan,
@@ -33,7 +33,7 @@ class FrameService {
             serviceStatusBits: serviceStatusBits
         )
         
-        let frame = JJYFrameBuilder().build(for: baseTime, calendar: calendar, options: frameOptions)
+        let frame = FrameBuilder().build(for: baseTime, calendar: calendar, options: frameOptions)
         logFrame(frame, baseTime: baseTime, calendar: calendar)
         return frame
     }
@@ -49,7 +49,7 @@ class FrameService {
     ) -> [JJYSymbol] {
         let calendar = jstCalendar()
         
-        let frameOptions = JJYFrameBuilder.Options(
+        let frameOptions = FrameBuilder.Options(
             enableCallsign: enableCallsign,
             enableServiceStatusBits: enableServiceStatusBits,
             leapSecondPlan: leapSecondPlan,
@@ -58,7 +58,7 @@ class FrameService {
             serviceStatusBits: serviceStatusBits
         )
         
-        let frame = JJYFrameBuilder().build(for: baseTime, calendar: calendar, options: frameOptions)
+        let frame = FrameBuilder().build(for: baseTime, calendar: calendar, options: frameOptions)
         logFrame(frame, baseTime: baseTime, calendar: calendar)
         return frame
     }
