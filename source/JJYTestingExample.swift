@@ -116,3 +116,23 @@ JJYComponentsExample.testFrameServiceWithMockTime()
 JJYComponentsExample.testSchedulerBehavior()
 print("=== All Tests Passed ===")
 */
+
+// MARK: - Note for Comprehensive Testing
+/// For comprehensive unit and integration tests, see the Tests/ directory:
+/// - JJYClockTests.swift: Tests for JJYClock protocol and implementations
+/// - JJYFrameServiceTests.swift: Tests for frame construction and leap second logic
+/// - JJYSchedulerTests.swift: Tests for timing, scheduling, and drift detection
+/// - AudioEngineManagerTests.swift: Tests for audio engine management
+/// - AudioBufferFactoryTests.swift: Golden tests for audio buffer generation
+/// - JJYArchitectureIntegrationTests.swift: Integration tests for component interactions
+/// - JJYArchitectureTestSuite.swift: Master test suite and regression prevention
+/// - MockClock.swift: Enhanced mock clock for deterministic testing
+///
+/// These tests provide comprehensive coverage of:
+/// - Unit tests for each refactored component
+/// - Configuration validation
+/// - Minute rollover and leap second handling
+/// - Drift resync policy and timing coordination
+/// - Golden tests for audio buffer validation (duty cycle, amplitude, etc.)
+/// - Integration tests ensuring components work together correctly
+/// - Thread safety and performance validation
