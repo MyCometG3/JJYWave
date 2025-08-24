@@ -41,8 +41,8 @@ final class AudioBufferFactoryTests: XCTestCase {
     // MARK: - Basic Buffer Generation Tests
     
     func testMarkSymbolBuffer() {
-        guard let buffer = AudioBufferFactory.makeSecondBuffer(
-            symbol: .mark,
+        guard let buffer = AudioBufferFactoryStatic.makeSecondBuffer(
+            symbol: JJYAudioGenerator.JJYSymbol.mark,
             secondIndex: 0,
             format: testFormat,
             carrierFrequency: testCarrierFrequency,
@@ -61,8 +61,8 @@ final class AudioBufferFactoryTests: XCTestCase {
     }
     
     func testBit1SymbolBuffer() {
-        guard let buffer = AudioBufferFactory.makeSecondBuffer(
-            symbol: .bit1,
+        guard let buffer = AudioBufferFactoryStatic.makeSecondBuffer(
+            symbol: JJYAudioGenerator.JJYSymbol.bit1,
             secondIndex: 1,
             format: testFormat,
             carrierFrequency: testCarrierFrequency,
@@ -81,8 +81,8 @@ final class AudioBufferFactoryTests: XCTestCase {
     }
     
     func testBit0SymbolBuffer() {
-        guard let buffer = AudioBufferFactory.makeSecondBuffer(
-            symbol: .bit0,
+        guard let buffer = AudioBufferFactoryStatic.makeSecondBuffer(
+            symbol: JJYAudioGenerator.JJYSymbol.bit0,
             secondIndex: 2,
             format: testFormat,
             carrierFrequency: testCarrierFrequency,
@@ -101,8 +101,8 @@ final class AudioBufferFactoryTests: XCTestCase {
     }
     
     func testMorseSymbolBuffer() {
-        guard let buffer = AudioBufferFactory.makeSecondBuffer(
-            symbol: .morse,
+        guard let buffer = AudioBufferFactoryStatic.makeSecondBuffer(
+            symbol: JJYAudioGenerator.JJYSymbol.morse,
             secondIndex: 12, // Typical morse position
             format: testFormat,
             carrierFrequency: testCarrierFrequency,
@@ -213,8 +213,8 @@ final class AudioBufferFactoryTests: XCTestCase {
     // MARK: - Amplitude Validation Tests
     
     func testAmplitudeAccuracy() {
-        guard let buffer = AudioBufferFactory.makeSecondBuffer(
-            symbol: .mark,
+        guard let buffer = AudioBufferFactoryStatic.makeSecondBuffer(
+            symbol: JJYAudioGenerator.JJYSymbol.mark,
             secondIndex: 0,
             format: testFormat,
             carrierFrequency: testCarrierFrequency,
@@ -263,8 +263,8 @@ final class AudioBufferFactoryTests: XCTestCase {
     
     func testSineWaveform() {
         testPhase = 0.0
-        guard let buffer = AudioBufferFactory.makeSecondBuffer(
-            symbol: .mark,
+        guard let buffer = AudioBufferFactoryStatic.makeSecondBuffer(
+            symbol: JJYAudioGenerator.JJYSymbol.mark,
             secondIndex: 0,
             format: testFormat,
             carrierFrequency: testCarrierFrequency,
@@ -283,8 +283,8 @@ final class AudioBufferFactoryTests: XCTestCase {
     
     func testSquareWaveform() {
         testPhase = 0.0
-        guard let buffer = AudioBufferFactory.makeSecondBuffer(
-            symbol: .mark,
+        guard let buffer = AudioBufferFactoryStatic.makeSecondBuffer(
+            symbol: JJYAudioGenerator.JJYSymbol.mark,
             secondIndex: 0,
             format: testFormat,
             carrierFrequency: testCarrierFrequency,
@@ -361,8 +361,8 @@ final class AudioBufferFactoryTests: XCTestCase {
         
         for frequency in testFrequencies {
             testPhase = 0.0
-            guard let buffer = AudioBufferFactory.makeSecondBuffer(
-                symbol: .mark,
+            guard let buffer = AudioBufferFactoryStatic.makeSecondBuffer(
+                symbol: JJYAudioGenerator.JJYSymbol.mark,
                 secondIndex: 0,
                 format: testFormat,
                 carrierFrequency: frequency,
@@ -413,11 +413,12 @@ final class AudioBufferFactoryTests: XCTestCase {
     
     func testMultiChannelConsistency() {
         guard testFormat.channelCount > 1 else {
-            XCTSkip("Test requires multi-channel format")
+            XCTFail("Test requires multi-channel format")
+            return
         }
         
-        guard let buffer = AudioBufferFactory.makeSecondBuffer(
-            symbol: .mark,
+        guard let buffer = AudioBufferFactoryStatic.makeSecondBuffer(
+            symbol: JJYAudioGenerator.JJYSymbol.mark,
             secondIndex: 0,
             format: testFormat,
             carrierFrequency: testCarrierFrequency,
@@ -458,8 +459,8 @@ final class AudioBufferFactoryTests: XCTestCase {
         
         // Generate several consecutive buffers and check phase continuity
         for secondIndex in 0..<5 {
-            guard let buffer = AudioBufferFactory.makeSecondBuffer(
-                symbol: .mark,
+            guard let buffer = AudioBufferFactoryStatic.makeSecondBuffer(
+                symbol: JJYAudioGenerator.JJYSymbol.mark,
                 secondIndex: secondIndex,
                 format: testFormat,
                 carrierFrequency: testCarrierFrequency,

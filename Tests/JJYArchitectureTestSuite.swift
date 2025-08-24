@@ -359,13 +359,13 @@ extension JJYArchitectureTestSuite {
         // Check marker positions
         let markerPositions = [0, 9, 19, 29, 39, 49, 59]
         for position in markerPositions {
-            XCTAssertEqual(frame[position], .mark, "Position \(position) should be a marker")
+            XCTAssertEqual(frame[position], JJYAudioGenerator.JJYSymbol.mark, "Position \(position) should be a marker")
         }
         
         // Check that non-marker positions contain valid symbols
         for (index, symbol) in frame.enumerated() {
             if !markerPositions.contains(index) {
-                XCTAssertTrue([.bit0, .bit1, .morse].contains(symbol), 
+                XCTAssertTrue([JJYAudioGenerator.JJYSymbol.bit0, JJYAudioGenerator.JJYSymbol.bit1, JJYAudioGenerator.JJYSymbol.morse].contains(symbol), 
                              "Position \(index) should contain a valid data symbol")
             }
         }

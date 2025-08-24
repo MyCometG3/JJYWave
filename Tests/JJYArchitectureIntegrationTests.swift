@@ -85,7 +85,7 @@ final class JJYArchitectureIntegrationTests: XCTestCase {
             
             // Basic validation that time is encoded (detailed BCD validation would be complex)
             let hasTimeData = frame.contains { symbol in
-                symbol == .bit0 || symbol == .bit1
+                symbol == JJYAudioGenerator.JJYSymbol.bit0 || symbol == JJYAudioGenerator.JJYSymbol.bit1
             }
             XCTAssertTrue(hasTimeData, "Frame should contain time data bits")
         }
@@ -189,9 +189,14 @@ final class JJYArchitectureIntegrationTests: XCTestCase {
     func testFullPipelineIntegration() {
         // Test the complete pipeline: Clock -> FrameService -> Scheduler -> AudioEngine
         audioEngineManager.setupAudioEngine(sampleRate: 96000, channelCount: 2)
-        let engineStarted = audioEngineManager.startEngine()
         
-        if engineStarted {
+        let engineStarted = audioEngineManager.startEngine()
+        if !engineStarted {
+            XCTFail("Failed to start audio engine")
+            return
+        }
+        
+        if audioEngineManager.isEngineRunning {
             let expectation = XCTestExpectation(description: "Full pipeline should work")
             expectation.expectedFulfillmentCount = 5 // Multiple seconds
             mockDelegate.multipleSecondExpectation = expectation
@@ -206,7 +211,7 @@ final class JJYArchitectureIntegrationTests: XCTestCase {
             if !mockDelegate.scheduledSymbols.isEmpty {
                 let firstSymbol = mockDelegate.scheduledSymbols[0]
                 XCTAssertEqual(firstSymbol.secondIndex, 0, "First symbol should be at index 0")
-                XCTAssertEqual(firstSymbol.symbol, .mark, "First symbol should be a marker")
+                XCTAssertEqual(firstSymbol.symbol, JJYAudioGenerator.JJYSymbol.mark, "First symbol should be a marker")
             }
         } else {
             XCTSkip("Audio engine could not be started in test environment")
@@ -312,7 +317,7 @@ final class JJYArchitectureIntegrationTests: XCTestCase {
         
         // Should handle gracefully
         XCTAssertNoThrow({
-            let frame = frameService.buildFrame(
+            let frame = self.frameService.buildFrame(
                 enableCallsign: false,
                 enableServiceStatusBits: false,
                 leapSecondPlan: nil,

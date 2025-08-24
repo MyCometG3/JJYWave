@@ -22,11 +22,13 @@ class AudioEngineProtocolTests: XCTestCase {
     
     func testAudioEngineConformsToProtocol() {
         // Verify that AudioEngine conforms to AudioEngineProtocol
+        XCTAssertNotNil(realAudioEngine, "AudioEngine should be initialized")
         XCTAssertTrue(realAudioEngine is AudioEngineProtocol, "AudioEngine should conform to AudioEngineProtocol")
     }
     
     func testMockAudioEngineConformsToProtocol() {
         // Verify that mock also conforms to the protocol
+        XCTAssertNotNil(mockAudioEngine, "MockAudioEngine should be initialized")
         XCTAssertTrue(mockAudioEngine is AudioEngineProtocol, "MockAudioEngine should conform to AudioEngineProtocol")
     }
     
@@ -46,7 +48,8 @@ class AudioEngineProtocolTests: XCTestCase {
     }
     
     func testMockAudioEngineStartStop() {
-        XCTAssertNoThrow(try mockAudioEngine.startEngine(), "Start engine should not throw")
+        let success = mockAudioEngine.startEngine()
+        XCTAssertTrue(success, "Start engine should succeed")
         XCTAssertTrue(mockAudioEngine.startEngineWasCalled, "Start engine should be called")
         
         mockAudioEngine.startPlayer()
@@ -115,9 +118,10 @@ class MockAudioEngine: AudioEngineProtocol {
         lastChannelCount = channelCount
     }
     
-    func startEngine() throws {
+    func startEngine() -> Bool {
         startEngineWasCalled = true
         _isEngineRunning = true
+        return true
     }
     
     func stopEngine() {
@@ -139,7 +143,17 @@ class MockAudioEngine: AudioEngineProtocol {
     func scheduleBuffer(_ buffer: AVAudioPCMBuffer, at when: AVAudioTime?, completionHandler: AVAudioNodeCompletionHandler?) {
         scheduleBufferWasCalled = true
         // Call completion handler immediately for testing
-        completionHandler?(.success)
+        completionHandler?()
+    }
+    
+    func trySetHardwareSampleRate(_ desired: Double) -> Bool {
+        // Mock implementation always succeeds
+        return true
+    }
+    
+    func getPlayerFormat() -> AVAudioFormat? {
+        // Return a mock format for testing
+        return AVAudioFormat(standardFormatWithSampleRate: 96000, channels: 2)
     }
 }
 

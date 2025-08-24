@@ -300,35 +300,32 @@ class JJYAudioGenerator {
     private func _startGeneration() {
         guard !_isGenerating else { return }
         
-        do {
-            try audioEngineManager.startEngine()
-            audioEngineManager.startPlayer()
-            _isGenerating = true
-            
-            // Ensure delegate callback is on main queue
+        let engineStarted = audioEngineManager.startEngine()
+        if !engineStarted {
             DispatchQueue.main.async { [weak self] in
-                self?.delegate?.audioGeneratorDidStart()
+                self?.delegate?.audioGeneratorDidEncounterError("Failed to start audio engine")
             }
-            
-            // Update scheduler configuration and start
-            scheduler.updateConfiguration(
-                enableCallsign: _enableCallsign,
-                enableServiceStatusBits: _enableServiceStatusBits,
-                leapSecondPlan: _leapSecondPlan,
-                leapSecondPending: _leapSecondPending,
-                leapSecondInserted: _leapSecondInserted,
-                serviceStatusBits: _serviceStatusBits
-            )
-            scheduler.startScheduling()
-            
-        } catch {
-            let message = "Failed to start audio engine: \(String(describing: error))"
-            logger.error("\(message)")
-            // Ensure delegate callback is on main queue
-            DispatchQueue.main.async { [weak self] in
-                self?.delegate?.audioGeneratorDidEncounterError(message)
-            }
+            return
         }
+        
+        audioEngineManager.startPlayer()
+        _isGenerating = true
+        
+        // Ensure delegate callback is on main queue
+        DispatchQueue.main.async { [weak self] in
+            self?.delegate?.audioGeneratorDidStart()
+        }
+        
+        // Update scheduler configuration and start
+        scheduler.updateConfiguration(
+            enableCallsign: _enableCallsign,
+            enableServiceStatusBits: _enableServiceStatusBits,
+            leapSecondPlan: _leapSecondPlan,
+            leapSecondPending: _leapSecondPending,
+            leapSecondInserted: _leapSecondInserted,
+            serviceStatusBits: _serviceStatusBits
+        )
+        scheduler.startScheduling()
     }
     
     private func _stopGeneration() {
@@ -506,7 +503,7 @@ class JJYAudioGenerator {
         
         // バッファ生成をファクトリに委譲
         let morse = MorseCodeGenerator()
-        guard let buffer = AudioBufferFactory.makeSecondBuffer(symbol: symbol,
+        guard let buffer = AudioBufferFactoryStatic.makeSecondBuffer(symbol: symbol,
                                                                secondIndex: secondIndex,
                                                                format: format,
                                                                carrierFrequency: _carrierFrequency,

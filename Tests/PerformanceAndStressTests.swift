@@ -9,6 +9,7 @@
 import XCTest
 import Foundation
 import AVFoundation
+import Darwin.Mach
 @testable import JJYWave
 
 final class PerformanceAndStressTests: XCTestCase {
@@ -109,7 +110,7 @@ final class PerformanceAndStressTests: XCTestCase {
     
     func testBufferGenerationPerformance() {
         // Requirement: < 5ms per second of audio
-        let symbols: [JJYSymbol] = [.mark, .bit0, .bit1, .morse]
+        let symbols: [JJYAudioGenerator.JJYSymbol] = [.mark, .bit0, .bit1, .morse]
         
         measure {
             for i in 0..<60 {
@@ -130,7 +131,7 @@ final class PerformanceAndStressTests: XCTestCase {
         // Generate many buffers
         for i in 0..<240 { // 4 minutes worth of buffers
             if let buffer = bufferFactory.createBuffer(
-                for: .mark,
+                for: JJYAudioGenerator.JJYSymbol.mark,
                 secondIndex: i % 60,
                 carrierFrequency: 40000
             ) {

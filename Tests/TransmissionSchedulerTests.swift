@@ -176,7 +176,7 @@ final class TransmissionSchedulerTests: XCTestCase {
         
         // First symbol should be a marker (position 0 in frame)
         if !mockDelegate.scheduledSymbols.isEmpty {
-            XCTAssertEqual(mockDelegate.scheduledSymbols[0].symbol, .mark)
+            XCTAssertEqual(mockDelegate.scheduledSymbols[0].symbol, JJYAudioGenerator.JJYSymbol.mark)
             XCTAssertEqual(mockDelegate.scheduledSymbols[0].secondIndex, 0)
         }
     }
@@ -313,8 +313,8 @@ class MockSchedulerDelegate: TransmissionSchedulerDelegate {
     var frameRebuildCallCount = 0
     var secondSchedulingCallCount = 0
     var frameRebuildTimes: [Date] = []
-    var scheduledSymbols: [(symbol: JJYSymbol, secondIndex: Int, when: AVAudioTime?)] = []
-    var lastSecondScheduling: (symbol: JJYSymbol, secondIndex: Int, when: AVAudioTime?)?
+    var scheduledSymbols: [(symbol: JJYAudioGenerator.JJYSymbol, secondIndex: Int, when: AVAudioTime?)] = []
+    var lastSecondScheduling: (symbol: JJYAudioGenerator.JJYSymbol, secondIndex: Int, when: AVAudioTime?)?
     
     // Expectations for testing
     var frameRebuildExpectation: XCTestExpectation?
@@ -327,7 +327,7 @@ class MockSchedulerDelegate: TransmissionSchedulerDelegate {
         frameRebuildExpectation?.fulfill()
     }
     
-    func schedulerDidRequestSecondScheduling(symbol: JJYSymbol, secondIndex: Int, when: AVAudioTime) {
+    func schedulerDidRequestSecondScheduling(symbol: JJYAudioGenerator.JJYSymbol, secondIndex: Int, when: AVAudioTime) {
         secondSchedulingCallCount += 1
         let scheduling = (symbol: symbol, secondIndex: secondIndex, when: when as AVAudioTime?)
         scheduledSymbols.append(scheduling)

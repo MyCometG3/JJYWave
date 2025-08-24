@@ -1,7 +1,7 @@
 import AVFoundation
 
 // シンボル→PCMバッファ生成
-struct AudioBufferFactory {
+struct AudioBufferFactoryStatic {
     // dit=9/97 は固定仕様（JJYの呼出符号）。
     private static let morseDit: Double = 9.0 / 97.0
 
@@ -71,5 +71,45 @@ struct AudioBufferFactory {
             }
         }
         return buffer
+    }
+}
+
+// MARK: - Instance-Based AudioBufferFactory
+// Class wrapper for tests that need instance-based interface
+class AudioBufferFactory {
+    private let sampleRate: Double
+    private let channelCount: AVAudioChannelCount
+    private let carrierFrequency: Double
+    private let morse: MorseCodeGenerator
+    private let secondDuration: Double
+    private let outputGain: Double = 0.3
+    private let lowAmplitudeScale: Double = 0.1
+    private var phase: Double = 0.0
+    
+    init(sampleRate: Double, channelCount: UInt32, carrierFrequency: Double, morse: MorseCodeGenerator, secondDuration: Double) {
+        self.sampleRate = sampleRate
+        self.channelCount = AVAudioChannelCount(channelCount)
+        self.carrierFrequency = carrierFrequency
+        self.morse = morse
+        self.secondDuration = secondDuration
+    }
+    
+    func createBuffer(for symbol: JJYAudioGenerator.JJYSymbol, secondIndex: Int, carrierFrequency: Double? = nil) -> AVAudioPCMBuffer? {
+        let frequency = carrierFrequency ?? self.carrierFrequency
+        guard let format = AVAudioFormat(standardFormatWithSampleRate: sampleRate, channels: channelCount) else {
+            return nil
+        }
+        
+        return AudioBufferFactoryStatic.makeSecondBuffer(
+            symbol: symbol,
+            secondIndex: secondIndex,
+            format: format,
+            carrierFrequency: frequency,
+            outputGain: outputGain,
+            lowAmplitudeScale: lowAmplitudeScale,
+            phase: &phase,
+            morse: morse,
+            waveform: .sine
+        )
     }
 }
