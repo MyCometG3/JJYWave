@@ -257,7 +257,7 @@ final class ThreadSafetyTests: XCTestCase {
         var bufferResults: [AVAudioPCMBuffer?] = []
         let resultsQueue = DispatchQueue(label: "bufferResults")
         
-        let symbols: [JJYSymbol] = [.mark, .bit0, .bit1, .morse]
+        let symbols: [JJYAudioGenerator.JJYSymbol] = [.mark, .bit0, .bit1, .morse]
         
         // Generate buffers concurrently
         for i in 0..<40 {

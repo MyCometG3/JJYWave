@@ -165,7 +165,7 @@ final class DeterministicBehaviorTests: XCTestCase {
     func testSchedulerDeterministicScheduling() {
         let testDate = MockClock.createJSTTime(year: 2025, month: 1, day: 15, hour: 14, minute: 30, second: 0)
         
-        var referenceResults: [(symbol: JJYSymbol, secondIndex: Int)] = []
+        var referenceResults: [(symbol: JJYAudioGenerator.JJYSymbol, secondIndex: Int)] = []
         
         for iteration in 0..<3 {
             let clock = MockClock(date: testDate)
@@ -239,7 +239,7 @@ final class DeterministicBehaviorTests: XCTestCase {
     func testBufferFactoryDeterministicGeneration() {
         let morse = MorseCodeGenerator()
         
-        let symbols: [JJYSymbol] = [.mark, .bit0, .bit1, .morse]
+        let symbols: [JJYAudioGenerator.JJYSymbol] = [.mark, .bit0, .bit1, .morse]
         let frequencies = [13333.0, 15000.0, 20000.0, 40000.0, 60000.0]
         
         for frequency in frequencies {
@@ -398,14 +398,14 @@ class MockSchedulerDelegate: TransmissionSchedulerDelegate {
     var frameRebuildCallCount = 0
     var frameRebuildTimes: [Date] = []
     var secondSchedulingCallCount = 0
-    var scheduledSymbols: [(symbol: JJYSymbol, secondIndex: Int, when: AVAudioTime?)] = []
+    var scheduledSymbols: [(symbol: JJYAudioGenerator.JJYSymbol, secondIndex: Int, when: AVAudioTime?)] = []
     
     func schedulerDidRequestFrameRebuild(for baseTime: Date) {
         frameRebuildCallCount += 1
         frameRebuildTimes.append(baseTime)
     }
     
-    func schedulerDidRequestSecondScheduling(symbol: JJYSymbol, secondIndex: Int, when: AVAudioTime) {
+    func schedulerDidRequestSecondScheduling(symbol: JJYAudioGenerator.JJYSymbol, secondIndex: Int, when: AVAudioTime) {
         secondSchedulingCallCount += 1
         scheduledSymbols.append((symbol: symbol, secondIndex: secondIndex, when: when))
     }

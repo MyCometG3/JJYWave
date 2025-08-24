@@ -96,7 +96,7 @@ final class FrameServiceTests: XCTestCase {
         // Service status bits should be encoded in specific positions
         // Positions 41-46 typically contain service status bits
         for i in 41...46 {
-            XCTAssertTrue(frame[i] == .bit0 || frame[i] == .bit1, "Position \(i) should contain a data bit")
+            XCTAssertTrue(frame[i] == JJYAudioGenerator.JJYSymbol.bit0 || frame[i] == JJYAudioGenerator.JJYSymbol.bit1, "Position \(i) should contain a data bit")
         }
     }
     
@@ -124,8 +124,8 @@ final class FrameServiceTests: XCTestCase {
         
         // Verify that the frame encodes the correct minute (45)
         // Minute is encoded in BCD format at positions 1-8
-        let minuteTens = frame[2] == .bit1 ? 4 : 0 // Position 2 represents 40
-        let minuteOnes = (frame[5] == .bit1 ? 4 : 0) + (frame[6] == .bit1 ? 2 : 0) + (frame[7] == .bit1 ? 1 : 0)
+        let minuteTens = frame[2] == JJYAudioGenerator.JJYSymbol.bit1 ? 4 : 0 // Position 2 represents 40
+        let minuteOnes = (frame[5] == JJYAudioGenerator.JJYSymbol.bit1 ? 4 : 0) + (frame[6] == JJYAudioGenerator.JJYSymbol.bit1 ? 2 : 0) + (frame[7] == JJYAudioGenerator.JJYSymbol.bit1 ? 1 : 0)
         let encodedMinute = minuteTens + minuteOnes
         
         XCTAssertEqual(encodedMinute, 45, "Frame should encode minute 45")
@@ -173,8 +173,8 @@ final class FrameServiceTests: XCTestCase {
         let ls2 = frame[54]
         
         // Verify that leap second information is encoded (specific patterns depend on implementation)
-        XCTAssertTrue(ls1 == .bit0 || ls1 == .bit1, "Position 53 should contain leap second flag")
-        XCTAssertTrue(ls2 == .bit0 || ls2 == .bit1, "Position 54 should contain leap second flag")
+        XCTAssertTrue(ls1 == JJYAudioGenerator.JJYSymbol.bit0 || ls1 == JJYAudioGenerator.JJYSymbol.bit1, "Position 53 should contain leap second flag")
+        XCTAssertTrue(ls2 == JJYAudioGenerator.JJYSymbol.bit0 || ls2 == JJYAudioGenerator.JJYSymbol.bit1, "Position 54 should contain leap second flag")
     }
     
     func testLeapSecondInserted() {
@@ -193,8 +193,8 @@ final class FrameServiceTests: XCTestCase {
         let ls1 = frame[53]
         let ls2 = frame[54]
         
-        XCTAssertTrue(ls1 == .bit0 || ls1 == .bit1, "Position 53 should contain leap second status")
-        XCTAssertTrue(ls2 == .bit0 || ls2 == .bit1, "Position 54 should contain leap second status")
+        XCTAssertTrue(ls1 == JJYAudioGenerator.JJYSymbol.bit0 || ls1 == JJYAudioGenerator.JJYSymbol.bit1, "Position 53 should contain leap second status")
+        XCTAssertTrue(ls2 == JJYAudioGenerator.JJYSymbol.bit0 || ls2 == JJYAudioGenerator.JJYSymbol.bit1, "Position 54 should contain leap second status")
     }
     
     // MARK: - Calendar and Time Zone Tests

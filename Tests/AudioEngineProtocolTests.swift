@@ -141,6 +141,16 @@ class MockAudioEngine: AudioEngineProtocol {
         // Call completion handler immediately for testing
         completionHandler?(.success)
     }
+    
+    func trySetHardwareSampleRate(_ desired: Double) -> Bool {
+        // Mock implementation always succeeds
+        return true
+    }
+    
+    func getPlayerFormat() -> AVAudioFormat? {
+        // Return a mock format for testing
+        return AVAudioFormat(standardFormatWithSampleRate: 96000, channels: 2)
+    }
 }
 
 // MARK: - Integration Tests with Real AudioEngine

@@ -185,7 +185,7 @@ final class ComprehensiveIntegrationTests: XCTestCase {
             
             if i % 50 == 0 {
                 // Generate buffer
-                let _ = bufferFactory.createBuffer(for: .mark, secondIndex: i % 60, carrierFrequency: 40000)
+                let _ = bufferFactory.createBuffer(for: JJYAudioGenerator.JJYSymbol.mark, secondIndex: i % 60, carrierFrequency: 40000)
             }
         }
         
@@ -318,7 +318,7 @@ class ComprehensiveTestDelegate: TransmissionSchedulerDelegate {
     private(set) var frameRebuildCount = 0
     private(set) var secondSchedulingCount = 0
     private(set) var lastFrameSize = 0
-    private var currentFrame: [JJYSymbol] = []
+    private var currentFrame: [JJYAudioGenerator.JJYSymbol] = []
     
     func schedulerDidRequestFrameRebuild(for baseTime: Date) {
         frameRebuildCount += 1
@@ -326,21 +326,21 @@ class ComprehensiveTestDelegate: TransmissionSchedulerDelegate {
         lastFrameSize = 60
         
         // Create a mock frame for testing
-        currentFrame = Array(repeating: .mark, count: 60)
+        currentFrame = Array(repeating: JJYAudioGenerator.JJYSymbol.mark, count: 60)
         // Add some variety
         for i in stride(from: 0, to: 60, by: 10) {
-            currentFrame[i] = .mark
+            currentFrame[i] = JJYAudioGenerator.JJYSymbol.mark
         }
         for i in 1..<60 where i % 10 != 0 && i % 10 != 9 {
-            currentFrame[i] = (i % 2 == 0) ? .bit0 : .bit1
+            currentFrame[i] = (i % 2 == 0) ? JJYAudioGenerator.JJYSymbol.bit0 : JJYAudioGenerator.JJYSymbol.bit1
         }
     }
     
-    func schedulerDidRequestSecondScheduling(symbol: JJYSymbol, secondIndex: Int, when: AVAudioTime) {
+    func schedulerDidRequestSecondScheduling(symbol: JJYAudioGenerator.JJYSymbol, secondIndex: Int, when: AVAudioTime) {
         secondSchedulingCount += 1
     }
     
-    func getCurrentSymbol(for secondIndex: Int) -> JJYSymbol? {
+    func getCurrentSymbol(for secondIndex: Int) -> JJYAudioGenerator.JJYSymbol? {
         guard secondIndex >= 0 && secondIndex < currentFrame.count else { return .mark }
         return currentFrame[secondIndex]
     }

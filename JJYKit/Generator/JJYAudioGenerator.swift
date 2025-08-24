@@ -506,7 +506,7 @@ class JJYAudioGenerator {
         
         // バッファ生成をファクトリに委譲
         let morse = MorseCodeGenerator()
-        guard let buffer = AudioBufferFactory.makeSecondBuffer(symbol: symbol,
+        guard let buffer = AudioBufferFactoryStatic.makeSecondBuffer(symbol: symbol,
                                                                secondIndex: secondIndex,
                                                                format: format,
                                                                carrierFrequency: _carrierFrequency,
