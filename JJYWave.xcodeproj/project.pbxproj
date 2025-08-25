@@ -12,6 +12,7 @@
 		163F5D4A2E59B237004B34CE /* README.md in Resources */ = {isa = PBXBuildFile; fileRef = 163F5D482E59B237004B34CE /* README.md */; };
 		164BC53D2E5AC94400E93007 /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 164BC51A2E5AC94400E93007 /* AppDelegate.swift */; };
 		164BC53E2E5AC94400E93007 /* ViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 164BC51B2E5AC94400E93007 /* ViewController.swift */; };
+		167441152E5CA3D00095EAB7 /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 167441142E5CA3D00095EAB7 /* Main.storyboard */; };
 		1674EA7A2E5B364E00B0F228 /* FrameServiceTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 16B3D2E82E5ADBB600D1100F /* FrameServiceTests.swift */; };
 		1674EA7B2E5B364E00B0F228 /* MorseCodeGeneratorTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 16B3D2F02E5ADBB600D1100F /* MorseCodeGeneratorTests.swift */; };
 		1674EA7C2E5B364E00B0F228 /* JJYArchitectureTestSuite.swift in Sources */ = {isa = PBXBuildFile; fileRef = 16B3D2EB2E5ADBB600D1100F /* JJYArchitectureTestSuite.swift */; };
@@ -34,7 +35,6 @@
 		1674EA8D2E5B364E00B0F228 /* README.md in Resources */ = {isa = PBXBuildFile; fileRef = 16B3D2F22E5ADBB600D1100F /* README.md */; };
 		1674EA8E2E5B364E00B0F228 /* JJYWaveTests-Info.plist in Resources */ = {isa = PBXBuildFile; fileRef = 16B3D2ED2E5ADBB600D1100F /* JJYWaveTests-Info.plist */; };
 		1674EA952E5B38F800B0F228 /* JJYWaveTests.xctestplan in Resources */ = {isa = PBXBuildFile; fileRef = 1674EA8F2E5B36E600B0F228 /* JJYWaveTests.xctestplan */; };
-		16AA8FEB2E598B4F003D8C4F /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 16AA8FE02E598B4F003D8C4F /* Main.storyboard */; };
 		16AA8FEC2E598B4F003D8C4F /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 16AA8FD72E598B4F003D8C4F /* Assets.xcassets */; };
 		16B3D30C2E5ADC8200D1100F /* AudioGeneratorCoordinator.swift in Sources */ = {isa = PBXBuildFile; fileRef = 16B3D3042E5ADC8200D1100F /* AudioGeneratorCoordinator.swift */; };
 		16B3D30D2E5ADC8200D1100F /* AudioGeneratorConfigurationProtocol.swift in Sources */ = {isa = PBXBuildFile; fileRef = 16B3D3032E5ADC8200D1100F /* AudioGeneratorConfigurationProtocol.swift */; };
@@ -69,6 +69,8 @@
 		163F5D482E59B237004B34CE /* README.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = README.md; sourceTree = "<group>"; };
 		164BC51A2E5AC94400E93007 /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
 		164BC51B2E5AC94400E93007 /* ViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ViewController.swift; sourceTree = "<group>"; };
+		167441132E5CA3D00095EAB7 /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/Main.storyboard; sourceTree = "<group>"; };
+		167441162E5CA3D00095EAB7 /* mul */ = {isa = PBXFileReference; lastKnownFileType = text.json.xcstrings; name = mul; path = mul.lproj/Main.xcstrings; sourceTree = "<group>"; };
 		1674EA8F2E5B36E600B0F228 /* JJYWaveTests.xctestplan */ = {isa = PBXFileReference; lastKnownFileType = text; path = JJYWaveTests.xctestplan; sourceTree = "<group>"; };
 		1674EA912E5B381200B0F228 /* XCTest.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = XCTest.framework; path = Platforms/MacOSX.platform/Developer/Library/Frameworks/XCTest.framework; sourceTree = DEVELOPER_DIR; };
 		1674EA962E5BB0C500B0F228 /* CoreAudioTypes.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreAudioTypes.framework; path = System/Library/Frameworks/CoreAudioTypes.framework; sourceTree = SDKROOT; };
@@ -76,7 +78,6 @@
 		168B38FE2E53F2B300F5004F /* JJYWave.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = JJYWave.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		16AA8FD72E598B4F003D8C4F /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 		16AA8FD82E598B4F003D8C4F /* JJYWave.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = JJYWave.entitlements; sourceTree = "<group>"; };
-		16AA8FE22E598B4F003D8C4F /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/Main.storyboard; sourceTree = "<group>"; };
 		16B3D2E02E5ADBB600D1100F /* MockPresentationController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MockPresentationController.swift; sourceTree = "<group>"; };
 		16B3D2E22E5ADBB600D1100F /* AudioBufferFactoryTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AudioBufferFactoryTests.swift; sourceTree = "<group>"; };
 		16B3D2E32E5ADBB600D1100F /* AudioEngineProtocolTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AudioEngineProtocolTests.swift; sourceTree = "<group>"; };
@@ -170,7 +171,7 @@
 				163F5D312E59A36C004B34CE /* Localizable.xcstrings */,
 				16AA8FD72E598B4F003D8C4F /* Assets.xcassets */,
 				16AA8FD82E598B4F003D8C4F /* JJYWave.entitlements */,
-				16AA8FE02E598B4F003D8C4F /* Main.storyboard */,
+				167441142E5CA3D00095EAB7 /* Main.storyboard */,
 				164BC51C2E5AC94400E93007 /* App */,
 				16B3D30B2E5ADC8200D1100F /* JJYKit */,
 				16B3D2F62E5ADBB600D1100F /* Tests */,
@@ -376,7 +377,7 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				16AA8FEB2E598B4F003D8C4F /* Main.storyboard in Resources */,
+				167441152E5CA3D00095EAB7 /* Main.storyboard in Resources */,
 				16AA8FEC2E598B4F003D8C4F /* Assets.xcassets in Resources */,
 				163F5D492E59B237004B34CE /* LICENSE.txt in Resources */,
 				163F5D4A2E59B237004B34CE /* README.md in Resources */,
@@ -458,10 +459,11 @@
 /* End PBXTargetDependency section */
 
 /* Begin PBXVariantGroup section */
-		16AA8FE02E598B4F003D8C4F /* Main.storyboard */ = {
+		167441142E5CA3D00095EAB7 /* Main.storyboard */ = {
 			isa = PBXVariantGroup;
 			children = (
-				16AA8FE22E598B4F003D8C4F /* Base */,
+				167441132E5CA3D00095EAB7 /* Base */,
+				167441162E5CA3D00095EAB7 /* mul */,
 			);
 			name = Main.storyboard;
 			sourceTree = "<group>";
