@@ -103,10 +103,19 @@ class AudioEngine {
     
     func scheduleBuffer(_ buffer: AVAudioPCMBuffer, at when: AVAudioTime?, completionHandler: AVAudioNodeCompletionHandler? = nil) {
         concurrencyQueue.async { [weak self] in
+            guard let self = self, let playerNode = self.playerNode else { return }
+            
+            // フォーマット検証を追加
+            let playerFormat = playerNode.outputFormat(forBus: 0)
+            guard playerFormat.channelCount == buffer.format.channelCount else {
+                self.logger.error("Channel count mismatch: player=\(playerFormat.channelCount), buffer=\(buffer.format.channelCount)")
+                return
+            }
+            
             if let when = when {
-                self?.playerNode?.scheduleBuffer(buffer, at: when, options: [], completionHandler: completionHandler)
+                playerNode.scheduleBuffer(buffer, at: when, options: [], completionHandler: completionHandler)
             } else {
-                self?.playerNode?.scheduleBuffer(buffer, completionHandler: completionHandler)
+                playerNode.scheduleBuffer(buffer, completionHandler: completionHandler)
             }
         }
     }

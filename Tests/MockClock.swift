@@ -67,7 +67,18 @@ public class MockClock: Clock {
     public func advanceTime(by seconds: TimeInterval) {
         queue.sync {
             self.mockDate = mockDate.addingTimeInterval(seconds)
-            self.mockHostTime += UInt64(seconds * mockFrequency)
+            let hostTimeChange = seconds * mockFrequency
+            if hostTimeChange >= 0 {
+                self.mockHostTime += UInt64(hostTimeChange)
+            } else {
+                // 負の値の場合の処理
+                let absChange = UInt64(-hostTimeChange)
+                if absChange <= self.mockHostTime {
+                    self.mockHostTime -= absChange
+                } else {
+                    self.mockHostTime = 0
+                }
+            }
         }
     }
     

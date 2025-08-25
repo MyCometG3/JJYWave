@@ -150,7 +150,7 @@ final class PerformanceAndStressTests: XCTestCase {
         let finalMemory = getCurrentMemoryUsage()
         
         // Memory should be released after clearing buffers
-        let retainedMemory = finalMemory - initialMemory
+        let retainedMemory = Int64(finalMemory) - Int64(initialMemory)
         XCTAssertLessThan(retainedMemory, 50_000_000, "Should release memory after clearing buffers")
     }
     

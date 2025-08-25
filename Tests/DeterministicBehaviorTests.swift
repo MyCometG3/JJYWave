@@ -119,7 +119,7 @@ final class DeterministicBehaviorTests: XCTestCase {
                     // Frames should be identical across iterations
                     XCTAssertEqual(currentFrames.count, previousFrames.count, "Frame count should be consistent")
                     for frameIndex in 0..<currentFrames.count {
-                        XCTAssertEqual(currentFrames[frameIndex], previousFrames[frameIndex], 
+                        XCTAssertEqual(currentFrames[frameIndex], previousFrames[frameIndex],
                                      "Frame \(frameIndex) should be identical for config \(config)")
                     }
                 }
@@ -165,7 +165,7 @@ final class DeterministicBehaviorTests: XCTestCase {
     func testSchedulerDeterministicScheduling() {
         let testDate = MockClock.createJSTTime(year: 2025, month: 1, day: 15, hour: 14, minute: 30, second: 0)
         
-        var referenceResults: [(symbol: JJYAudioGenerator.JJYSymbol, secondIndex: Int)] = []
+        var referenceResults: [(symbol: JJYSymbol, secondIndex: Int)] = []
         
         for iteration in 0..<3 {
             let clock = MockClock(date: testDate)
@@ -239,38 +239,56 @@ final class DeterministicBehaviorTests: XCTestCase {
     func testBufferFactoryDeterministicGeneration() {
         let morse = MorseCodeGenerator()
         
-        let symbols: [JJYAudioGenerator.JJYSymbol] = [.mark, .bit0, .bit1, .morse]
+        let symbols: [JJYSymbol] = [.mark, .bit0, .bit1, .morse]
         let frequencies = [13333.0, 15000.0, 20000.0, 40000.0, 60000.0]
+        
+        // Create audio format for buffer generation
+        let format = AVAudioFormat(
+            standardFormatWithSampleRate: 96000,
+            channels: 2
+        )!
         
         for frequency in frequencies {
             for symbol in symbols {
                 var referenceBuffer: AVAudioPCMBuffer?
                 
                 for iteration in 0..<3 {
-                    let factory = AudioBufferFactory(
-                        sampleRate: 96000,
-                        channelCount: 2,
-                        carrierFrequency: frequency,
-                        morse: morse,
-                        secondDuration: 1.0
-                    )
+                    var phase: Double = 0.0
                     
-                    let buffer = factory.createBuffer(
-                        for: symbol,
+                    let buffer = AudioBufferFactoryStatic.makeSecondBuffer(
+                        symbol: symbol,
                         secondIndex: 0,
-                        carrierFrequency: frequency
+                        format: format,
+                        carrierFrequency: frequency,
+                        outputGain: 1.0,
+                        lowAmplitudeScale: 0.1,
+                        phase: &phase,
+                        morse: morse,
+                        waveform: .sine
                     )
                     
                     if iteration == 0 {
                         referenceBuffer = buffer
                     } else {
                         // Compare buffer properties
-                        XCTAssertEqual(buffer?.frameLength, referenceBuffer?.frameLength, 
-                                     "Buffer frame length should be consistent for \(symbol) at \(frequency)Hz")
-                        XCTAssertEqual(buffer?.format.channelCount, referenceBuffer?.format.channelCount,
-                                     "Buffer channel count should be consistent for \(symbol) at \(frequency)Hz")
-                        XCTAssertEqual(buffer?.format.sampleRate, referenceBuffer?.format.sampleRate,
-                                     "Buffer sample rate should be consistent for \(symbol) at \(frequency)Hz")
+                        if let curLen = buffer?.frameLength, let refLen = referenceBuffer?.frameLength {
+                            XCTAssertEqual(curLen, refLen,
+                                         "Buffer frame length should be consistent for \(symbol) at \(frequency)Hz")
+                        } else {
+                            XCTFail("Missing buffer(s) for frame length comparison")
+                        }
+                        if let curCh = buffer?.format.channelCount, let refCh = referenceBuffer?.format.channelCount {
+                            XCTAssertEqual(curCh, refCh,
+                                         "Buffer channel count should be consistent for \(symbol) at \(frequency)Hz")
+                        } else {
+                            XCTFail("Missing buffer(s) for channel count comparison")
+                        }
+                        if let curSR = buffer?.format.sampleRate, let refSR = referenceBuffer?.format.sampleRate {
+                            XCTAssertEqual(curSR, refSR, accuracy: 0.1,
+                                         "Buffer sample rate should be consistent for \(symbol) at \(frequency)Hz")
+                        } else {
+                            XCTFail("Missing buffer(s) for sample rate comparison")
+                        }
                         
                         // Compare first few samples to verify content consistency
                         if let currentBuffer = buffer, let refBuffer = referenceBuffer,
@@ -280,7 +298,9 @@ final class DeterministicBehaviorTests: XCTestCase {
                             let samplesToCompare = min(100, Int(currentBuffer.frameLength))
                             for channel in 0..<Int(currentBuffer.format.channelCount) {
                                 for sample in 0..<samplesToCompare {
-                                    XCTAssertEqual(currentData[channel][sample], refData[channel][sample], accuracy: 0.0001,
+                                    let cur = Double(currentData[channel][sample])
+                                    let ref = Double(refData[channel][sample])
+                                    XCTAssertEqual(cur, ref, accuracy: 1e-4,
                                                  "Sample \(sample) in channel \(channel) should be consistent for \(symbol) at \(frequency)Hz")
                                 }
                             }
@@ -308,7 +328,7 @@ final class DeterministicBehaviorTests: XCTestCase {
             
             // Perform sequence of operations
             let operations = [
-                { scheduler.updateConfiguration(enableCallsign: false, enableServiceStatusBits: false, 
+                { scheduler.updateConfiguration(enableCallsign: false, enableServiceStatusBits: false,
                                                leapSecondPlan: nil, leapSecondPending: false, leapSecondInserted: true,
                                                serviceStatusBits: (false, false, false, false, false, false)) },
                 { clock.advanceTime(by: 30.0) },
@@ -398,14 +418,14 @@ class DeterministicMockSchedulerDelegate: TransmissionSchedulerDelegate {
     var frameRebuildCallCount = 0
     var frameRebuildTimes: [Date] = []
     var secondSchedulingCallCount = 0
-    var scheduledSymbols: [(symbol: JJYAudioGenerator.JJYSymbol, secondIndex: Int, when: AVAudioTime?)] = []
+    var scheduledSymbols: [(symbol: JJYSymbol, secondIndex: Int, when: AVAudioTime?)] = []
     
     func schedulerDidRequestFrameRebuild(for baseTime: Date) {
         frameRebuildCallCount += 1
         frameRebuildTimes.append(baseTime)
     }
     
-    func schedulerDidRequestSecondScheduling(symbol: JJYAudioGenerator.JJYSymbol, secondIndex: Int, when: AVAudioTime) {
+    func schedulerDidRequestSecondScheduling(symbol: JJYSymbol, secondIndex: Int, when: AVAudioTime) {
         secondSchedulingCallCount += 1
         scheduledSymbols.append((symbol: symbol, secondIndex: secondIndex, when: when))
     }

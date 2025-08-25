@@ -94,7 +94,9 @@ class AudioBufferFactory {
         self.secondDuration = secondDuration
     }
     
-    func createBuffer(for symbol: JJYAudioGenerator.JJYSymbol, secondIndex: Int, carrierFrequency: Double? = nil) -> AVAudioPCMBuffer? {
+    func createBuffer(for symbol: JJYAudioGenerator.JJYSymbol,
+                      secondIndex: Int,
+                      carrierFrequency: Double? = nil) -> AVAudioPCMBuffer? {
         let frequency = carrierFrequency ?? self.carrierFrequency
         guard let format = AVAudioFormat(standardFormatWithSampleRate: sampleRate, channels: channelCount) else {
             return nil
