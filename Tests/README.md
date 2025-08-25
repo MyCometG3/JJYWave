@@ -1,158 +1,135 @@
-# JJYWave Architecture Test Suite
+# JJYWave Tests
 
-This directory contains comprehensive unit and integration tests for the refactored JJYAudioGenerator architecture components.
+このディレクトリは JJYWave の自動テストに関するガイドと補足資料を提供します。  
+テストは Xcode のテスト機構（XCTest）で実行し、ユニットテストと一部の統合テストを含みます。
 
-## Test Coverage
+- 対象プラットフォーム: macOS
+- ビルド/テストは Xcode IDE からのみ実行（コマンドラインは対象外）
 
-### Unit Tests
+## 実行方法
 
-#### JJYClockTests.swift
-- Tests for `Clock` protocol and `SystemClock` implementation
-- Tests for `MockClock` functionality and timing control
-- Protocol conformance and consistency validation
+Xcode で以下の手順を行います。
 
-#### FrameServiceTests.swift
-- Frame construction with various configurations
-- Time-based frame generation and BCD encoding validation
-- Leap second plan handling and service status bits
-- Calendar and time zone handling (JST)
-- Edge cases and error handling
+1) プロジェクトを開く: `JJYWave.xcodeproj`  
+2) スキーム: JJYWave（既定）  
+3) テストプラン: `JJYWaveTests.xctestplan`（同梱）  
+4) 実行: ⌘U（または Product → Test）
 
-#### TransmissionSchedulerTests.swift
-- Configuration management and propagation
-- Timing coordination and scheduling accuracy
-- Minute rollover and drift detection
-- Frame symbol sequence validation
-- Thread safety and concurrent operations
+推奨手順:  
+- まず Clean Build Folder（⌘⇧K）→ Build（⌘B）  
+- コンパイルエラーを解消してから ⌘U でテストを実行
 
-#### AudioEngineTests.swift
-- Audio engine setup and configuration
-- Sample rate and channel count handling
-- Buffer scheduling and playback control
-- Hardware sample rate management
-- State consistency and error handling
+## テスト構成
 
-#### AudioBufferFactoryTests.swift (Golden Tests)
-- Audio buffer generation accuracy
-- Duty cycle validation for JJY symbols (Mark: 0.2s, Bit1: 0.5s, Bit0: 0.8s)
-- Amplitude accuracy and waveform validation
-- Carrier frequency accuracy (13.333, 15.000, 20.000, 40.000, 60.000 kHz)
-- Phase continuity between buffers
-- Multi-channel consistency
+- JJYWaveTests/  
+  - フレーム生成、スケジューリング、オーディオ生成の各レイヤを対象にしたテスト群
+- 代表的な対象コード
+  - App 層: `App/`（UI 連携は最小限の検証）
+  - コア: `JJYKit/`
+    - `JJYAudioGenerator.swift`（オーディオ生成の中核）
+    - `JJYAudioGenerator+FrameBuilder.swift`（JJY 時刻コードのフレーム構築）
+    - `JJYAudioGenerator+Configuration.swift`（設定・パラメータ管理）
 
-### Integration Tests
+注: ファイル名は代表例です。名称や配置はプロジェクトの最新状態に合わせて読み替えてください。
 
-#### JJYArchitectureIntegrationTests.swift
-- Clock and FrameService integration
-- Scheduler and FrameService coordination
-- Complete pipeline testing (Clock → FrameService → Scheduler → AudioEngine)
-- Timing accuracy across components
-- Configuration propagation through the system
-- Performance and concurrency validation
+## テストカテゴリと観点
 
-#### JJYArchitectureTestSuite.swift
-- Master test suite organizing all components
-- Regression prevention tests
-- Configuration validation across all combinations
-- Memory management and performance benchmarks
-- Edge case handling for all scenarios
-- Backward compatibility validation
+1) フレーム構築（Frame Builder）
+- 目的: 指定日時に対して正しい 1 分フレームが構築されること
+- 観点:
+  - 各秒のシンボル種別が意図通り（0/1/マーカー）
+  - BCD/インデックスの配置、サービスビット、うるう秒/うるう年フラグの取り扱い
+  - マーカー秒の配置（分境界・所定インデックス）と整合性
+- 代表的な検証:
+  - 固定日時（UTC/ローカルいずれかに統一）でのゴールデンフレーム比較
+  - うるう秒挿入/非挿入の両ケースでの整合性
 
-### Test Utilities
+2) スケジューリング（分境界・ドリフト）
+- 目的: 1 秒単位・1 分単位のスケジュールが安定し、分境界の切り替えが適切であること
+- 観点:
+  - 分境界でのフレームローテーション
+  - 内部タイマのジッタ/ドリフト許容範囲内での更新（許容値は実装に合わせる）
+  - 実時間とフレーム進行の一貫性（モック/フェイク時刻源で検証）
 
-#### MockClock.swift
-- Enhanced mock clock for deterministic testing
-- Support for time advancement and scenario simulation
-- JST time creation and leap second testing
-- Debug and state inspection utilities
+3) オーディオ生成（Audio Generator）
+- 目的: 指定周波数のサイン波が生成され、JJY 変調（AM のデューティ）が仕様に近いこと
+- 観点:
+  - 周波数精度（例: 相対誤差 ±50 ppm 程度を目安。装置設定・サンプルレートに依存）
+  - バッファ長とサンプルレートの整合（duration × sampleRate ≒ bufferCount）
+  - デューティ（低振幅区間）の所要長
+    - 0: 約 0.8 s
+    - 1: 約 0.5 s
+    - マーカー: 約 0.2 s
+  - 許容誤差の一例（参考値、実装に合わせて調整）
+    - 時間長: ±1〜2 ms 程度
+    - 振幅レベル: 相対比の整合（低振幅/通常振幅の二値が識別できること）
+- 代表的な検証手法:
+  - 生成バッファを解析し、振幅エンベロープから低振幅区間の開始/終了サンプルを推定
+  - 1 秒あたりのゼロクロス/FFT を用いた周波数推定（許容誤差内か）
 
-## Key Test Scenarios
+4) UI とエンジン状態の整合（軽量）
+- 目的: 生成開始/停止、周波数切替時の状態同期
+- 観点:
+  - 生成中は 40/60 kHz の切替がブロックされる
+  - Stop で確実に停止状態へ遷移
+- 備考: UI は主に手動確認を推奨（自動化は最小限）
 
-### Configuration Testing
-- All combinations of callsign, service status bits, and leap second settings
-- Invalid configuration handling
-- Configuration changes during operation
+## ゴールデンデータと固定日時
 
-### Timing Testing
-- Minute boundary handling and rollover
-- Hour boundary transitions
-- Leap second insertion and pending states
-- Clock drift detection and resynchronization
-- Time zone consistency (always JST)
+- テストは再現性のため固定日時（例: 2024-01-01 00:00:00）を用いてフレームを検証
+- うるう秒/サマータイムの有無はテストケースごとに明示
+- 期待フレーム（ゴールデン）は、実装のフォーマッタ/ビルダとは独立したロジックで計算し、相互依存を避ける
 
-### Audio Buffer Golden Tests
-- **Mark Symbol**: 200ms high amplitude, 800ms low amplitude
-- **Bit1 Symbol**: 500ms high amplitude, 500ms low amplitude  
-- **Bit0 Symbol**: 800ms high amplitude, 200ms low amplitude
-- **Morse Symbol**: Pattern-based amplitude modulation
-- Frequency accuracy validation for all supported carriers
-- Phase continuity across buffer boundaries
+## サンプル閾値（参考）
 
-### Integration Scenarios
-- Full system operation from clock to audio output
-- Component failure recovery
-- Memory management and cleanup
-- Performance under load
-- Thread safety with concurrent operations
+プロジェクト設定や実装により数値は変わり得ます。テスト側の許容値は、実際のサンプルレートや処理系の丸めに合わせて調整してください。
 
-## Running Tests
+- サンプルレート: 96,000 Hz（既定の例）
+- 時間誤差許容: ±1 ms（= 96 サンプル）〜 ±2 ms
+- 周波数相対誤差: ±50 ppm（テストの安定性と実機差を考慮）
 
-### In Xcode (macOS)
-1. Open `JJYWave.xcodeproj` in Xcode
-2. The test files are already included in the JJYWaveTests target
-3. All dependencies and imports are properly configured
-4. Run tests with ⌘U (Cmd+U)
+## よくある失敗と対処
 
-### Compilation Fixes Applied
-- All JJYSymbol references use proper namespace (JJYAudioGenerator.JJYSymbol)
-- AudioBufferFactory class wrapper provides instance-based API for tests
-- MockAudioEngine implements complete AudioEngineProtocol interface
-- Memory usage functions import Darwin.Mach for mach_task_basic_info
-- Protocol-compliant scheduleBuffer calls without AVAudioPlayerNode options
+- フレームが 60 秒分にならない/マーカー位置不一致
+  - 分境界の扱い、59 秒目の扱い、マーカー秒の定義を確認
+  - タイムゾーン/日付変換の境界（UTC vs ローカル）に注意
+- デューティ時間の僅差で失敗
+  - サンプル境界の丸めを考慮して許容値を広げる
+  - エンベロープ検出のしきい値を見直す（振幅正規化/平滑化）
+- 周波数推定が不安定
+  - ウィンドウ長を整数秒にする、FFT の分解能/窓関数を見直す
+  - ウォームアップ区間を除外する
+- テストがローカル環境依存でフレーク
+  - オーディオデバイス依存を排し、純粋関数に近い層を優先して検証
+  - 実時間に依存する箇所はモック時刻源を介す
 
-### Test Organization
-- Unit tests focus on individual component functionality
-- Integration tests validate component interactions
-- Golden tests ensure audio output quality and accuracy
-- Performance tests prevent regressions in timing-critical code
+## 追加・変更のガイドライン
 
-## Test Data Validation
+- 新規テストを追加する場合
+  - `JJYWaveTests` ターゲットにファイルを追加
+  - 必要に応じて `JJYWaveTests.xctestplan` にテストを組み込む
+  - UI の文言変更がある場合は `Localizable.xcstrings` にエントリを追加し、両言語で確認
+- 実装変更を伴う場合
+  - ⌘B → ⌘U → ⌘R の順で「ビルド → 自動テスト → 手動検証」を徹底
+  - 生成開始/停止のサイクルと周波数切替の両方向を必ず確認
 
-### Frame Structure Validation
-- 60-second frame length
-- Marker positions at seconds 0, 9, 19, 29, 39, 49, 59
-- Proper BCD encoding of time information
-- Leap second flag encoding in positions 53-54
-- Service status bits in positions 41-46
+## 手動検証（補助）
 
-### Audio Quality Validation
-- Amplitude accuracy within 0.1% tolerance
-- Frequency accuracy within 5% tolerance
-- Duty cycle accuracy within 1ms tolerance
-- Phase continuity between consecutive buffers
-- Multi-channel consistency
+- アプリ起動（⌘R）→ Start/Stop の往復
+- 周波数の切替（13.333 / 15.000 / 20.000 / 40.000 / 60.000 kHz）
+- 40/60 kHz は生成停止後に切替可であることを確認
+- ローカライズ（英/日）で UI が崩れないこと
+- 音量は安全なレベルを厳守
 
-## Notes for Developers
+## トラブルシューティング
 
-### Adding New Tests
-1. Create test files following the existing naming pattern
-2. Use `MockClock` for deterministic timing
-3. Include both positive and negative test cases
-4. Add performance tests for timing-critical operations
-5. Update this README with new test coverage
+- ビルド失敗
+  - Xcode を最新化、Clean（⌘⇧K）後に再ビルド
+  - ターゲットの割当・コード署名を確認
+- 実行時/テスト時の失敗
+  - Console.app でログを確認
+  - オーディオ権限・他アプリの占有を確認
+  - サンプルレート/出力デバイス設定（Audio MIDI 設定）を見直す
 
-### Test Requirements
-- All tests must be deterministic (no random failures)
-- Tests should run without requiring audio hardware
-- Mock dependencies to isolate component behavior
-- Include comprehensive edge case coverage
-- Validate both success and failure paths
-
-### Performance Expectations
-- Frame building: < 10ms per frame
-- Configuration updates: < 1ms
-- Buffer generation: < 5ms per second of audio
-- Component initialization: < 100ms
-- Memory usage should remain stable over time
-
-This comprehensive test suite ensures the refactored JJYAudioGenerator architecture is reliable, maintainable, and free from regressions.
+---
+最終更新: このドキュメントはリポジトリの最新構成に随時追従します。テスト仕様に変更が入った場合は、ここも併せて更新してください。
