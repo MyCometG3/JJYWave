@@ -10,6 +10,11 @@ import AVFoundation
 
 class ViewController: NSViewController {
     
+    // MARK: - Constants
+    private enum UserDefaultsKeys {
+        static let frequencyIndex = "frequencySelectedIndex"
+    }
+    
     // MARK: - Properties
     private var audioGenerator: JJYAudioGenerator!
     private var audioGeneratorCoordinator: AudioGeneratorCoordinator!
@@ -86,6 +91,13 @@ class ViewController: NSViewController {
                 seg.leadingAnchor.constraint(equalTo: startStopButton.leadingAnchor)
             ])
         }
+        // Restore saved frequency selection after control is created
+        if UserDefaults.standard.object(forKey: UserDefaultsKeys.frequencyIndex) != nil {
+            let savedIndex = UserDefaults.standard.integer(forKey: UserDefaultsKeys.frequencyIndex)
+            guard (0...4).contains(savedIndex) else { return }
+            let currentIndex = audioGeneratorCoordinator.frequencyManager.getSegmentIndex(for: audioGenerator)
+            audioGeneratorCoordinator.handleFrequencyChange(to: savedIndex, currentIndex: currentIndex)
+        }
     }
     
     private func setupTimeTimer() {
@@ -109,6 +121,11 @@ class ViewController: NSViewController {
         let newIndex = sender.selectedSegment
         let currentIndex = audioGeneratorCoordinator.frequencyManager.getSegmentIndex(for: audioGenerator)
         audioGeneratorCoordinator.handleFrequencyChange(to: newIndex, currentIndex: currentIndex)
+        // Save only when the change was actually applied
+        let appliedIndex = audioGeneratorCoordinator.frequencyManager.getSegmentIndex(for: audioGenerator)
+        if appliedIndex == newIndex {
+            UserDefaults.standard.set(newIndex, forKey: UserDefaultsKeys.frequencyIndex)
+        }
     }
     
     // MARK: - Lifecycle
