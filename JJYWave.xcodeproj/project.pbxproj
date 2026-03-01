@@ -51,6 +51,7 @@
 		16B3D3182E5ADC8200D1100F /* JJYAudioGenerator.swift in Sources */ = {isa = PBXBuildFile; fileRef = 16B3D2FF2E5ADC8200D1100F /* JJYAudioGenerator.swift */; };
 		16B3D3192E5ADC8200D1100F /* AudioEngine.swift in Sources */ = {isa = PBXBuildFile; fileRef = 16B3D2F82E5ADC8200D1100F /* AudioEngine.swift */; };
 		16B3D31A2E5ADC8200D1100F /* JJYAudioGenerator+Index.swift in Sources */ = {isa = PBXBuildFile; fileRef = 16B3D3002E5ADC8200D1100F /* JJYAudioGenerator+Index.swift */; };
+		2DD63A9E0C9A4BF4A5C02B95 /* FrequencyPersistenceTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4BA6559D738E475B80BC2267 /* FrequencyPersistenceTests.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -115,6 +116,7 @@
 		16B3D3082E5ADC8200D1100F /* Clock.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Clock.swift; sourceTree = "<group>"; };
 		16B3D3092E5ADC8200D1100F /* TransmissionScheduler.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TransmissionScheduler.swift; sourceTree = "<group>"; };
 		16B3D31F2E5ADEB600D1100F /* JJYWaveTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = JJYWaveTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
+		4BA6559D738E475B80BC2267 /* FrequencyPersistenceTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FrequencyPersistenceTests.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFileSystemSynchronizedRootGroup section */
@@ -222,6 +224,7 @@
 				16B3D2F32E5ADBB600D1100F /* ThreadSafetyTests.swift */,
 				16B3D2F42E5ADBB600D1100F /* TransmissionSchedulerTests.swift */,
 				16B3D2F52E5ADBB600D1100F /* UIStateManagerTests.swift */,
+				4BA6559D738E475B80BC2267 /* FrequencyPersistenceTests.swift */,
 			);
 			path = Tests;
 			sourceTree = "<group>";
@@ -445,6 +448,7 @@
 				1674EA8A2E5B364E00B0F228 /* AudioBufferFactoryTests.swift in Sources */,
 				1674EA8B2E5B364E00B0F228 /* TransmissionSchedulerTests.swift in Sources */,
 				1674EA8C2E5B364E00B0F228 /* FrequencyManagementServiceTests.swift in Sources */,
+				2DD63A9E0C9A4BF4A5C02B95 /* FrequencyPersistenceTests.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
