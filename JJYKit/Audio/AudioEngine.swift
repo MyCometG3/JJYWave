@@ -10,12 +10,13 @@ class AudioEngine {
     private let concurrencyQueue = DispatchQueue(label: "com.MyCometG3.JJYWave.AudioEngine", qos: .userInitiated)
     private var audioEngine: AVAudioEngine!
     private var playerNode: AVAudioPlayerNode!
+    private var engineRunningFlag: Bool = false
     private let logger = Logger(subsystem: "com.MyCometG3.JJYWave", category: "AudioEngine")
     
     // MARK: - Properties
     var isEngineRunning: Bool {
         return concurrencyQueue.sync {
-            return audioEngine?.isRunning ?? false
+            return engineRunningFlag
         }
     }
     
@@ -60,21 +61,37 @@ class AudioEngine {
         do {
             return try concurrencyQueue.sync {
                 guard let audioEngine = audioEngine else {
+                    engineRunningFlag = false
                     return false
                 }
-                
+
                 try audioEngine.start()
-                
-                logger.info("Audio engine started successfully")
-                // ログ: プレーヤー接続SR（希望のSR）とハードウェアSRを両方表示
-                let playerSR = self.playerNode.outputFormat(forBus: 0).sampleRate
-                let hwSR = self.audioEngine.outputNode.outputFormat(forBus: 0).sampleRate
-                logger.info("Player sample rate (desired): \(playerSR, format: .fixed(precision: 0))")
-                logger.info("Hardware sample rate: \(hwSR, format: .fixed(precision: 0))")
-                logger.info("Channel count: \(self.audioEngine.outputNode.outputFormat(forBus: 0).channelCount)")
-                return true
+
+                let startCheck = Date()
+                while !audioEngine.isRunning && Date().timeIntervalSince(startCheck) < 0.1 {
+                    Thread.sleep(forTimeInterval: 0.005)
+                }
+
+                if audioEngine.isRunning {
+                    engineRunningFlag = true
+                    logger.info("Audio engine started successfully")
+                    // ログ: プレーヤー接続SR（希望のSR）とハードウェアSRを両方表示
+                    let playerSR = self.playerNode.outputFormat(forBus: 0).sampleRate
+                    let hwSR = self.audioEngine.outputNode.outputFormat(forBus: 0).sampleRate
+                    logger.info("Player sample rate (desired): \(playerSR, format: .fixed(precision: 0))")
+                    logger.info("Hardware sample rate: \(hwSR, format: .fixed(precision: 0))")
+                    logger.info("Channel count: \(self.audioEngine.outputNode.outputFormat(forBus: 0).channelCount)")
+                    return true
+                } else {
+                    engineRunningFlag = false
+                    logger.error("Audio engine start returned but engine is not running")
+                    return false
+                }
             }
         } catch {
+            concurrencyQueue.sync {
+                engineRunningFlag = false
+            }
             logger.error("Failed to start audio engine: \(error)")
             return false
         }
@@ -82,8 +99,10 @@ class AudioEngine {
     
     func stopEngine() {
         concurrencyQueue.async { [weak self] in
-            self?.audioEngine?.stop()
-            self?.playerNode?.stop()
+            guard let self = self else { return }
+            self.engineRunningFlag = false
+            self.audioEngine?.stop()
+            self.playerNode?.stop()
         }
     }
     
