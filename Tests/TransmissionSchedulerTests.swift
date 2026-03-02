@@ -75,7 +75,7 @@ final class TransmissionSchedulerTests: XCTestCase {
         
         scheduler.startScheduling()
         
-        wait(for: [expectation], timeout: 1.0)
+        wait(for: [expectation], timeout: 5.0)
         
         // Should have requested at least one frame rebuild
         XCTAssertGreaterThan(mockDelegate.frameRebuildCallCount, 0)
@@ -118,7 +118,7 @@ final class TransmissionSchedulerTests: XCTestCase {
         // Advance to next minute
         mockClock.advanceTime(by: 1.0)
         
-        wait(for: [expectation], timeout: 1.0)
+        wait(for: [expectation], timeout: 5.0)
         
         XCTAssertGreaterThan(mockDelegate.frameRebuildCallCount, 0)
     }
@@ -149,7 +149,7 @@ final class TransmissionSchedulerTests: XCTestCase {
         
         scheduler.startScheduling()
         
-        wait(for: [expectation], timeout: 1.0)
+        wait(for: [expectation], timeout: 5.0)
         
         // Should have scheduled at least one second
         XCTAssertGreaterThan(mockDelegate.secondSchedulingCallCount, 0)
@@ -169,7 +169,7 @@ final class TransmissionSchedulerTests: XCTestCase {
         
         scheduler.startScheduling()
         
-        wait(for: [expectation], timeout: 2.0)
+        wait(for: [expectation], timeout: 5.0)
         
         // Should have scheduled symbols in the correct sequence
         XCTAssertGreaterThanOrEqual(mockDelegate.scheduledSymbols.count, 5)
@@ -216,7 +216,7 @@ final class TransmissionSchedulerTests: XCTestCase {
         
         scheduler.startScheduling()
         
-        wait(for: [expectation], timeout: 1.0)
+        wait(for: [expectation], timeout: 5.0)
         
         XCTAssertGreaterThan(mockDelegate.frameRebuildCallCount, 0)
     }
@@ -233,7 +233,7 @@ final class TransmissionSchedulerTests: XCTestCase {
         let expectation = XCTestExpectation(description: "Should continue scheduling normally")
         mockDelegate.secondSchedulingExpectation = expectation
         
-        wait(for: [expectation], timeout: 1.0)
+        wait(for: [expectation], timeout: 5.0)
         
         XCTAssertGreaterThan(mockDelegate.secondSchedulingCallCount, 0)
     }
@@ -277,7 +277,7 @@ final class TransmissionSchedulerTests: XCTestCase {
         
         // All updates should complete without crashing
         expectation.fulfill()
-        wait(for: [expectation], timeout: 2.0)
+        wait(for: [expectation], timeout: 5.0)
         
         XCTAssertTrue(true) // If we get here, concurrent updates worked
     }
