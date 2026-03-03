@@ -201,6 +201,13 @@ public class MockClock: Clock {
     }
 }
 
+extension MockClock {
+    static let advancedNotification = Notification.Name("MockClock.advanced")
+    public var advancementNotificationName: Notification.Name? {
+        return Self.advancedNotification
+    }
+}
+
 // MARK: - Convenience Extensions
 
 extension MockClock {

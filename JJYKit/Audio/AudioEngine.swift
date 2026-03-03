@@ -11,6 +11,8 @@ class AudioEngine {
     private var audioEngine: AVAudioEngine!
     private var playerNode: AVAudioPlayerNode!
     private var engineRunningFlag: Bool = false
+    private var playerStartScheduled: Bool = false
+    private let playerStartDelay: TimeInterval = 0.05
     private let logger = Logger(subsystem: "com.MyCometG3.JJYWave", category: "AudioEngine")
     
     // MARK: - Properties
@@ -67,11 +69,6 @@ class AudioEngine {
 
                 try audioEngine.start()
 
-                let startCheck = Date()
-                while !audioEngine.isRunning && Date().timeIntervalSince(startCheck) < 0.1 {
-                    Thread.sleep(forTimeInterval: 0.005)
-                }
-
                 if audioEngine.isRunning {
                     engineRunningFlag = true
                     logger.info("Audio engine started successfully")
@@ -102,20 +99,31 @@ class AudioEngine {
             guard let self = self else { return }
             self.engineRunningFlag = false
             self.audioEngine?.stop()
+            self.playerStartScheduled = false
             self.playerNode?.stop()
         }
     }
     
     func startPlayer() {
         concurrencyQueue.async { [weak self] in
-            if !(self?.playerNode?.isPlaying ?? false) {
-                self?.playerNode?.play()
+            guard let self = self, let playerNode = self.playerNode else { return }
+            guard !playerNode.isPlaying else { return }
+            guard !self.playerStartScheduled else { return }
+            guard self.engineRunningFlag && (self.audioEngine?.isRunning ?? false) else { return }
+            self.playerStartScheduled = true
+            self.concurrencyQueue.asyncAfter(deadline: .now() + self.playerStartDelay) { [weak self] in
+                guard let self = self, let playerNode = self.playerNode else { return }
+                self.playerStartScheduled = false
+                guard !playerNode.isPlaying else { return }
+                guard self.engineRunningFlag && (self.audioEngine?.isRunning ?? false) else { return }
+                playerNode.play()
             }
         }
     }
     
     func stopPlayer() {
         concurrencyQueue.async { [weak self] in
+            self?.playerStartScheduled = false
             self?.playerNode?.stop()
         }
     }

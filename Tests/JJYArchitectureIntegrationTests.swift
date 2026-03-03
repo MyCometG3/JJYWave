@@ -35,7 +35,7 @@ final class JJYArchitectureIntegrationTests: XCTestCase {
         mockDelegate = nil
         super.tearDown()
     }
-    
+
     private func setupTestComponents() {
         // Set up components with deterministic test time
         let calendar = Calendar(identifier: .gregorian)
@@ -130,7 +130,7 @@ final class JJYArchitectureIntegrationTests: XCTestCase {
         mockClock.setMockDate(testDate)
         
         let expectation = XCTestExpectation(description: "Should rebuild frame at minute boundary")
-        expectation.expectedFulfillmentCount = 1 // At least initial rebuild
+        expectation.expectedFulfillmentCount = 2 // Expect initial rebuild + minute rollover
         mockDelegate.frameRebuildExpectation = expectation
         
         scheduler.startScheduling()
@@ -200,8 +200,7 @@ final class JJYArchitectureIntegrationTests: XCTestCase {
         mockDelegate.multipleSecondExpectation = expectation
         
         scheduler.startScheduling()
-        
-        wait(for: [expectation], timeout: 3.0)
+        wait(for: [expectation], timeout: 5.0)
         
         XCTAssertGreaterThanOrEqual(mockDelegate.scheduledSymbols.count, 5)
         

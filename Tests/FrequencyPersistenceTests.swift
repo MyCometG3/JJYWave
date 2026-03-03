@@ -5,22 +5,29 @@ import XCTest
 /// Tests for UserDefaults-based persistence of the frequency segment selection.
 class FrequencyPersistenceTests: XCTestCase {
 
+    private let suiteName = "JJYWave.FrequencyPersistenceTests"
     private let key = "frequencySelectedIndex"
+    private var userDefaults: UserDefaults!
 
     override func setUp() {
         super.setUp()
-        UserDefaults.standard.removeObject(forKey: key)
+        guard let defaults = UserDefaults(suiteName: suiteName) else {
+            fatalError("Unable to create UserDefaults suite for frequency persistence tests")
+        }
+        userDefaults = defaults
+        userDefaults.removePersistentDomain(forName: suiteName)
     }
 
     override func tearDown() {
-        UserDefaults.standard.removeObject(forKey: key)
+        userDefaults.removePersistentDomain(forName: suiteName)
+        userDefaults = nil
         super.tearDown()
     }
 
     // MARK: - Default / Initial State
 
     func testNoSavedValueByDefault() {
-        XCTAssertNil(UserDefaults.standard.object(forKey: key),
+        XCTAssertNil(userDefaults.object(forKey: key),
                      "Key must not exist before any selection is saved")
     }
 
@@ -28,24 +35,24 @@ class FrequencyPersistenceTests: XCTestCase {
 
     func testSaveAndRestoreAllSegmentIndices() {
         for index in 0...4 {
-            UserDefaults.standard.set(index, forKey: key)
-            let restored = UserDefaults.standard.integer(forKey: key)
+            userDefaults.set(index, forKey: key)
+            let restored = userDefaults.integer(forKey: key)
             XCTAssertEqual(restored, index,
                            "Restored index should equal saved value (\(index))")
         }
     }
 
     func testSavedValuePersistsAfterOverwrite() {
-        UserDefaults.standard.set(2, forKey: key)
-        UserDefaults.standard.set(4, forKey: key)
-        XCTAssertEqual(UserDefaults.standard.integer(forKey: key), 4,
+        userDefaults.set(2, forKey: key)
+        userDefaults.set(4, forKey: key)
+        XCTAssertEqual(userDefaults.integer(forKey: key), 4,
                        "Latest saved value should win")
     }
 
     func testRemoveObjectClearsKey() {
-        UserDefaults.standard.set(3, forKey: key)
-        UserDefaults.standard.removeObject(forKey: key)
-        XCTAssertNil(UserDefaults.standard.object(forKey: key),
+        userDefaults.set(3, forKey: key)
+        userDefaults.removeObject(forKey: key)
+        XCTAssertNil(userDefaults.object(forKey: key),
                      "Key should be absent after removal")
     }
 
@@ -56,8 +63,8 @@ class FrequencyPersistenceTests: XCTestCase {
         // UserDefaults itself handles them without crashing and that the
         // restored integer matches what was written.
         for invalid in [-1, 5, 999] {
-            UserDefaults.standard.set(invalid, forKey: key)
-            let restored = UserDefaults.standard.integer(forKey: key)
+            userDefaults.set(invalid, forKey: key)
+            let restored = userDefaults.integer(forKey: key)
             XCTAssertEqual(restored, invalid,
                            "UserDefaults should faithfully round-trip value \(invalid)")
             // Production restore code guards against out-of-range values,

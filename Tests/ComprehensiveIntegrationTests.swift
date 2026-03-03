@@ -199,7 +199,7 @@ final class ComprehensiveIntegrationTests: XCTestCase {
         XCTAssertLessThan(elapsedTime, 5.0, "High-frequency operations should complete within 5 seconds")
     }
     
-    func testMemoryStabilityOverTime() {
+    func testMemoryStabilityOverTime() throws {
         // Test that memory usage remains stable over extended operation
         let initialMemory = getCurrentMemoryUsage()
         if initialMemory == 0 { try XCTSkip("Memory measurement API unavailable in this environment") }

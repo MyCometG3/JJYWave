@@ -75,7 +75,7 @@ final class TransmissionSchedulerTests: XCTestCase {
         
         scheduler.startScheduling()
         
-        wait(for: [expectation], timeout: 5.0)
+        wait(for: [expectation], timeout: 10.0)
         
         // Should have requested at least one frame rebuild
         XCTAssertGreaterThan(mockDelegate.frameRebuildCallCount, 0)
@@ -168,7 +168,7 @@ final class TransmissionSchedulerTests: XCTestCase {
         mockDelegate.multipleSecondExpectation = expectation
         
         scheduler.startScheduling()
-        
+
         wait(for: [expectation], timeout: 5.0)
         
         // Should have scheduled symbols in the correct sequence

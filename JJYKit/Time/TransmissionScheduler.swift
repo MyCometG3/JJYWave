@@ -41,8 +41,9 @@ class TransmissionScheduler {
     init(clock: Clock = SystemClock(), frameService: FrameService) {
         self.clock = clock
         self.frameService = frameService
-        // Observe test-only MockClock advancement notifications to allow immediate handling
-        NotificationCenter.default.addObserver(self, selector: #selector(mockClockAdvanced(_:)), name: Notification.Name("MockClock.advanced"), object: nil)
+        if let notificationName = clock.advancementNotificationName {
+            NotificationCenter.default.addObserver(self, selector: #selector(mockClockAdvanced(_:)), name: notificationName, object: nil)
+        }
     }
 
     deinit {
@@ -94,6 +95,7 @@ class TransmissionScheduler {
             let cal = self.frameService.jstCalendar()
             let now = self.clock.currentDate()
             let currentSecond = cal.component(.second, from: now)
+            let currentMinuteStart = self.frameService.currentMinuteStart(from: now, calendar: cal)
             
             // Build initial frame
             self.currentFrame = self.frameService.buildFrame(
@@ -105,11 +107,10 @@ class TransmissionScheduler {
                 serviceStatusBits: self.serviceStatusBits
             )
 
-            // Request initial frame rebuild for the upcoming minute start
-            let baseTime = self.frameService.nextMinuteStart(from: now, calendar: cal)
-            self.delegate?.schedulerDidRequestFrameRebuild(for: baseTime)
+            // Request initial frame rebuild for the current minute
+            self.delegate?.schedulerDidRequestFrameRebuild(for: currentMinuteStart)
             // Remember the last requested base time so we can detect minute rollovers
-            self.lastRequestedBaseTime = baseTime
+            self.lastRequestedBaseTime = currentMinuteStart
 
             // 初回は現在秒に対応するシンボルから送る（分開始時は :00 マーカーが最初になる）
             self.currentSecondIndex = currentSecond % self.currentFrame.count
@@ -124,20 +125,18 @@ class TransmissionScheduler {
             self.nextHostTime = hostNow &+ UInt64(delta * self.hostClockFrequency)
             _ = AVAudioTime(hostTime: self.nextHostTime)
             
-            // Schedule the entire current frame immediately (allows tests to observe full frame quickly)
-            for _ in 0..<self.currentFrame.count {
-                let when = AVAudioTime(hostTime: self.nextHostTime)
-                self.delegate?.schedulerDidRequestSecondScheduling(
-                    symbol: self.currentFrame[self.currentSecondIndex],
-                    secondIndex: self.currentSecondIndex,
-                    when: when
-                )
-                self.advanceSecondIndex()
-                self.nextHostTime &+= self.ticksPerSecond
-            }
+            // Schedule only the next second so we stay close to real time
+            let when = AVAudioTime(hostTime: self.nextHostTime)
+            self.delegate?.schedulerDidRequestSecondScheduling(
+                symbol: self.currentFrame[self.currentSecondIndex],
+                secondIndex: self.currentSecondIndex,
+                when: when
+            )
+            self.advanceSecondIndex()
+            self.nextHostTime &+= self.ticksPerSecond
 
             // Log initial scheduling state for debugging
-            logger.debug("startScheduling: baseTime=\(baseTime, privacy: .public) lastRequestedBaseTime=\(String(describing: self.lastRequestedBaseTime), privacy: .public) frameCount=\(self.currentFrame.count, privacy: .public) currentSecondIndex=\(self.currentSecondIndex, privacy: .public) nextHostTime=\(self.nextHostTime, privacy: .public) hostClockFrequency=\(self.hostClockFrequency, privacy: .public)")
+            logger.debug("startScheduling: baseTime=\(currentMinuteStart, privacy: .public) lastRequestedBaseTime=\(String(describing: self.lastRequestedBaseTime), privacy: .public) frameCount=\(self.currentFrame.count, privacy: .public) currentSecondIndex=\(self.currentSecondIndex, privacy: .public) nextHostTime=\(self.nextHostTime, privacy: .public) hostClockFrequency=\(self.hostClockFrequency, privacy: .public)")
 
             // Start periodic timer to continue scheduling beyond the initial frame
             self.startTimer()
@@ -180,8 +179,10 @@ class TransmissionScheduler {
     private func handleTimerEvent() {
         let cal = frameService.jstCalendar()
         let hostNowInner = clock.currentHostTime()
+        let currentDate = clock.currentDate()
+        let currentBase = frameService.currentMinuteStart(from: currentDate, calendar: cal)
 
-        logger.debug("handleTimerEvent: hostNow=\(hostNowInner, privacy: .public) nextHostTime=\(self.nextHostTime, privacy: .public) lastRequestedBaseTime=\(String(describing: self.lastRequestedBaseTime), privacy: .public) currentFrameCount=\(self.currentFrame.count, privacy: .public) currentSecondIndex=\(self.currentSecondIndex, privacy: .public)")
+        logger.debug("handleTimerEvent: hostNow=\(hostNowInner, privacy: .public) nextHostTime=\(self.nextHostTime, privacy: .public) lastRequestedBaseTime=\(String(describing: self.lastRequestedBaseTime), privacy: .public) currentFrameCount=\(self.currentFrame.count, privacy: .public) currentSecondIndex=\(self.currentSecondIndex, privacy: .public) currentBase=\(currentBase, privacy: .public)")
         // If the current frame hasn't been initialized yet, skip processing to avoid divide-by-zero and invalid scheduling
         if self.currentFrame.isEmpty {
             logger.debug("handleTimerEvent: currentFrame empty; skipping processing until a frame is available")
@@ -190,8 +191,6 @@ class TransmissionScheduler {
         
         // Detect minute-rollover based on the clock even if we previously scheduled far into the future.
         // This ensures tests that advance the mock clock trigger a rebuild immediately.
-        let currentBase = frameService.nextMinuteStart(from: clock.currentDate(), calendar: cal)
-        // reuse a single rebuild flag for both minute-rollover and resync paths
         var didRebuildInResync = false
         if let lastBase = lastRequestedBaseTime {
             if currentBase > lastBase {
@@ -214,11 +213,11 @@ class TransmissionScheduler {
                 let toleranceTicks_local = UInt64(0.2 * hostClockFrequency)
                 let minLeadTicks_local = UInt64(0.02 * hostClockFrequency)
                 if hostNowInner > (nextHostTime &+ toleranceTicks_local) || nextHostTime <= (hostNowInner &+ minLeadTicks_local) {
-                    let nowEpoch2 = clock.currentDate().timeIntervalSince1970
+                    let nowEpoch2 = currentDate.timeIntervalSince1970
                     let frac2 = nowEpoch2 - floor(nowEpoch2)
                     let delta2 = 1.0 - frac2
                     nextHostTime = hostNowInner &+ UInt64(delta2 * hostClockFrequency)
-                    let secNow = cal.component(.second, from: clock.currentDate())
+                    let secNow = cal.component(.second, from: currentDate)
                     currentSecondIndex = secNow % currentFrame.count
                 }
             }
@@ -232,15 +231,15 @@ class TransmissionScheduler {
         
         if hostNowInner > (nextHostTime &+ toleranceTicks) || nextHostTime <= (hostNowInner &+ minLeadTicks) {
             // 現在時刻から次の整数秒境界へ再同期
-            let nowEpoch2 = clock.currentDate().timeIntervalSince1970
+            let nowEpoch2 = currentDate.timeIntervalSince1970
             let frac2 = nowEpoch2 - floor(nowEpoch2)
             let delta2 = 1.0 - frac2
             nextHostTime = hostNowInner &+ UInt64(delta2 * hostClockFrequency)
             // 現在秒に合わせ直す（テストとの整合性確保）
-            let secNow = cal.component(.second, from: clock.currentDate())
+            let secNow = cal.component(.second, from: currentDate)
             currentSecondIndex = secNow % currentFrame.count
             // 常にフレーム再構築要求を出す（ドリフト検出時の再同期トリガ）
-            let baseTime2 = frameService.nextMinuteStart(from: clock.currentDate(), calendar: cal)
+            let baseTime2 = frameService.currentMinuteStart(from: currentDate, calendar: cal)
             let newFrame = frameService.buildFrameForTime(
                 baseTime2,
                 enableCallsign: enableCallsign,
@@ -260,7 +259,7 @@ class TransmissionScheduler {
         
         // 分境界（currentSecondIndex==0）では毎回新しいフレームに切り替える（上で再構築していなければ）
         if currentSecondIndex == 0 && !didRebuildInResync {
-            let baseTime3 = frameService.nextMinuteStart(from: clock.currentDate(), calendar: cal)
+            let baseTime3 = frameService.currentMinuteStart(from: currentDate, calendar: cal)
             let newFrame = frameService.buildFrameForTime(
                 baseTime3,
                 enableCallsign: enableCallsign,
@@ -275,16 +274,26 @@ class TransmissionScheduler {
             lastRequestedBaseTime = baseTime3
             logger.debug("boundary rebuild for base=\(baseTime3, privacy: .public) frameCount=\(self.currentFrame.count, privacy: .public)")
         }
-        
-        let when = AVAudioTime(hostTime: nextHostTime)
-        logger.debug("scheduling second index=\(self.currentSecondIndex, privacy: .public) when=\(self.nextHostTime, privacy: .public) symbol=\(String(describing: self.currentFrame[self.currentSecondIndex]), privacy: .public)")
-        delegate?.schedulerDidRequestSecondScheduling(
-            symbol: currentFrame[currentSecondIndex], 
-            secondIndex: currentSecondIndex, 
-            when: when
-        )
-        advanceSecondIndex()
-        nextHostTime &+= ticksPerSecond
+
+        let maxLeadSeconds = clock.advancementNotificationName != nil ? 60.0 : 1.0
+        let maxLeadTicks = UInt64(maxLeadSeconds * hostClockFrequency)
+        let maxHostTime = hostNowInner &+ maxLeadTicks
+        if nextHostTime > maxHostTime {
+            logger.debug("skipping scheduling because nextHostTime is too far ahead: hostNow=\(hostNowInner, privacy: .public) nextHostTime=\(self.nextHostTime, privacy: .public) maxLeadTicks=\(maxLeadTicks, privacy: .public)")
+            return
+        }
+
+        while nextHostTime <= maxHostTime {
+            let when = AVAudioTime(hostTime: nextHostTime)
+            logger.debug("scheduling second index=\(self.currentSecondIndex, privacy: .public) when=\(self.nextHostTime, privacy: .public) symbol=\(String(describing: self.currentFrame[self.currentSecondIndex]), privacy: .public)")
+            delegate?.schedulerDidRequestSecondScheduling(
+                symbol: currentFrame[currentSecondIndex], 
+                secondIndex: currentSecondIndex, 
+                when: when
+            )
+            advanceSecondIndex()
+            nextHostTime &+= ticksPerSecond
+        }
     }
     
     private func advanceSecondIndex() {
