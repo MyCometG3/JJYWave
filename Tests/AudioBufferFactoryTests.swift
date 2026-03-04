@@ -500,9 +500,6 @@ final class AudioBufferFactoryTests: XCTestCase {
             return
         }
 
-        // Debug trace to aid analysis when tests fail
-        print("[AudioTest] expected=\(expectedFrequency) effective=\(effectiveExpected) estimated=\(estimatedFrequency)")
-
         let tolerance = effectiveExpected * 0.10 // 10% tolerance
 
         XCTAssertEqual(estimatedFrequency, effectiveExpected, accuracy: tolerance,

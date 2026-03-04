@@ -125,7 +125,7 @@ class TransmissionScheduler {
             self.currentSecondIndex = (currentSecond + 1) % self.currentFrame.count
             
             // ホスト時刻で次の整数秒境界に合わせる
-            let nowEpoch = self.clock.currentDate().timeIntervalSince1970
+            let nowEpoch = now.timeIntervalSince1970
             let frac = nowEpoch - floor(nowEpoch)
             let delta = 1.0 - frac
             let hostNow = self.clock.currentHostTime()
