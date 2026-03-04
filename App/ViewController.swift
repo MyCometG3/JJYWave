@@ -92,11 +92,16 @@ class ViewController: NSViewController {
             ])
         }
         // Restore saved frequency selection after control is created
-        if UserDefaults.standard.object(forKey: UserDefaultsKeys.frequencyIndex) != nil {
-            let savedIndex = UserDefaults.standard.integer(forKey: UserDefaultsKeys.frequencyIndex)
-            guard (0...4).contains(savedIndex) else { return }
+        let storedValue = UserDefaults.standard.object(forKey: UserDefaultsKeys.frequencyIndex)
+        if let savedIndex = storedValue as? Int {
+            guard (0...4).contains(savedIndex) else {
+                UserDefaults.standard.removeObject(forKey: UserDefaultsKeys.frequencyIndex)
+                return
+            }
             let currentIndex = audioGeneratorCoordinator.frequencyManager.getSegmentIndex(for: audioGenerator)
             audioGeneratorCoordinator.handleFrequencyChange(to: savedIndex, currentIndex: currentIndex)
+        } else if storedValue != nil {
+            UserDefaults.standard.removeObject(forKey: UserDefaultsKeys.frequencyIndex)
         }
     }
     
