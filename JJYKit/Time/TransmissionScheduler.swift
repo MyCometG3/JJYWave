@@ -96,59 +96,68 @@ class TransmissionScheduler {
     
     // MARK: - Public Methods
     func startScheduling() {
+        if DispatchQueue.getSpecific(key: syncQueueKey) != nil {
+            _startScheduling()
+            return
+        }
+
         // Serialize start/stop actions to avoid race conditions when called concurrently
         // Make initialization synchronous so callers (and tests) observe consistent state immediately
         syncQueue.sync { [weak self] in
-            guard let self = self else { return }
-            self._stopScheduling()
-            let cal = self.frameService.jstCalendar()
-            let now = self.clock.currentDate()
-            let currentSecond = cal.component(.second, from: now)
-            let currentMinuteStart = self.frameService.currentMinuteStart(from: now, calendar: cal)
-            
-            // Build initial frame
-            self.currentFrame = self.frameService.buildFrame(
-                enableCallsign: self.enableCallsign,
-                enableServiceStatusBits: self.enableServiceStatusBits,
-                leapSecondPlan: self.leapSecondPlan,
-                leapSecondPending: self.leapSecondPending,
-                leapSecondInserted: self.leapSecondInserted,
-                serviceStatusBits: self.serviceStatusBits
-            )
-
-            // Request initial frame rebuild for the current minute
-            self.delegate?.schedulerDidRequestFrameRebuild(for: currentMinuteStart)
-            // Remember the last requested base time so we can detect minute rollovers
-            self.lastRequestedBaseTime = currentMinuteStart
-
-            // 初回は次の整数秒境界で再生されるシンボルに合わせる
-            self.currentSecondIndex = (currentSecond + 1) % self.currentFrame.count
-            
-            // ホスト時刻で次の整数秒境界に合わせる
-            let nowEpoch = now.timeIntervalSince1970
-            let frac = nowEpoch - floor(nowEpoch)
-            let delta = 1.0 - frac
-            let hostNow = self.clock.currentHostTime()
-            self.hostClockFrequency = self.clock.hostClockFrequency()
-            self.ticksPerSecond = UInt64(self.hostClockFrequency)
-            self.nextHostTime = hostNow &+ UInt64(delta * self.hostClockFrequency)
-            
-            // Schedule only the next second so we stay close to real time
-            let when = AVAudioTime(hostTime: self.nextHostTime)
-            self.delegate?.schedulerDidRequestSecondScheduling(
-                symbol: self.currentFrame[self.currentSecondIndex],
-                secondIndex: self.currentSecondIndex,
-                when: when
-            )
-            self.advanceSecondIndex()
-            self.nextHostTime &+= self.ticksPerSecond
-
-            // Log initial scheduling state for debugging
-            logger.debug("startScheduling: baseTime=\(currentMinuteStart, privacy: .public) lastRequestedBaseTime=\(String(describing: self.lastRequestedBaseTime), privacy: .public) frameCount=\(self.currentFrame.count, privacy: .public) currentSecondIndex=\(self.currentSecondIndex, privacy: .public) nextHostTime=\(self.nextHostTime, privacy: .public) hostClockFrequency=\(self.hostClockFrequency, privacy: .public)")
-
-            // Start periodic timer to continue scheduling beyond the initial frame
-            self.startTimer()
+            self?._startScheduling()
         }
+    }
+
+    private func _startScheduling() {
+        _stopScheduling()
+        let cal = self.frameService.jstCalendar()
+        let now = self.clock.currentDate()
+        let currentSecond = cal.component(.second, from: now)
+        let currentMinuteStart = self.frameService.currentMinuteStart(from: now, calendar: cal)
+        
+        // Build initial frame using the same captured minute base.
+        self.currentFrame = self.frameService.buildFrameForTime(
+            currentMinuteStart,
+            enableCallsign: self.enableCallsign,
+            enableServiceStatusBits: self.enableServiceStatusBits,
+            leapSecondPlan: self.leapSecondPlan,
+            leapSecondPending: self.leapSecondPending,
+            leapSecondInserted: self.leapSecondInserted,
+            serviceStatusBits: self.serviceStatusBits
+        )
+
+        // Request initial frame rebuild for the current minute
+        self.delegate?.schedulerDidRequestFrameRebuild(for: currentMinuteStart)
+        // Remember the last requested base time so we can detect minute rollovers
+        self.lastRequestedBaseTime = currentMinuteStart
+
+        // 初回は次の整数秒境界で再生されるシンボルに合わせる
+        self.currentSecondIndex = (currentSecond + 1) % self.currentFrame.count
+        
+        // ホスト時刻で次の整数秒境界に合わせる
+        let nowEpoch = now.timeIntervalSince1970
+        let frac = nowEpoch - floor(nowEpoch)
+        let delta = 1.0 - frac
+        let hostNow = self.clock.currentHostTime()
+        self.hostClockFrequency = self.clock.hostClockFrequency()
+        self.ticksPerSecond = UInt64(self.hostClockFrequency)
+        self.nextHostTime = hostNow &+ UInt64(delta * self.hostClockFrequency)
+        
+        // Schedule only the next second so we stay close to real time
+        let when = AVAudioTime(hostTime: self.nextHostTime)
+        self.delegate?.schedulerDidRequestSecondScheduling(
+            symbol: self.currentFrame[self.currentSecondIndex],
+            secondIndex: self.currentSecondIndex,
+            when: when
+        )
+        self.advanceSecondIndex()
+        self.nextHostTime &+= self.ticksPerSecond
+
+        // Log initial scheduling state for debugging
+        logger.debug("startScheduling: baseTime=\(currentMinuteStart, privacy: .public) lastRequestedBaseTime=\(String(describing: self.lastRequestedBaseTime), privacy: .public) frameCount=\(self.currentFrame.count, privacy: .public) currentSecondIndex=\(self.currentSecondIndex, privacy: .public) nextHostTime=\(self.nextHostTime, privacy: .public) hostClockFrequency=\(self.hostClockFrequency, privacy: .public)")
+
+        // Start periodic timer to continue scheduling beyond the initial frame
+        self.startTimer()
     }
     
     func stopScheduling() {
@@ -247,9 +256,6 @@ class TransmissionScheduler {
             let delta2 = 1.0 - frac2
             nextHostTime = hostNowInner &+ UInt64(delta2 * hostClockFrequency)
             let upcomingDate = currentDate.addingTimeInterval(delta2)
-            // 次に再生される整数秒境界に合わせ直す
-            let secUpcoming = cal.component(.second, from: upcomingDate)
-            currentSecondIndex = secUpcoming % currentFrame.count
             // 常にフレーム再構築要求を出す（ドリフト検出時の再同期トリガ）
             let baseTime2 = frameService.currentMinuteStart(from: upcomingDate, calendar: cal)
             let newFrame = frameService.buildFrameForTime(
@@ -262,6 +268,9 @@ class TransmissionScheduler {
                 serviceStatusBits: serviceStatusBits
             )
             currentFrame = newFrame
+            // 次に再生される整数秒境界に合わせ直す
+            let secUpcoming = cal.component(.second, from: upcomingDate)
+            currentSecondIndex = secUpcoming % currentFrame.count
             delegate?.schedulerDidRequestFrameRebuild(for: baseTime2)
             // remember that we requested rebuild for this minute
             lastRequestedBaseTime = baseTime2
