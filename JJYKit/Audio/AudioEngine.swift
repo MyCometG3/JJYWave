@@ -12,6 +12,7 @@ class AudioEngine {
     private var playerNode: AVAudioPlayerNode!
     private var engineRunningFlag: Bool = false
     private var playerStartScheduled: Bool = false
+    private var playerStartToken: UInt64 = 0
     private let playerStartDelay: TimeInterval = 0.05
     private let logger = Logger(subsystem: "com.MyCometG3.JJYWave", category: "AudioEngine")
     
@@ -100,6 +101,7 @@ class AudioEngine {
             self.engineRunningFlag = false
             self.audioEngine?.stop()
             self.playerStartScheduled = false
+            self.playerStartToken &+= 1
             self.playerNode?.stop()
         }
     }
@@ -110,9 +112,12 @@ class AudioEngine {
             guard !playerNode.isPlaying else { return }
             guard !self.playerStartScheduled else { return }
             guard self.engineRunningFlag && (self.audioEngine?.isRunning ?? false) else { return }
+            self.playerStartToken &+= 1
+            let token = self.playerStartToken
             self.playerStartScheduled = true
             self.concurrencyQueue.asyncAfter(deadline: .now() + self.playerStartDelay) { [weak self] in
                 guard let self = self, let playerNode = self.playerNode else { return }
+                guard self.playerStartToken == token else { return }
                 self.playerStartScheduled = false
                 guard !playerNode.isPlaying else { return }
                 guard self.engineRunningFlag && (self.audioEngine?.isRunning ?? false) else { return }
@@ -123,6 +128,7 @@ class AudioEngine {
     
     func stopPlayer() {
         concurrencyQueue.async { [weak self] in
+            self?.playerStartToken &+= 1
             self?.playerStartScheduled = false
             self?.playerNode?.stop()
         }

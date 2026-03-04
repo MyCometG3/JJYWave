@@ -132,7 +132,6 @@ class TransmissionScheduler {
             self.hostClockFrequency = self.clock.hostClockFrequency()
             self.ticksPerSecond = UInt64(self.hostClockFrequency)
             self.nextHostTime = hostNow &+ UInt64(delta * self.hostClockFrequency)
-            _ = AVAudioTime(hostTime: self.nextHostTime)
             
             // Schedule only the next second so we stay close to real time
             let when = AVAudioTime(hostTime: self.nextHostTime)
