@@ -207,8 +207,8 @@ final class JJYArchitectureIntegrationTests: XCTestCase {
         // Verify symbol sequence
         if !mockDelegate.scheduledSymbols.isEmpty {
             let firstSymbol = mockDelegate.scheduledSymbols[0]
-            XCTAssertEqual(firstSymbol.secondIndex, 0, "First symbol should be at index 0")
-            XCTAssertEqual(firstSymbol.symbol, JJYAudioGenerator.JJYSymbol.mark, "First symbol should be a marker")
+            XCTAssertEqual(firstSymbol.secondIndex, 1, "First symbol should align to the upcoming second index")
+            XCTAssertEqual(firstSymbol.symbol, JJYAudioGenerator.JJYSymbol.bit0, "First symbol should match second 1 in the frame")
         }
     }
     
@@ -327,7 +327,7 @@ final class JJYArchitectureIntegrationTests: XCTestCase {
     // MARK: - Performance Integration Tests
     
     func testComponentPerformanceIntegration() {
-        NotificationCenter.default.removeObserver(scheduler, name: Notification.Name("MockClock.advanced"), object: nil)
+        NotificationCenter.default.removeObserver(scheduler, name: MockClock.advancedNotification, object: nil)
         let startTime = CFAbsoluteTimeGetCurrent()
         
         // Perform typical operations

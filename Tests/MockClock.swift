@@ -48,7 +48,7 @@ public class MockClock: Clock {
             self.mockDate = date
         }
         // Notify any observers (tests use this) that the mock clock changed
-        NotificationCenter.default.post(name: Notification.Name("MockClock.advanced"), object: self)
+        NotificationCenter.default.post(name: Self.advancedNotification, object: self)
     }
     
     /// Set the mock host time directly
@@ -83,7 +83,7 @@ public class MockClock: Clock {
             }
         }
         // Notify observers that mock clock advanced
-        NotificationCenter.default.post(name: Notification.Name("MockClock.advanced"), object: self)
+        NotificationCenter.default.post(name: Self.advancedNotification, object: self)
     }
     
     /// Advance time to a specific date
@@ -96,7 +96,7 @@ public class MockClock: Clock {
             }
         }
         // Notify observers that mock clock advanced
-        NotificationCenter.default.post(name: Notification.Name("MockClock.advanced"), object: self)
+        NotificationCenter.default.post(name: Self.advancedNotification, object: self)
     }
     
     /// Set advancement rate for automatic time progression

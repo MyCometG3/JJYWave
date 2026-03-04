@@ -28,6 +28,7 @@ class TransmissionScheduler {
     
     // Timer
     private let syncQueue = DispatchQueue(label: "TransmissionScheduler.sync")
+    private let syncQueueKey = DispatchSpecificKey<Void>()
     private var dispatchTimer: DispatchSourceTimer?
     
     // Configuration
@@ -41,8 +42,10 @@ class TransmissionScheduler {
     init(clock: Clock = SystemClock(), frameService: FrameService) {
         self.clock = clock
         self.frameService = frameService
+        syncQueue.setSpecific(key: syncQueueKey, value: ())
         if let notificationName = clock.advancementNotificationName {
-            NotificationCenter.default.addObserver(self, selector: #selector(mockClockAdvanced(_:)), name: notificationName, object: nil)
+            let observerObject = clock as AnyObject
+            NotificationCenter.default.addObserver(self, selector: #selector(mockClockAdvanced(_:)), name: notificationName, object: observerObject)
         }
     }
 
@@ -51,6 +54,11 @@ class TransmissionScheduler {
     }
 
     @objc private func mockClockAdvanced(_ note: Notification) {
+        if DispatchQueue.getSpecific(key: syncQueueKey) != nil {
+            handleTimerEvent()
+            return
+        }
+
         // If the notification originated from a Clock (e.g., test MockClock), process synchronously
         // so that tests which advance the mock clock observe immediate scheduler reactions.
         if let _ = note.object as? Clock {
@@ -112,8 +120,8 @@ class TransmissionScheduler {
             // Remember the last requested base time so we can detect minute rollovers
             self.lastRequestedBaseTime = currentMinuteStart
 
-            // 初回は現在秒に対応するシンボルから送る（分開始時は :00 マーカーが最初になる）
-            self.currentSecondIndex = currentSecond % self.currentFrame.count
+            // 初回は次の整数秒境界で再生されるシンボルに合わせる
+            self.currentSecondIndex = (currentSecond + 1) % self.currentFrame.count
             
             // ホスト時刻で次の整数秒境界に合わせる
             let nowEpoch = self.clock.currentDate().timeIntervalSince1970
@@ -144,6 +152,11 @@ class TransmissionScheduler {
     }
     
     func stopScheduling() {
+        if DispatchQueue.getSpecific(key: syncQueueKey) != nil {
+            _stopScheduling()
+            return
+        }
+
         // Make stopScheduling synchronous to ensure tests observing immediate stop see consistent state
         syncQueue.sync { [weak self] in
             self?._stopScheduling()
@@ -168,8 +181,8 @@ class TransmissionScheduler {
         let timer = DispatchSource.makeTimerSource(queue: syncQueue)
         dispatchTimer = timer
         let leeway: DispatchTimeInterval = .milliseconds(5)
-        // Use a shorter timer interval to make scheduler responsive in test environments
-        timer.schedule(deadline: .now() + .milliseconds(100), repeating: .milliseconds(100), leeway: leeway)
+        let interval: DispatchTimeInterval = clock.advancementNotificationName != nil ? .milliseconds(100) : .seconds(1)
+        timer.schedule(deadline: .now() + interval, repeating: interval, leeway: leeway)
         timer.setEventHandler { [weak self] in
             self?.handleTimerEvent()
         }
@@ -217,8 +230,9 @@ class TransmissionScheduler {
                     let frac2 = nowEpoch2 - floor(nowEpoch2)
                     let delta2 = 1.0 - frac2
                     nextHostTime = hostNowInner &+ UInt64(delta2 * hostClockFrequency)
-                    let secNow = cal.component(.second, from: currentDate)
-                    currentSecondIndex = secNow % currentFrame.count
+                    let upcomingDate = currentDate.addingTimeInterval(delta2)
+                    let secUpcoming = cal.component(.second, from: upcomingDate)
+                    currentSecondIndex = secUpcoming % currentFrame.count
                 }
             }
         } else {
@@ -235,11 +249,12 @@ class TransmissionScheduler {
             let frac2 = nowEpoch2 - floor(nowEpoch2)
             let delta2 = 1.0 - frac2
             nextHostTime = hostNowInner &+ UInt64(delta2 * hostClockFrequency)
-            // 現在秒に合わせ直す（テストとの整合性確保）
-            let secNow = cal.component(.second, from: currentDate)
-            currentSecondIndex = secNow % currentFrame.count
+            let upcomingDate = currentDate.addingTimeInterval(delta2)
+            // 次に再生される整数秒境界に合わせ直す
+            let secUpcoming = cal.component(.second, from: upcomingDate)
+            currentSecondIndex = secUpcoming % currentFrame.count
             // 常にフレーム再構築要求を出す（ドリフト検出時の再同期トリガ）
-            let baseTime2 = frameService.currentMinuteStart(from: currentDate, calendar: cal)
+            let baseTime2 = frameService.currentMinuteStart(from: upcomingDate, calendar: cal)
             let newFrame = frameService.buildFrameForTime(
                 baseTime2,
                 enableCallsign: enableCallsign,

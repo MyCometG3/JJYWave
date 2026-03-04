@@ -174,10 +174,10 @@ final class TransmissionSchedulerTests: XCTestCase {
         // Should have scheduled symbols in the correct sequence
         XCTAssertGreaterThanOrEqual(mockDelegate.scheduledSymbols.count, 5)
         
-        // First symbol should be a marker (position 0 in frame)
+        // First symbol should align with the next integer-second boundary.
         if !mockDelegate.scheduledSymbols.isEmpty {
-            XCTAssertEqual(mockDelegate.scheduledSymbols[0].symbol, JJYAudioGenerator.JJYSymbol.mark)
-            XCTAssertEqual(mockDelegate.scheduledSymbols[0].secondIndex, 0)
+            XCTAssertEqual(mockDelegate.scheduledSymbols[0].symbol, JJYAudioGenerator.JJYSymbol.bit0)
+            XCTAssertEqual(mockDelegate.scheduledSymbols[0].secondIndex, 1)
         }
     }
     
@@ -193,9 +193,9 @@ final class TransmissionSchedulerTests: XCTestCase {
         // Should have scheduled all 60 seconds of a frame
         XCTAssertEqual(mockDelegate.scheduledSymbols.count, 60)
         
-        // Verify that second indices are correct
+        // Verify that second indices advance from the upcoming second.
         for (index, scheduling) in mockDelegate.scheduledSymbols.enumerated() {
-            XCTAssertEqual(scheduling.secondIndex, index, "Second index should match array position")
+            XCTAssertEqual(scheduling.secondIndex, (index + 1) % 60, "Second index should match upcoming second sequence")
         }
     }
     
