@@ -474,19 +474,6 @@ final class AudioBufferFactoryTests: XCTestCase {
             zEstimate = Double(zeroCrossings) / (2.0 * analysisDuration)
         }
 
-        // Choose the best estimate (closest to the expected effective frequency)
-        var estimatedFrequency: Double = 0
-        if let p = peakEstimate, let z = zEstimate {
-            estimatedFrequency = abs(p - expectedFrequency) < abs(z - expectedFrequency) ? p : z
-        } else if let p = peakEstimate {
-            estimatedFrequency = p
-        } else if let z = zEstimate {
-            estimatedFrequency = z
-        } else {
-            XCTFail("Not enough data to estimate frequency")
-            return
-        }
-
         // Account for aliasing when expected frequency is above Nyquist — fold into baseband properly
         let nyquist = testSampleRate / 2.0
         var effectiveExpected = expectedFrequency
@@ -498,6 +485,19 @@ final class AudioBufferFactoryTests: XCTestCase {
             } else {
                 effectiveExpected = fmod
             }
+        }
+
+        // Choose the best estimate (closest to the expected effective frequency)
+        var estimatedFrequency: Double = 0
+        if let p = peakEstimate, let z = zEstimate {
+            estimatedFrequency = abs(p - effectiveExpected) < abs(z - effectiveExpected) ? p : z
+        } else if let p = peakEstimate {
+            estimatedFrequency = p
+        } else if let z = zEstimate {
+            estimatedFrequency = z
+        } else {
+            XCTFail("Not enough data to estimate frequency")
+            return
         }
 
         // Debug trace to aid analysis when tests fail
