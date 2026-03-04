@@ -225,6 +225,9 @@ class TransmissionScheduler {
                     serviceStatusBits: serviceStatusBits
                 )
                 currentFrame = newFrame
+                if !currentFrame.isEmpty {
+                    currentSecondIndex = currentSecondIndex % currentFrame.count
+                }
                 delegate?.schedulerDidRequestFrameRebuild(for: currentBase)
                 lastRequestedBaseTime = currentBase
                 logger.debug("minute-rollover rebuild for base=\(currentBase, privacy: .public) frameCount=\(self.currentFrame.count, privacy: .public) hostNow=\(hostNowInner, privacy: .public)")

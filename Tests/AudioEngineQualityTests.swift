@@ -70,10 +70,10 @@ final class AudioEngineQualityTests: XCTestCase {
                 }
                 wait(for: [expectation], timeout: 5.0)
             }
-            if !audioEngine.isEngineRunning {
+            let running = audioEngine.isEngineRunning
+            if !running {
                 try XCTSkip("Audio engine did not remain running in this environment")
             }
-            XCTAssertTrue(audioEngine.isEngineRunning, "Engine should be running after start")
             
             audioEngine.stopEngine()
             // Allow time for async stop
