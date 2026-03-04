@@ -100,6 +100,7 @@ class TransmissionScheduler {
         // Make initialization synchronous so callers (and tests) observe consistent state immediately
         syncQueue.sync { [weak self] in
             guard let self = self else { return }
+            self._stopScheduling()
             let cal = self.frameService.jstCalendar()
             let now = self.clock.currentDate()
             let currentSecond = cal.component(.second, from: now)
@@ -204,7 +205,6 @@ class TransmissionScheduler {
         
         // Detect minute-rollover based on the clock even if we previously scheduled far into the future.
         // This ensures tests that advance the mock clock trigger a rebuild immediately.
-        var didRebuildInResync = false
         if let lastBase = lastRequestedBaseTime {
             if currentBase > lastBase {
                 let newFrame = frameService.buildFrameForTime(
@@ -220,8 +220,6 @@ class TransmissionScheduler {
                 delegate?.schedulerDidRequestFrameRebuild(for: currentBase)
                 lastRequestedBaseTime = currentBase
                 logger.debug("minute-rollover rebuild for base=\(currentBase, privacy: .public) frameCount=\(self.currentFrame.count, privacy: .public) hostNow=\(hostNowInner, privacy: .public)")
-                // mark that we rebuilt due to minute rollover so we don't rebuild again below
-                didRebuildInResync = true
                 // If clock jumped far ahead, re-sync nextHostTime and currentSecondIndex
                 let toleranceTicks_local = UInt64(0.2 * hostClockFrequency)
                 let minLeadTicks_local = UInt64(0.02 * hostClockFrequency)
@@ -269,25 +267,6 @@ class TransmissionScheduler {
             // remember that we requested rebuild for this minute
             lastRequestedBaseTime = baseTime2
             logger.debug("resync rebuild for base=\(baseTime2, privacy: .public) hostNow=\(hostNowInner, privacy: .public) currentSecondIndex=\(self.currentSecondIndex, privacy: .public) frameCount=\(self.currentFrame.count, privacy: .public)")
-            didRebuildInResync = true
-        }
-        
-        // 分境界（currentSecondIndex==0）では毎回新しいフレームに切り替える（上で再構築していなければ）
-        if currentSecondIndex == 0 && !didRebuildInResync {
-            let baseTime3 = frameService.currentMinuteStart(from: currentDate, calendar: cal)
-            let newFrame = frameService.buildFrameForTime(
-                baseTime3,
-                enableCallsign: enableCallsign,
-                enableServiceStatusBits: enableServiceStatusBits,
-                leapSecondPlan: leapSecondPlan,
-                leapSecondPending: leapSecondPending,
-                leapSecondInserted: leapSecondInserted,
-                serviceStatusBits: serviceStatusBits
-            )
-            currentFrame = newFrame
-            delegate?.schedulerDidRequestFrameRebuild(for: baseTime3)
-            lastRequestedBaseTime = baseTime3
-            logger.debug("boundary rebuild for base=\(baseTime3, privacy: .public) frameCount=\(self.currentFrame.count, privacy: .public)")
         }
 
         let maxLeadSeconds = clock.advancementNotificationName != nil ? 60.0 : 1.0
@@ -299,6 +278,26 @@ class TransmissionScheduler {
         }
 
         while nextHostTime <= maxHostTime {
+            if currentSecondIndex == 0 {
+                let leadTicks = nextHostTime >= hostNowInner ? nextHostTime - hostNowInner : 0
+                let scheduledDate = currentDate.addingTimeInterval(TimeInterval(leadTicks) / hostClockFrequency)
+                let scheduledBaseTime = frameService.currentMinuteStart(from: scheduledDate, calendar: cal)
+                if lastRequestedBaseTime != scheduledBaseTime {
+                    let newFrame = frameService.buildFrameForTime(
+                        scheduledBaseTime,
+                        enableCallsign: enableCallsign,
+                        enableServiceStatusBits: enableServiceStatusBits,
+                        leapSecondPlan: leapSecondPlan,
+                        leapSecondPending: leapSecondPending,
+                        leapSecondInserted: leapSecondInserted,
+                        serviceStatusBits: serviceStatusBits
+                    )
+                    currentFrame = newFrame
+                    delegate?.schedulerDidRequestFrameRebuild(for: scheduledBaseTime)
+                    lastRequestedBaseTime = scheduledBaseTime
+                    logger.debug("scheduled boundary rebuild for base=\(scheduledBaseTime, privacy: .public)")
+                }
+            }
             let when = AVAudioTime(hostTime: nextHostTime)
             logger.debug("scheduling second index=\(self.currentSecondIndex, privacy: .public) when=\(self.nextHostTime, privacy: .public) symbol=\(String(describing: self.currentFrame[self.currentSecondIndex]), privacy: .public)")
             delegate?.schedulerDidRequestSecondScheduling(
