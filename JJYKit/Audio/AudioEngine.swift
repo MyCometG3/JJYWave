@@ -19,7 +19,11 @@ class AudioEngine {
     // MARK: - Properties
     var isEngineRunning: Bool {
         return concurrencyQueue.sync {
-            return engineRunningFlag
+            if let engine = audioEngine {
+                return engine.isRunning || engineRunningFlag
+            } else {
+                return engineRunningFlag
+            }
         }
     }
     

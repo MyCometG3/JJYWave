@@ -444,11 +444,11 @@ final class AudioBufferFactoryTests: XCTestCase {
             return
         }
 
-        // Detect peaks above a threshold
+        // Detect signed local maxima above a threshold
         let peakThreshold = maxAmp * 0.6
         var peaks: [Int] = []
         for i in 1..<(analysisSamples - 1) {
-            if abs(channel0Data[i]) > peakThreshold && abs(channel0Data[i]) >= abs(channel0Data[i-1]) && abs(channel0Data[i]) >= abs(channel0Data[i+1]) {
+            if channel0Data[i] > peakThreshold && channel0Data[i] >= channel0Data[i-1] && channel0Data[i] >= channel0Data[i+1] {
                 peaks.append(i)
                 if peaks.count >= 500 { break }
             }
