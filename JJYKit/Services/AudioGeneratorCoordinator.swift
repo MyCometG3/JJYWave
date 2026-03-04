@@ -33,9 +33,6 @@ class AudioGeneratorCoordinator: AudioGeneratorCoordinatorProtocol {
     let uiStateManager: UIStateManagerProtocol
     private weak var presentationController: PresentationControllerProtocol?
     
-    // MARK: - State
-    private var previousSelectedIndex: Int = 0
-    
     // MARK: - Initialization
     init(audioGenerator: JJYAudioGenerator,
          frequencyManager: FrequencyManagementProtocol = FrequencyManagementService(),
@@ -87,8 +84,6 @@ class AudioGeneratorCoordinator: AudioGeneratorCoordinatorProtocol {
         
         // Apply frequency change
         frequencyManager.configureFrequency(for: audioGenerator, segmentIndex: newIndex)
-        previousSelectedIndex = newIndex
-        
         // Update UI
         refreshUIState()
     }

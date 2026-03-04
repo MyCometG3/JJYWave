@@ -47,6 +47,8 @@ public class MockClock: Clock {
         queue.sync {
             self.mockDate = date
         }
+        // Notify any observers (tests use this) that the mock clock changed
+        NotificationCenter.default.post(name: Self.advancedNotification, object: self)
     }
     
     /// Set the mock host time directly
@@ -80,6 +82,8 @@ public class MockClock: Clock {
                 }
             }
         }
+        // Notify observers that mock clock advanced
+        NotificationCenter.default.post(name: Self.advancedNotification, object: self)
     }
     
     /// Advance time to a specific date
@@ -91,6 +95,8 @@ public class MockClock: Clock {
                 self.mockHostTime += UInt64(interval * mockFrequency)
             }
         }
+        // Notify observers that mock clock advanced
+        NotificationCenter.default.post(name: Self.advancedNotification, object: self)
     }
     
     /// Set advancement rate for automatic time progression
@@ -192,6 +198,13 @@ public class MockClock: Clock {
         - Running: \(isRunning)
         - Advancement Rate: \(advancementRate)
         """
+    }
+}
+
+extension MockClock {
+    static let advancedNotification = Notification.Name("MockClock.advanced")
+    public var advancementNotificationName: Notification.Name? {
+        return Self.advancedNotification
     }
 }
 

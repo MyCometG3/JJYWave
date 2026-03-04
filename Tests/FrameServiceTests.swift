@@ -124,9 +124,9 @@ final class FrameServiceTests: XCTestCase {
         
         // Verify that the frame encodes the correct minute (45)
         // Minute is encoded in BCD format at positions 1-8
-        let minuteTens = frame[2] == JJYAudioGenerator.JJYSymbol.bit1 ? 4 : 0 // Position 2 represents 40
-        let minuteOnes = (frame[5] == JJYAudioGenerator.JJYSymbol.bit1 ? 4 : 0) + (frame[6] == JJYAudioGenerator.JJYSymbol.bit1 ? 2 : 0) + (frame[7] == JJYAudioGenerator.JJYSymbol.bit1 ? 1 : 0)
-        let encodedMinute = minuteTens + minuteOnes
+        let minuteT = (frame[1] == JJYAudioGenerator.JJYSymbol.bit1 ? 4 : 0) + (frame[2] == JJYAudioGenerator.JJYSymbol.bit1 ? 2 : 0) + (frame[3] == JJYAudioGenerator.JJYSymbol.bit1 ? 1 : 0)
+        let minuteOnes = (frame[5] == JJYAudioGenerator.JJYSymbol.bit1 ? 8 : 0) + (frame[6] == JJYAudioGenerator.JJYSymbol.bit1 ? 4 : 0) + (frame[7] == JJYAudioGenerator.JJYSymbol.bit1 ? 2 : 0) + (frame[8] == JJYAudioGenerator.JJYSymbol.bit1 ? 1 : 0)
+        let encodedMinute = minuteT * 10 + minuteOnes
         
         XCTAssertEqual(encodedMinute, 45, "Frame should encode minute 45")
     }

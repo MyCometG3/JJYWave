@@ -64,7 +64,7 @@ def validate_project(project_root):
     
     # Expected file counts (based on current working state)
     expected_main_swift = 17
-    expected_test_swift = 20
+    expected_test_swift = 21
     
     if len(main_swift) != expected_main_swift:
         issues.append(f"❌ Expected {expected_main_swift} main Swift files, found {len(main_swift)}")

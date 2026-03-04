@@ -156,6 +156,7 @@ class MockFrequencyManager: FrequencyManagementProtocol {
     var validateChangeWasCalled = false
     var configureFrequencyWasCalled = false
     var validationResult: FrequencyChangeResult = .allowed
+    var lastConfiguredIndex: Int = 0
     
     func formatFrequencyDisplay(for generator: AudioGeneratorConfigurationProtocol, sampleRate: Double) -> String {
         return "Mock Frequency Display"
@@ -166,7 +167,7 @@ class MockFrequencyManager: FrequencyManagementProtocol {
     }
     
     func getSegmentIndex(for generator: AudioGeneratorConfigurationProtocol) -> Int {
-        return 0
+        return lastConfiguredIndex
     }
     
     func validateFrequencyChange(from currentIndex: Int, to newIndex: Int, isGenerating: Bool) -> FrequencyChangeResult {
@@ -176,6 +177,7 @@ class MockFrequencyManager: FrequencyManagementProtocol {
     
     func configureFrequency(for generator: AudioGeneratorConfigurationProtocol, segmentIndex: Int) {
         configureFrequencyWasCalled = true
+        lastConfiguredIndex = segmentIndex
     }
     
     func createFrequencyConfiguration(for segmentIndex: Int) -> FrequencyConfiguration {

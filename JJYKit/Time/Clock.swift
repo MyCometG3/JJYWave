@@ -7,6 +7,7 @@ protocol Clock {
     func currentDate() -> Date
     func currentHostTime() -> UInt64
     func hostClockFrequency() -> Double
+    var advancementNotificationName: Notification.Name? { get }
 }
 
 // MARK: - SystemClock Implementation
@@ -23,4 +24,8 @@ struct SystemClock: Clock {
     func hostClockFrequency() -> Double {
         return AudioGetHostClockFrequency()
     }
+}
+
+extension Clock {
+    var advancementNotificationName: Notification.Name? { nil }
 }

@@ -71,12 +71,14 @@ class FrameService {
     }
     
     func nextMinuteStart(from date: Date, calendar: Calendar) -> Date {
-        let sec = calendar.component(.second, from: date)
-        let floor = calendar.date(byAdding: .second, value: -sec, to: date) ?? date
-        return calendar.date(byAdding: .minute, value: 1, to: floor) ?? date
+        let minuteStart = currentMinuteStart(from: date, calendar: calendar)
+        return calendar.date(byAdding: .minute, value: 1, to: minuteStart) ?? date
     }
     
     func currentMinuteStart(from date: Date, calendar: Calendar) -> Date {
+        if let minuteStart = calendar.dateInterval(of: .minute, for: date)?.start {
+            return minuteStart
+        }
         let sec = calendar.component(.second, from: date)
         return calendar.date(byAdding: .second, value: -sec, to: date) ?? date
     }
