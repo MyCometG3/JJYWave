@@ -20,6 +20,7 @@ class ViewController: NSViewController {
     private var audioGeneratorCoordinator: AudioGeneratorCoordinator!
     private var uiDescriptionManager = UIDescriptionManager()
     private var timeUpdateTimer: Timer?
+    private var spaceKeyMonitor: Any?
     
     // UI Elements
     @IBOutlet weak var startStopButton: NSButton!
@@ -34,7 +35,19 @@ class ViewController: NSViewController {
         setupAudioGenerator()
         setupCoordinator()
         setupUI()
+        setupSpaceKeyMonitor()
         setupTimeTimer()
+    }
+
+    private func setupSpaceKeyMonitor() {
+        spaceKeyMonitor = NSEvent.addLocalMonitorForEvents(matching: .keyDown) { [weak self] event in
+            guard event.keyCode == 49 else { return event }
+            let mask = event.modifierFlags.intersection(.deviceIndependentFlagsMask)
+            guard mask.isEmpty else { return event }
+            guard let button = self?.startStopButton, button.isEnabled, button.window?.isKeyWindow == true else { return event }
+            button.performClick(nil)
+            return nil
+        }
     }
     
     // MARK: - Setup
@@ -136,6 +149,9 @@ class ViewController: NSViewController {
     // MARK: - Lifecycle
     deinit {
         timeUpdateTimer?.invalidate()
+        if let monitor = spaceKeyMonitor {
+            NSEvent.removeMonitor(monitor)
+        }
     }
     
     override func viewDidLayout() {
