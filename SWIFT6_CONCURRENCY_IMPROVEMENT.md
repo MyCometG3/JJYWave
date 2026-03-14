@@ -29,120 +29,82 @@ The codebase remains primarily queue-based (`DispatchQueue`, `DispatchSourceTime
 
 - The prior “Phase 1/2/3 initial hardening” tasks from the first draft are complete and are no longer listed as next actions.
 
-## Observed Gap Requiring Immediate Follow-up
+## Phase Status Update
 
-There is an existing flaky test that should be stabilized before deeper actor migration:
+## Phase A: Stabilize Test Reliability — Completed
 
-- `AudioEngineTests.testConcurrentSetup()` intermittently fails in CI/local test runs.
+### Implemented
 
-This test currently uses a fixed timeout while performing concurrent setup work that can exceed the timeout under load.
+1. Refactored `AudioEngineTests.testConcurrentSetup()` to use deterministic completion criteria with robust timeout handling.
+2. Added timeout diagnostics (completed operations vs expected operations).
+3. Validated with repeated and full-suite test runs.
 
-## Next Step Strategy (Recommended)
+### Outcome
 
-## Phase A: Stabilize Test Reliability First
+- Removed the original timeout-based flake mechanism.
+- Full test suites passed after the change.
 
-### Goal
+## Phase B: MainActor Boundary Expansion — Completed
 
-Eliminate false-negative test failures before introducing larger concurrency refactors.
+### Implemented
 
-### Implementation plan
+1. Strengthened UI boundary isolation in `App/ViewController.swift`.
+2. Removed redundant main-queue dispatch wrappers where actor isolation now guarantees safety.
+3. Consolidated delegate/UI handoff behavior to preserve runtime semantics.
 
-1. Refactor `testConcurrentSetup()` to avoid fragile fixed wait assumptions.
-2. Use deterministic completion criteria (`group.wait` with robust timeout handling or expectation fulfillment tied to actual operation completion).
-3. Add additional diagnostics in the test when timeout occurs (operation count completed vs expected).
-4. Re-run this test repeatedly (at least 20 times) to verify stability.
+### Outcome
 
-### Target files
+- UI mutation paths are clearer and actor intent is explicit.
+- Focused and full tests passed with no behavior regression.
 
-- `Tests/AudioEngineTests.swift`
+## Phase C: Strict Concurrency Readiness — Completed
 
-### Exit criteria
+### Implemented
 
-- No flake observed in repeated runs.
-- Full `JJYWaveTests` passes consistently across multiple runs.
+1. Performed strict diagnostics validation with `SWIFT_STRICT_CONCURRENCY=complete`.
+2. Reduced warnings in queue-isolated components via targeted `@Sendable`, `@preconcurrency`, and `@unchecked Sendable` usage where justified by serialization design.
+3. Kept queue-based real-time architecture unchanged.
 
----
+### Outcome
 
-## Phase B: Expand MainActor Isolation to Presentation Boundary
+- Strict diagnostics warning set was reduced to practical, understood boundaries.
+- No functional regressions; focused and full test suites passed.
 
-### Goal
+## Phase D: Actor Feasibility Prototype — Completed
 
-Move from ad-hoc main hops to explicit actor boundaries in presentation/UI orchestration code.
+### Implemented
 
-### Implementation plan
+1. Added a low-risk actor slice for scheduler configuration state:
+   - `SchedulerConfiguration`
+   - `SchedulerConfigurationActor`
+2. Kept timing-critical scheduling logic on existing sync queue.
+3. Added async snapshot API and test coverage for actor-backed configuration observation.
 
-1. Audit `App/ViewController.swift` UI mutation methods.
-2. Mark UI-only methods (or the type where safe) with `@MainActor`.
-3. Remove redundant dispatches now covered by actor isolation.
-4. Validate behavior with manual smoke tests (start/stop generation, frequency switching, UI labels).
+### Outcome (Go/No-Go)
 
-### Target files
+- **Go for incremental actor use in non-real-time state boundaries.**
+- **No-Go for replacing timing-critical scheduling/audio paths with actors at this stage.**
+- Prototype confirms actor adoption can improve state-model clarity without destabilizing deterministic scheduling when confined to non-critical paths.
 
-- `App/ViewController.swift`
-- `JJYKit/Services/AudioGeneratorCoordinator.swift` (follow-up cleanup only if needed)
+## Next Step Strategy (Post-Phase D)
 
-### Exit criteria
-
-- No UI-thread warnings.
-- Same runtime behavior as current release path.
-
----
-
-## Phase C: Strict Concurrency Readiness (Incremental)
-
-### Goal
-
-Prepare for stricter Swift 6 concurrency checks without destabilizing real-time paths.
-
-### Implementation plan
-
-1. Enable stricter concurrency diagnostics in build settings for local validation.
-2. Audit closure boundaries for safe `@Sendable` adoption.
-3. Add `Sendable` only to value types that are semantically safe.
-4. Avoid broad `@Sendable` application that introduces non-Sendable capture warnings in queue-bound classes.
-
-### Target files
-
-- Build settings (`.xcodeproj`)
-- `JJYKit/Audio/*`
-- `JJYKit/Generator/*`
-- `JJYKit/Services/*`
-
-### Exit criteria
-
-- Concurrency warnings trend downward without changing runtime behavior.
-- No new race-condition regressions in tests.
-
----
-
-## Phase D: Actor Feasibility Prototype (Do not replace production path yet)
-
-### Goal
-
-Evaluate actor-based isolation for one non-audio-critical slice before broader migration.
-
-### Implementation plan
-
-1. Choose a low-risk candidate (configuration/state coordination only).
-2. Implement a prototype actor behind existing interfaces.
-3. Benchmark against current queue-based path.
-4. Decide go/no-go based on determinism and complexity.
-
-### Candidate area
-
-- `TransmissionScheduler` configuration state path only (not timing-critical dispatch internals)
-
-### Exit criteria
-
-- No timing regression.
-- Clear maintainability gain vs current queue approach.
+1. Continue hybrid model: queue isolation for real-time/timing-critical code, actors for configuration and UI-adjacent state boundaries.
+2. Add one more bounded actor slice (candidate: frequency/UI coordination state facade) behind existing protocols.
+3. Keep validating with strict diagnostics build plus focused and full test suites per phase.
+4. Reassess broader migration only after multiple bounded slices show net maintainability gain with zero timing regressions.
 
 ## Suggested Branch/PR Order
+
+Completed:
 
 1. `swift6-concurrency-phase-a-test-stability`
 2. `swift6-concurrency-phase-b-mainactor-boundary`
 3. `swift6-concurrency-phase-c-strict-diagnostics`
 4. `swift6-concurrency-phase-d-actor-prototype`
+
+Suggested next:
+
+5. `swift6-concurrency-phase-e-state-facade`
 
 ## Definition of Done (Updated)
 

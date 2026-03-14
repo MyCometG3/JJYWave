@@ -26,7 +26,9 @@ Steps:
 7) Run: ⌘R
 
 Notes:
-- Use the Xcode IDE; command-line builds (`swift build`, `xcodebuild`) are not supported for this project.
+- Prefer the Xcode IDE for normal development.
+- `xcodebuild` is acceptable for automated verification in CI/agent workflows.
+- Do not introduce Swift Package Manager (`swift build`) workflows for this project.
 
 ## Common Xcode Shortcuts
 - Clean Build Folder: ⌘⇧K
@@ -70,6 +72,17 @@ Automated tests exist and must pass.
 - Run all tests with ⌘U
 - Target: JJYWaveTests (uses `JJYWaveTests.xctestplan`)
 - See `Tests/README.md` for coverage details (frame structure, symbol duty cycle, frequency accuracy, scheduler timing, audio engine behavior, performance)
+
+Agent/CI validation pattern:
+- For concurrency or scheduler changes, run:
+  1. Focused suites for touched areas first (for example `TransmissionSchedulerTests`, `ThreadSafetyTests`, `AudioEngineTests`, `AudioEngineQualityTests`).
+  2. Then full suite.
+- If full suite flakes on audio-hardware-dependent timing tests, perform a targeted rerun and record both outcomes in PR notes.
+
+Strict concurrency validation:
+- For Swift concurrency work, include at least one strict diagnostics build:
+  - `xcodebuild build ... SWIFT_STRICT_CONCURRENCY=complete`
+- Treat new strict-concurrency warnings as regressions unless they are explicitly documented as intentional and bounded.
 
 3) Manual Functional Testing
 - Launch with ⌘R
