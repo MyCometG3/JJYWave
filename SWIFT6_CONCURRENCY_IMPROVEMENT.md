@@ -75,7 +75,7 @@ The codebase remains primarily queue-based (`DispatchQueue`, `DispatchSourceTime
 ### Implemented
 
 1. Prototyped a low-risk actor-backed configuration slice for scheduler state.
-2. Validated behavior under tests, then removed the actor-backed path due blocking/complexity trade-offs in this code path.
+2. Validated behavior under tests, then removed the actor-backed path due to blocking/complexity trade-offs in this code path.
 3. Finalized scheduler configuration as queue-isolated state (`SchedulerConfiguration` on `syncQueue`) with synchronous snapshot semantics.
 
 ### Outcome (Go/No-Go)

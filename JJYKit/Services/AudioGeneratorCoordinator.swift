@@ -26,7 +26,7 @@ protocol AudioGeneratorCoordinatorProtocol {
 
 // MARK: - AudioGeneratorCoordinator
 /// Coordinator that manages the interaction between audio generation and presentation
-class AudioGeneratorCoordinator: AudioGeneratorCoordinatorProtocol {
+final class AudioGeneratorCoordinator: AudioGeneratorCoordinatorProtocol {
     
     // MARK: - Dependencies
     private let audioGenerator: JJYAudioGenerator
@@ -57,7 +57,7 @@ class AudioGeneratorCoordinator: AudioGeneratorCoordinatorProtocol {
         self.presentationController = controller
     }
 
-    private func performPresentationUpdate(_ update: @escaping (PresentationControllerProtocol) -> Void) {
+    private func performPresentationUpdate(_ update: @escaping @Sendable (PresentationControllerProtocol) -> Void) {
         if Thread.isMainThread {
             guard let presentationController = self.presentationController else { return }
             update(presentationController)
@@ -121,6 +121,8 @@ class AudioGeneratorCoordinator: AudioGeneratorCoordinatorProtocol {
         }
     }
 }
+
+extension AudioGeneratorCoordinator: @unchecked Sendable {}
 
 // MARK: - JJYAudioGeneratorDelegate
 @MainActor
