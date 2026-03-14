@@ -14,6 +14,7 @@ class JJYAudioGenerator {
     
     // MARK: - Thread Safety
     private let concurrencyQueue = DispatchQueue(label: "com.MyCometG3.JJYWave.AudioGenerator", qos: .userInitiated)
+    private let concurrencyQueueKey = DispatchSpecificKey<Void>()
     
     // MARK: - Properties
     private let audioEngineManager: AudioEngineProtocol
@@ -206,6 +207,8 @@ class JJYAudioGenerator {
         // Initialize scheduler with frame service
         scheduler = TransmissionScheduler(frameService: frameService)
         scheduler.delegate = self
+
+        concurrencyQueue.setSpecific(key: concurrencyQueueKey, value: ())
         
         concurrencyQueue.sync {
             setupAudioEngine()
@@ -217,9 +220,22 @@ class JJYAudioGenerator {
             _updateWaveform(_isTestModeEnabled ? .square : .sine)
         }
     }
+
+    private var isOnConcurrencyQueue: Bool {
+        DispatchQueue.getSpecific(key: concurrencyQueueKey) != nil
+    }
+
+    private func enqueue(_ operation: @escaping () -> Void) {
+        if isOnConcurrencyQueue {
+            operation()
+            return
+        }
+
+        concurrencyQueue.async(execute: operation)
+    }
     
     deinit {
-        concurrencyQueue.async { [weak self] in
+        enqueue { [weak self] in
             self?.stopGeneration()
         }
     }
@@ -281,13 +297,13 @@ class JJYAudioGenerator {
     
     // MARK: - Public Methods
     func startGeneration() {
-        concurrencyQueue.async { [weak self] in
+        enqueue { [weak self] in
             self?._startGeneration()
         }
     }
     
     func stopGeneration() {
-        concurrencyQueue.async { [weak self] in
+        enqueue { [weak self] in
             self?._stopGeneration()
         }
     }
@@ -480,7 +496,7 @@ class JJYAudioGenerator {
     
     // MARK: - Buffer generation per second（ディスパッチャ）
     private func scheduleSecond(symbol: JJYSymbol, secondIndex: Int, when: AVAudioTime?) {
-        concurrencyQueue.async { [weak self] in
+        enqueue { [weak self] in
             self?._scheduleSecond(symbol: symbol, secondIndex: secondIndex, when: when)
         }
     }
