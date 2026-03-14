@@ -329,12 +329,11 @@ final class JJYAudioGenerator: @unchecked Sendable {
     // MARK: - Private Implementation Methods
     private func _startGeneration() {
         guard !_isGenerating else { return }
-        let delegate = self.delegate
         
         let engineStarted = audioEngineManager.startEngine()
         if !engineStarted {
-            Task { @MainActor in
-                delegate?.audioGeneratorDidEncounterError("Failed to start audio engine")
+            Task { @MainActor [weak self] in
+                self?.delegate?.audioGeneratorDidEncounterError("Failed to start audio engine")
             }
             return
         }
@@ -342,8 +341,8 @@ final class JJYAudioGenerator: @unchecked Sendable {
         audioEngineManager.startPlayer()
         _isGenerating = true
         
-        Task { @MainActor in
-            delegate?.audioGeneratorDidStart()
+        Task { @MainActor [weak self] in
+            self?.delegate?.audioGeneratorDidStart()
         }
         
         // Update scheduler configuration and start
@@ -360,7 +359,6 @@ final class JJYAudioGenerator: @unchecked Sendable {
     
     private func _stopGeneration() {
         guard _isGenerating else { return }
-        let delegate = self.delegate
         
         audioEngineManager.stopEngine()
         scheduler.stopScheduling()
@@ -370,8 +368,8 @@ final class JJYAudioGenerator: @unchecked Sendable {
         
         _isGenerating = false
         
-        Task { @MainActor in
-            delegate?.audioGeneratorDidStop()
+        Task { @MainActor [weak self] in
+            self?.delegate?.audioGeneratorDidStop()
         }
     }
     
