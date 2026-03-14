@@ -119,6 +119,28 @@ Short answer: **Yes, as diagnostics gate; not yet as full Swift 6 language-mode 
 2. Controlled follow-up: remove current workaround hotspots (especially UI protocol isolation boundary).
 3. Then switch: move to Swift 6 language mode once diagnostics are clean and stable under repeated test runs.
 
+## Phase E/F/G/H Status Update
+
+### Implemented and merged
+
+1. **Phase E1**: strict concurrency diagnostics gate in CI.
+   - `scripts/strict_concurrency_check.sh`
+   - `.github/workflows/strict-concurrency-check.yml`
+2. **Phase E2**: UI boundary actor-isolation alignment.
+   - `PresentationControllerProtocol` moved to `@MainActor` boundary shape.
+   - `ViewController` temporary `@preconcurrency` conformance workaround removed.
+3. **Phase G**: Swift 6 pilot for app target.
+   - `JJYWave` target `SWIFT_VERSION` switched to `6.0`.
+4. **Phase H**: Swift 6 migration for test target.
+   - `JJYWaveTests` target `SWIFT_VERSION` switched to `6.0`.
+   - Test lifecycle setup/teardown paths updated for safe explicit main-actor hops under Swift 6.
+
+### Outcome
+
+- App and test targets are now running in Swift 6 language mode.
+- Strict-concurrency diagnostics gate remains active.
+- Full test and analyze validation has stayed green through staged migration PRs.
+
 ## Suggested Branch/PR Order
 
 Completed:
@@ -133,6 +155,8 @@ Suggested next:
 5. `swift6-concurrency-phase-e-strict-gate`
 6. `swift6-concurrency-phase-f-ui-boundary-alignment`
 7. `swift6-concurrency-phase-g-swift6-pilot`
+8. `swift6-concurrency-phase-h-tests-swift6`
+9. `swift6-concurrency-phase-i-ci-hardening`
 
 ## Definition of Done (Updated)
 
@@ -142,3 +166,15 @@ Suggested next:
 4. Actor migration decisions are based on measured prototype results, not assumptions.
 5. Strict-concurrency diagnostics are continuously enforced in CI.
 6. Swift 6 language mode migration is completed only after hotspot cleanup and stable repeated test runs.
+
+## Recommended Immediate Next Tasks (Phase I)
+
+### I1. Swift 6 steady-state CI validation
+
+1. Add dedicated CI workflow running `xcodebuild analyze` on `JJYWave` and `xcodebuild test` on `JJYWaveTests` for PRs and pushes to `Gen2`.
+2. Keep existing strict-concurrency diagnostics gate in parallel as regression guard.
+
+### I2. Baseline maintenance
+
+1. Keep migration-related fixes minimal and scoped to concurrency correctness.
+2. Treat new Swift 6 isolation warnings in touched files as merge blockers.
