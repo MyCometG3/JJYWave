@@ -1,180 +1,27 @@
-# Swift Concurrency Improvement Plan (Swift 6)
+# Swift 6 Concurrency Status
 
-## Scope
+## Current State
 
-This document tracks concurrency modernization in **JJYWave**, including what is already complete and what should be implemented next after PR #24.
+- Swift 6 language mode is enabled for app and test targets.
+- Concurrency-related warning debt in tests has been cleaned up through phased follow-up work.
+- `Gen2` baseline validation is green with:
+  - `xcodebuild analyze` (warnings-as-errors)
+  - `xcodebuild test` (warnings-as-errors)
 
-## Current State (Post-PR #24)
+## What Is Enforced in CI
 
-The codebase remains primarily queue-based (`DispatchQueue`, `DispatchSourceTimer`) for real-time audio safety, with selective Swift concurrency usage (`Task { @MainActor ... }`) for UI-facing callback hops.
+- Workflow: `.github/workflows/swift6-validation.yml`
+- Jobs:
+  1. `xcodebuild analyze` with warnings-as-errors
+  2. `xcodebuild test` on `JJYWaveTests`
 
-## Completed Work
+## Operational Guidelines
 
-### Implemented and merged
+1. Keep concurrency-related fixes minimal and scoped.
+2. Treat newly introduced Swift 6/concurrency warnings as regressions.
+3. Preserve queue-based design in timing-critical audio paths unless a change is explicitly justified and verified.
+4. Handle flaky test stabilization in dedicated PRs, separate from warning cleanup.
 
-1. Main-actor callback hops for UI-facing delegate events.
-   - `JJYKit/Generator/JJYAudioGenerator.swift`
-   - `JJYKit/Services/AudioGeneratorCoordinator.swift`
-2. Queue reentrancy hardening for scheduler/generator/engine.
-   - `JJYKit/Time/TransmissionScheduler.swift`
-   - `JJYKit/Generator/JJYAudioGenerator.swift`
-   - `JJYKit/Audio/AudioEngine.swift`
-3. Synchronous teardown safety improvements.
-   - `JJYAudioGenerator.deinit` synchronous cleanup with reentrancy handling.
-   - `AudioEngine.stopEngine()` synchronous cleanup path with reentrancy handling.
-4. Repository-level concurrency guidance added.
-   - `README.md` section: `Concurrency Guidelines`.
+## Historical Note
 
-### Plan items removed as already done
-
-- The prior “Phase 1/2/3 initial hardening” tasks from the first draft are complete and are no longer listed as next actions.
-
-## Phase Status Update
-
-## Phase A: Stabilize Test Reliability — Completed
-
-### Implemented
-
-1. Refactored `AudioEngineTests.testConcurrentSetup()` to use deterministic completion criteria with robust timeout handling.
-2. Added timeout diagnostics (completed operations vs expected operations).
-3. Validated with repeated and full-suite test runs.
-
-### Outcome
-
-- Removed the original timeout-based flake mechanism.
-- Full test suites passed after the change.
-
-## Phase B: MainActor Boundary Expansion — Completed
-
-### Implemented
-
-1. Strengthened UI boundary isolation in `App/ViewController.swift`.
-2. Removed redundant main-queue dispatch wrappers where actor isolation now guarantees safety.
-3. Consolidated delegate/UI handoff behavior to preserve runtime semantics.
-
-### Outcome
-
-- UI mutation paths are clearer and actor intent is explicit.
-- Focused and full tests passed with no behavior regression.
-
-## Phase C: Strict Concurrency Readiness — Completed
-
-### Implemented
-
-1. Performed strict diagnostics validation with `SWIFT_STRICT_CONCURRENCY=complete`.
-2. Reduced warnings in queue-isolated components via targeted `@Sendable`, `@preconcurrency`, and `@unchecked Sendable` usage where justified by serialization design.
-3. Kept queue-based real-time architecture unchanged.
-
-### Outcome
-
-- Strict diagnostics warning set was reduced to practical, understood boundaries.
-- No functional regressions; focused and full test suites passed.
-
-## Phase D: Actor Feasibility Prototype — Completed
-
-### Implemented
-
-1. Prototyped a low-risk actor-backed configuration slice for scheduler state.
-2. Validated behavior under tests, then removed the actor-backed path due to blocking/complexity trade-offs in this code path.
-3. Finalized scheduler configuration as queue-isolated state (`SchedulerConfiguration` on `syncQueue`) with synchronous snapshot semantics.
-
-### Outcome (Go/No-Go)
-
-- **Go for incremental actor use in non-real-time state boundaries.**
-- **No-Go for replacing timing-critical scheduling/audio paths with actors at this stage.**
-- Prototype confirmed actor adoption can improve state-model clarity, but this scheduler path currently remains queue-isolated to preserve deterministic behavior and simpler call-site semantics.
-
-## Next Step Strategy (Post-Phase D)
-
-1. Continue hybrid model: queue isolation for real-time/timing-critical code, actors for configuration and UI-adjacent state boundaries.
-2. Enable strict-concurrency checks as a default quality gate (warnings-as-errors in CI for touched modules first, then repository-wide).
-3. Resolve remaining isolation mismatch hotspots before Swift 6 language mode migration (notably `PresentationControllerProtocol` / `ViewController` conformance boundary).
-4. Keep validating with strict diagnostics build plus focused and full test suites per phase.
-5. Reassess broader actor migration only after strict checks remain stable with zero timing regressions.
-
-## Recommended Immediate Next Tasks (Phase E, Historical)
-
-This section is kept as the original execution plan. Phase E1/E2 and subsequent Swift 6 migration phases are now completed (see status updates below).
-
-### E1. Strict Concurrency by default (Swift 5 mode)
-
-1. Keep `SWIFT_VERSION = 5.0`, but run with strict concurrency diagnostics enabled by default in CI.
-2. Treat new strict-concurrency warnings as merge blockers for changed files.
-3. Preserve current runtime behavior; avoid broad async refactors in this step.
-
-### E2. Remove temporary suppression at UI boundary
-
-1. Replace `@preconcurrency` conformance workaround in `App/ViewController.swift` with an explicit actor-safe protocol boundary.
-2. Preferred target shape: main-actor-isolated presentation protocol and explicit main-actor hop strategy at coordinator call boundaries.
-3. Update affected tests to match the final isolation boundary.
-
-### E3. Swift 6 language mode pilot (module-by-module)
-
-1. After E1/E2 are green, pilot `SWIFT_VERSION = 6.0` on the smallest safe target surface first.
-2. Promote to repository-wide Swift 6 language mode only after pilot completes without timing regressions or flaky tests.
-
-## Should We Enable Strict Concurrency Now? (Historical)
-
-Original recommendation (at the time): **Yes, as diagnostics gate; not yet as full Swift 6 language-mode switch across the whole repository.**
-
-Current status: app and test targets have now been migrated to Swift 6 language mode (see Phase E/F/G/H status below), and strict-concurrency diagnostics remain continuously enforced in CI.
-
-## Phase E/F/G/H Status Update
-
-### Implemented and merged
-
-1. **Phase E1**: strict concurrency diagnostics gate in CI.
-   - `scripts/strict_concurrency_check.sh`
-   - `.github/workflows/strict-concurrency-check.yml`
-2. **Phase E2**: UI boundary actor-isolation alignment.
-   - `PresentationControllerProtocol` moved to `@MainActor` boundary shape.
-   - `ViewController` temporary `@preconcurrency` conformance workaround removed.
-3. **Phase G**: Swift 6 pilot for app target.
-   - `JJYWave` target `SWIFT_VERSION` switched to `6.0`.
-4. **Phase H**: Swift 6 migration for test target.
-   - `JJYWaveTests` target `SWIFT_VERSION` switched to `6.0`.
-   - Test lifecycle setup/teardown paths updated for safe explicit main-actor hops under Swift 6.
-
-### Outcome
-
-- App and test targets are now running in Swift 6 language mode.
-- Strict-concurrency diagnostics gate remains active.
-- Full test and analyze validation has stayed green through staged migration PRs.
-
-## Suggested Branch/PR Order
-
-Completed:
-
-1. `swift6-concurrency-phase-a-test-stability`
-2. `swift6-concurrency-phase-b-mainactor-boundary`
-3. `swift6-concurrency-phase-c-strict-diagnostics`
-4. `swift6-concurrency-phase-d-actor-prototype`
-5. `swift6-concurrency-phase-e-strict-gate`
-6. `swift6-concurrency-phase-f-ui-boundary-alignment`
-7. `swift6-concurrency-phase-g-swift6-pilot`
-8. `swift6-concurrency-phase-h-tests-swift6`
-
-Suggested next:
-
-9. `swift6-concurrency-phase-i-ci-hardening`
-
-## Definition of Done (Updated)
-
-1. Existing flaky concurrency test is stabilized.
-2. UI boundary isolation is explicit and consistent.
-3. Strict concurrency diagnostics are improved with no functional regressions.
-4. Actor migration decisions are based on measured prototype results, not assumptions.
-5. Strict-concurrency diagnostics are continuously enforced in CI.
-6. Swift 6 language mode migration is completed only after hotspot cleanup and stable repeated test runs.
-
-## Recommended Immediate Next Tasks (Phase I)
-
-### I1. Swift 6 steady-state CI validation
-
-1. Add dedicated CI workflow running `xcodebuild analyze` on `JJYWave` and `xcodebuild test` on `JJYWaveTests` for PRs and pushes to `Gen2`.
-2. Keep existing strict-concurrency diagnostics gate in parallel as regression guard.
-
-### I2. Baseline maintenance
-
-1. Keep migration-related fixes minimal and scoped to concurrency correctness.
-2. Treat new Swift 6 isolation warnings surfaced by the strict-concurrency gate and the warning-as-error Analyze path as merge blockers; track test-target warning debt cleanup separately before enabling warnings-as-errors for the full test job.
+- The previous strict-concurrency gate script/workflow (`scripts/strict_concurrency_check.sh`, `.github/workflows/strict-concurrency-check.yml`) was retired after Swift 6 migration and steady-state validation were established.

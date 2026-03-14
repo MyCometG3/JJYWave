@@ -24,7 +24,11 @@
 
 通常の開発は Xcode を推奨します。`swift build` は利用想定外です。
 
-CI/自動検証では `xcodebuild` を利用できます（例: `xcodebuild test -project JJYWave.xcodeproj -scheme JJYWave -destination 'platform=macOS'`）。
+CI/自動検証では `xcodebuild` を利用できます。
+
+- 通常テスト: `xcodebuild test -project JJYWave.xcodeproj -scheme JJYWave -destination 'platform=macOS'`
+- Analyze: `xcodebuild analyze -project JJYWave.xcodeproj -scheme JJYWave -destination 'platform=macOS'`
+- warnings-as-errors 検証: `xcodebuild test -project JJYWave.xcodeproj -scheme JJYWave -destination 'platform=macOS' GCC_TREAT_WARNINGS_AS_ERRORS=YES SWIFT_TREAT_WARNINGS_AS_ERRORS=YES`
 
 ## 使い方（概要）
 - Start/Stop ボタンで生成の開始／停止
@@ -87,14 +91,9 @@ JJYWave/
 - 同一キュー再入時は追加 `async` を避け、即時実行で順序性を保つ。
 - オーディオのタイミングクリティカル経路では、挙動検証前に安易な並列化を行わない。
 
-### Strict Concurrency Check
-- Swift 6 移行準備として、以下の strict-concurrency 診断ゲートを実行できます。
-
-```bash
-./scripts/strict_concurrency_check.sh
-```
-
-- このスクリプトは `SWIFT_STRICT_CONCURRENCY=complete` かつ warnings-as-errors で `xcodebuild` を実行します。
+### Swift 6 Validation (CI)
+- Swift 6 移行は完了しており、CI では `xcodebuild analyze` と `xcodebuild test` を継続実行しています。
+- ワークフロー: `.github/workflows/swift6-validation.yml`
 
 ## 貢献
 - 実験プロジェクトとして Issue / Pull Request を歓迎します。大きな変更は事前に議論してください。

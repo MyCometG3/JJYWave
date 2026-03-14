@@ -79,10 +79,11 @@ Agent/CI validation pattern:
   2. Then full suite.
 - If full suite flakes on audio-hardware-dependent timing tests, perform a targeted rerun and record both outcomes in PR notes.
 
-Strict concurrency validation:
-- For Swift concurrency work, include at least one strict diagnostics build:
-  - `xcodebuild build ... SWIFT_STRICT_CONCURRENCY=complete`
-- Treat new strict-concurrency warnings as regressions unless they are explicitly documented as intentional and bounded.
+Swift 6 concurrency validation:
+- For Swift concurrency work, run CI-equivalent checks when possible:
+  - `xcodebuild analyze` with warnings-as-errors
+  - `xcodebuild test` for `JJYWaveTests`
+- Treat new concurrency warnings as regressions unless they are explicitly documented as intentional and bounded.
 
 3) Manual Functional Testing
 - Launch with ⌘R
