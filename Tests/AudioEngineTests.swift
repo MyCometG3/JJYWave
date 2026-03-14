@@ -297,57 +297,39 @@ final class AudioEngineTests: XCTestCase {
     
     func testConcurrentSetup() {
         let setupCount = 10
+        let audioEngine = audioEngine!
         let group = DispatchGroup()
-        let completionQueue = DispatchQueue(label: "AudioEngineTests.ConcurrentSetup.completion")
-        var completedCount = 0
 
         for i in 0..<setupCount {
             group.enter()
             DispatchQueue.global().async {
-                defer {
-                    completionQueue.sync {
-                        completedCount += 1
-                    }
-                    group.leave()
-                }
+                defer { group.leave() }
 
                 let sampleRate = [44100.0, 48000.0, 96000.0][i % 3]
                 let channelCount: AVAudioChannelCount = AVAudioChannelCount([1, 2][i % 2])
-                self.audioEngine.setupAudioEngine(sampleRate: sampleRate, channelCount: channelCount)
+                audioEngine.setupAudioEngine(sampleRate: sampleRate, channelCount: channelCount)
             }
         }
 
-        let waitResult = group.wait(timeout: .now() + 10.0)
-        let finalCompletedCount = completionQueue.sync { completedCount }
-        XCTAssertEqual(
-            waitResult,
-            .success,
-            "Concurrent setup timed out: completed \(finalCompletedCount)/\(setupCount)"
-        )
-        XCTAssertEqual(finalCompletedCount, setupCount, "Not all concurrent setup tasks completed")
+        XCTAssertEqual(group.wait(timeout: .now() + 10.0), .success, "Concurrent setup timed out")
     }
     
     func testConcurrentStartStop() {
         audioEngine.setupAudioEngine(sampleRate: 96000, channelCount: 2)
-        
-        let expectation = XCTestExpectation(description: "Concurrent start/stop should complete")
+        let audioEngine = audioEngine!
         let group = DispatchGroup()
         
         for _ in 0..<20 {
             group.enter()
             DispatchQueue.global().async {
-                let _ = self.audioEngine.startEngine()
+                defer { group.leave() }
+                let _ = audioEngine.startEngine()
                 Thread.sleep(forTimeInterval: 0.001)
-                self.audioEngine.stopEngine()
-                group.leave()
+                audioEngine.stopEngine()
             }
         }
-        
-        group.notify(queue: .main) {
-            expectation.fulfill()
-        }
-        
-        wait(for: [expectation], timeout: 5.0)
+
+        XCTAssertEqual(group.wait(timeout: .now() + 5.0), .success, "Concurrent start/stop timed out")
         
         XCTAssertTrue(true) // If we get here, concurrent operations worked
     }
@@ -355,25 +337,20 @@ final class AudioEngineTests: XCTestCase {
     func testConcurrentPlayerOperations() {
         audioEngine.setupAudioEngine(sampleRate: 96000, channelCount: 2)
         let _ = audioEngine.startEngine()
-        
-        let expectation = XCTestExpectation(description: "Concurrent player operations should complete")
+        let audioEngine = audioEngine!
         let group = DispatchGroup()
         
         for _ in 0..<10 {
             group.enter()
             DispatchQueue.global().async {
-                self.audioEngine.startPlayer()
+                defer { group.leave() }
+                audioEngine.startPlayer()
                 Thread.sleep(forTimeInterval: 0.01)
-                self.audioEngine.stopPlayer()
-                group.leave()
+                audioEngine.stopPlayer()
             }
         }
-        
-        group.notify(queue: .main) {
-            expectation.fulfill()
-        }
-        
-        wait(for: [expectation], timeout: 3.0)
+
+        XCTAssertEqual(group.wait(timeout: .now() + 3.0), .success, "Concurrent player operations timed out")
         
         XCTAssertTrue(true) // If we get here, concurrent player operations worked
     }

@@ -261,23 +261,26 @@ final class TransmissionSchedulerTests: XCTestCase {
     // MARK: - Thread Safety Tests
     
     func testConcurrentConfigurationUpdates() {
-        let expectation = XCTestExpectation(description: "Concurrent configuration updates should complete")
         let iterations = 100
+        let scheduler = scheduler!
+        let group = DispatchGroup()
         
-        DispatchQueue.concurrentPerform(iterations: iterations) { index in
-            scheduler.updateConfiguration(
-                enableCallsign: index % 2 == 0,
-                enableServiceStatusBits: index % 3 == 0,
-                leapSecondPlan: nil,
-                leapSecondPending: index % 5 == 0,
-                leapSecondInserted: index % 7 == 0,
-                serviceStatusBits: (index % 2 == 0, false, true, false, true, false)
-            )
+        for index in 0..<iterations {
+            group.enter()
+            DispatchQueue.global().async {
+                defer { group.leave() }
+                scheduler.updateConfiguration(
+                    enableCallsign: index % 2 == 0,
+                    enableServiceStatusBits: index % 3 == 0,
+                    leapSecondPlan: nil,
+                    leapSecondPending: index % 5 == 0,
+                    leapSecondInserted: index % 7 == 0,
+                    serviceStatusBits: (index % 2 == 0, false, true, false, true, false)
+                )
+            }
         }
-        
-        // All updates should complete without crashing
-        expectation.fulfill()
-        wait(for: [expectation], timeout: 5.0)
+
+        XCTAssertEqual(group.wait(timeout: .now() + 5.0), .success, "Concurrent configuration updates timed out")
         
         XCTAssertTrue(true) // If we get here, concurrent updates worked
     }
@@ -311,14 +314,15 @@ final class TransmissionSchedulerTests: XCTestCase {
     func testConcurrentStartStop() {
         let expectation = XCTestExpectation(description: "Concurrent start/stop should complete")
         let group = DispatchGroup()
+        let scheduler = scheduler!
         
         // Multiple concurrent start/stop operations
         for _ in 0..<10 {
             group.enter()
             DispatchQueue.global().async {
-                self.scheduler.startScheduling()
+                scheduler.startScheduling()
                 Thread.sleep(forTimeInterval: 0.01)
-                self.scheduler.stopScheduling()
+                scheduler.stopScheduling()
                 group.leave()
             }
         }
