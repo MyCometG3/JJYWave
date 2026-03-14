@@ -4,13 +4,14 @@ import AudioToolbox
 import CoreAudio
 import OSLog
 
+@MainActor
 protocol JJYAudioGeneratorDelegate: AnyObject {
     func audioGeneratorDidStart()
     func audioGeneratorDidStop()
     func audioGeneratorDidEncounterError(_ error: String)
 }
 
-class JJYAudioGenerator {
+final class JJYAudioGenerator: @unchecked Sendable {
     
     // MARK: - Thread Safety
     private let concurrencyQueue = DispatchQueue(label: "com.MyCometG3.JJYWave.AudioGenerator", qos: .userInitiated)
@@ -225,7 +226,7 @@ class JJYAudioGenerator {
         DispatchQueue.getSpecific(key: concurrencyQueueKey) != nil
     }
 
-    private func enqueue(_ operation: @escaping () -> Void) {
+    private func enqueue(_ operation: @escaping @Sendable () -> Void) {
         if isOnConcurrencyQueue {
             operation()
             return

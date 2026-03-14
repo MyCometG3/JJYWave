@@ -58,8 +58,10 @@ class ModularArchitectureIntegrationTests: XCTestCase {
         coordinator.handleFrequencyChange(to: 4, currentIndex: 0)
         
         // Verify change was blocked
-        XCTAssertTrue(mockPresentationController.revertSelectionWasCalled, "Should revert selection")
-        XCTAssertTrue(mockPresentationController.updateStatusWasCalled, "Should show error message")
+        let revertSelectionWasCalled = mockPresentationController.revertSelectionWasCalled
+        let updateStatusWasCalled = mockPresentationController.updateStatusWasCalled
+        XCTAssertTrue(revertSelectionWasCalled, "Should revert selection")
+        XCTAssertTrue(updateStatusWasCalled, "Should show error message")
         
         // Verify frequency didn't change
         XCTAssertTrue(audioGenerator.isTestModeEnabled, "Should remain in test mode")
@@ -70,10 +72,14 @@ class ModularArchitectureIntegrationTests: XCTestCase {
         coordinator.refreshUIState()
         
         // Verify UI updates were called
-        XCTAssertTrue(mockPresentationController.updateFrequencyDisplayWasCalled, "Should update frequency display")
-        XCTAssertTrue(mockPresentationController.updateSegmentSelectionWasCalled, "Should update segment selection")
-        XCTAssertTrue(mockPresentationController.updateButtonTitleWasCalled, "Should update button title")
-        XCTAssertTrue(mockPresentationController.updateTimeDisplayWasCalled, "Should update time display")
+        let updateFrequencyDisplayWasCalled = mockPresentationController.updateFrequencyDisplayWasCalled
+        let updateSegmentSelectionWasCalled = mockPresentationController.updateSegmentSelectionWasCalled
+        let updateButtonTitleWasCalled = mockPresentationController.updateButtonTitleWasCalled
+        let updateTimeDisplayWasCalled = mockPresentationController.updateTimeDisplayWasCalled
+        XCTAssertTrue(updateFrequencyDisplayWasCalled, "Should update frequency display")
+        XCTAssertTrue(updateSegmentSelectionWasCalled, "Should update segment selection")
+        XCTAssertTrue(updateButtonTitleWasCalled, "Should update button title")
+        XCTAssertTrue(updateTimeDisplayWasCalled, "Should update time display")
     }
     
     func testStartStopWorkflow() {

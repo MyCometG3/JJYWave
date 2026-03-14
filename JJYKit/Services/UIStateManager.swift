@@ -56,6 +56,7 @@ class UIStateManager: UIStateManagerProtocol {
 
 // MARK: - UI Description Management
 /// Service for managing UI description text and view hierarchy operations
+@MainActor
 class UIDescriptionManager {
     
     func updateDescriptionText(in view: NSView) {

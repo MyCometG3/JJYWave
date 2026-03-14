@@ -95,7 +95,8 @@ class FrequencyPersistenceTests: XCTestCase {
 
         coordinator.handleFrequencyChange(to: 1, currentIndex: 0)
 
-        XCTAssertFalse(mockPresentation.revertSelectionWasCalled,
+        let revertSelectionWasCalled = mockPresentation.revertSelectionWasCalled
+        XCTAssertFalse(revertSelectionWasCalled,
                        "Revert must not be called for an allowed change — save should proceed")
     }
 
@@ -118,7 +119,8 @@ class FrequencyPersistenceTests: XCTestCase {
 
         coordinator.handleFrequencyChange(to: 3, currentIndex: 1)
 
-        XCTAssertTrue(mockPresentation.revertSelectionWasCalled,
+        let revertSelectionWasCalled = mockPresentation.revertSelectionWasCalled
+        XCTAssertTrue(revertSelectionWasCalled,
                       "Revert must be called for a blocked change — save must not proceed")
     }
 

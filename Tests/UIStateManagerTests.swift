@@ -81,6 +81,7 @@ class UIStateManagerTests: XCTestCase {
 }
 
 // MARK: - AudioGeneratorCoordinator Tests
+@MainActor
 class AudioGeneratorCoordinatorTests: XCTestCase {
     var coordinator: AudioGeneratorCoordinator!
     var mockAudioGenerator: MockJJYAudioGenerator!

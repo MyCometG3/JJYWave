@@ -18,7 +18,7 @@ protocol AudioEngineProtocol: AnyObject {
     func stopPlayer()
     
     // MARK: - Audio Scheduling
-    func scheduleBuffer(_ buffer: AVAudioPCMBuffer, at when: AVAudioTime?, completionHandler: AVAudioNodeCompletionHandler?)
+    func scheduleBuffer(_ buffer: AVAudioPCMBuffer, at when: AVAudioTime?, completionHandler: (@Sendable () -> Void)?)
 
     // MARK: - Hardware Interaction
     func trySetHardwareSampleRate(_ desired: Double) -> Bool

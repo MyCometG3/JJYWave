@@ -296,27 +296,35 @@ final class AudioEngineTests: XCTestCase {
     // MARK: - Thread Safety Tests
     
     func testConcurrentSetup() {
-        let expectation = XCTestExpectation(description: "Concurrent setup operations should complete")
+        let setupCount = 10
         let group = DispatchGroup()
-        
-        for i in 0..<10 {
+        let completionQueue = DispatchQueue(label: "AudioEngineTests.ConcurrentSetup.completion")
+        var completedCount = 0
+
+        for i in 0..<setupCount {
             group.enter()
             DispatchQueue.global().async {
+                defer {
+                    completionQueue.sync {
+                        completedCount += 1
+                    }
+                    group.leave()
+                }
+
                 let sampleRate = [44100.0, 48000.0, 96000.0][i % 3]
                 let channelCount: AVAudioChannelCount = AVAudioChannelCount([1, 2][i % 2])
-                
                 self.audioEngine.setupAudioEngine(sampleRate: sampleRate, channelCount: channelCount)
-                group.leave()
             }
         }
-        
-        group.notify(queue: .main) {
-            expectation.fulfill()
-        }
-        
-        wait(for: [expectation], timeout: 3.0)
-        
-        XCTAssertTrue(true) // If we get here, concurrent setup worked
+
+        let waitResult = group.wait(timeout: .now() + 10.0)
+        let finalCompletedCount = completionQueue.sync { completedCount }
+        XCTAssertEqual(
+            waitResult,
+            .success,
+            "Concurrent setup timed out: completed \(finalCompletedCount)/\(setupCount)"
+        )
+        XCTAssertEqual(finalCompletedCount, setupCount, "Not all concurrent setup tasks completed")
     }
     
     func testConcurrentStartStop() {

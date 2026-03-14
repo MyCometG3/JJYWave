@@ -22,7 +22,9 @@
 4. ターゲット「My Mac」を選択
 5. Build（⌘B）→ Run（⌘R）
 
-コマンドラインツール（swift build / xcodebuild）は利用想定外です。Xcode からビルドしてください。
+通常の開発は Xcode を推奨します。`swift build` は利用想定外です。
+
+CI/自動検証では `xcodebuild` を利用できます（例: `xcodebuild test -project JJYWave.xcodeproj -scheme JJYWave -destination 'platform=macOS'`）。
 
 ## 使い方（概要）
 - Start/Stop ボタンで生成の開始／停止

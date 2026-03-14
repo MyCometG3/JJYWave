@@ -1,12 +1,14 @@
 import Foundation
-import AVFoundation
+@preconcurrency import AVFoundation
 import AudioToolbox
 import CoreAudio
 import OSLog
 
 // MARK: - AudioEngine
 /// Manages AVAudioEngine, AVAudioPlayerNode, and hardware sample rate logic
-class AudioEngine {
+final class AudioEngine: @unchecked Sendable {
+    // Safety invariant: mutable engine/player state is confined to concurrencyQueue,
+    // and public APIs synchronize access through that queue.
     private let concurrencyQueue = DispatchQueue(label: "com.MyCometG3.JJYWave.AudioEngine", qos: .userInitiated)
     private let concurrencyQueueKey = DispatchSpecificKey<Void>()
     private var audioEngine: AVAudioEngine!
@@ -40,7 +42,7 @@ class AudioEngine {
         DispatchQueue.getSpecific(key: concurrencyQueueKey) != nil
     }
 
-    private func enqueue(_ operation: @escaping () -> Void) {
+    private func enqueue(_ operation: @escaping @Sendable () -> Void) {
         if isOnConcurrencyQueue {
             operation()
             return
@@ -157,7 +159,7 @@ class AudioEngine {
         }
     }
     
-    func scheduleBuffer(_ buffer: AVAudioPCMBuffer, at when: AVAudioTime?, completionHandler: AVAudioNodeCompletionHandler? = nil) {
+    func scheduleBuffer(_ buffer: AVAudioPCMBuffer, at when: AVAudioTime?, completionHandler: (@Sendable () -> Void)? = nil) {
         enqueue { [weak self] in
             guard let self = self, let playerNode = self.playerNode else { return }
             
