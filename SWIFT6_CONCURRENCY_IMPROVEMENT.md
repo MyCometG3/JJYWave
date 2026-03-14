@@ -147,13 +147,13 @@ Completed:
 2. `swift6-concurrency-phase-b-mainactor-boundary`
 3. `swift6-concurrency-phase-c-strict-diagnostics`
 4. `swift6-concurrency-phase-d-actor-prototype`
-
-Suggested next:
-
 5. `swift6-concurrency-phase-e-strict-gate`
 6. `swift6-concurrency-phase-f-ui-boundary-alignment`
 7. `swift6-concurrency-phase-g-swift6-pilot`
 8. `swift6-concurrency-phase-h-tests-swift6`
+
+Suggested next:
+
 9. `swift6-concurrency-phase-i-ci-hardening`
 
 ## Definition of Done (Updated)
