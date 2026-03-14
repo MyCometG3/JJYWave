@@ -8,7 +8,7 @@ class FrequencyPersistenceTests: XCTestCase {
 
     private let suiteName = "JJYWave.FrequencyPersistenceTests"
     private let key = "frequencySelectedIndex"
-    private var userDefaults: UserDefaults!
+    nonisolated(unsafe) private var userDefaults: UserDefaults!
 
     override func setUpWithError() throws {
         try super.setUpWithError()

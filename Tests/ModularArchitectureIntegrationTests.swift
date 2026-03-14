@@ -3,25 +3,25 @@ import XCTest
 
 @MainActor
 class ModularArchitectureIntegrationTests: XCTestCase {
-    var audioGenerator: JJYAudioGenerator!
-    var coordinator: AudioGeneratorCoordinator!
-    var mockPresentationController: MockPresentationController!
+    nonisolated(unsafe) var audioGenerator: JJYAudioGenerator!
+    nonisolated(unsafe) var coordinator: AudioGeneratorCoordinator!
+    nonisolated(unsafe) var mockPresentationController: MockPresentationController!
     
     override func setUp() {
         super.setUp()
-        
+
         // Use real audio generator with mock audio engine for testing
         let mockAudioEngine = MockAudioEngine()
         audioGenerator = JJYAudioGenerator(audioEngine: mockAudioEngine)
-        
-        mockPresentationController = MockPresentationController()
-        
+
+        mockPresentationController = MainActor.assumeIsolated { MockPresentationController() }
+
         // Initialize coordinator without automatic delegate setup (weak reference pattern)
         coordinator = AudioGeneratorCoordinator(audioGenerator: audioGenerator)
         coordinator.setPresentationController(mockPresentationController)
         coordinator.setupAudioGeneratorDelegate()
     }
-    
+
     override func tearDown() {
         coordinator = nil
         audioGenerator = nil

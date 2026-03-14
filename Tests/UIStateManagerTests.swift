@@ -83,19 +83,19 @@ class UIStateManagerTests: XCTestCase {
 // MARK: - AudioGeneratorCoordinator Tests
 @MainActor
 class AudioGeneratorCoordinatorTests: XCTestCase {
-    var coordinator: AudioGeneratorCoordinator!
-    var mockAudioGenerator: MockJJYAudioGenerator!
-    var mockFrequencyManager: MockFrequencyManager!
-    var mockUIStateManager: MockUIStateManager!
-    var mockPresentationController: MockPresentationController!
+    nonisolated(unsafe) var coordinator: AudioGeneratorCoordinator!
+    nonisolated(unsafe) var mockAudioGenerator: MockJJYAudioGenerator!
+    nonisolated(unsafe) var mockFrequencyManager: MockFrequencyManager!
+    nonisolated(unsafe) var mockUIStateManager: MockUIStateManager!
+    nonisolated(unsafe) var mockPresentationController: MockPresentationController!
     
     override func setUp() {
         super.setUp()
         mockAudioGenerator = MockJJYAudioGenerator()
         mockFrequencyManager = MockFrequencyManager()
         mockUIStateManager = MockUIStateManager()
-        mockPresentationController = MockPresentationController()
-        
+        mockPresentationController = MainActor.assumeIsolated { MockPresentationController() }
+
         // Create coordinator with real audio generator for integration testing
         let realAudioGenerator = JJYAudioGenerator()
         coordinator = AudioGeneratorCoordinator(
