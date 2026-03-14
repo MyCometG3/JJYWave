@@ -55,16 +55,21 @@ final class ThreadSafetyTests: XCTestCase {
         let iterations = 100
         let mockClock = mockClock!
         let initialDate = mockClock.currentDate()
+        let group = DispatchGroup()
 
-        // Concurrent reads
-        DispatchQueue.concurrentPerform(iterations: iterations) { _ in
-            let _ = mockClock.currentDate()
+        for i in 0..<iterations {
+            group.enter()
+            DispatchQueue.global().async {
+                defer { group.leave() }
+                if i % 10 == 0 {
+                    mockClock.advanceTime(by: Double(i / 10) * 0.1)
+                } else {
+                    let _ = mockClock.currentDate()
+                }
+            }
         }
 
-        // Concurrent writes
-        DispatchQueue.concurrentPerform(iterations: 10) { i in
-            mockClock.advanceTime(by: Double(i) * 0.1)
-        }
+        XCTAssertEqual(group.wait(timeout: .now() + 5.0), .success, "Concurrent clock access timed out")
 
         let expectedAdvance: TimeInterval = (0..<10).reduce(0) { $0 + Double($1) * 0.1 }
         let finalDate = mockClock.currentDate()
