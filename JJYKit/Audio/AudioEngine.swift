@@ -7,6 +7,8 @@ import OSLog
 // MARK: - AudioEngine
 /// Manages AVAudioEngine, AVAudioPlayerNode, and hardware sample rate logic
 final class AudioEngine: @unchecked Sendable {
+    // Safety invariant: mutable engine/player state is confined to concurrencyQueue,
+    // and public APIs synchronize access through that queue.
     private let concurrencyQueue = DispatchQueue(label: "com.MyCometG3.JJYWave.AudioEngine", qos: .userInitiated)
     private let concurrencyQueueKey = DispatchSpecificKey<Void>()
     private var audioEngine: AVAudioEngine!

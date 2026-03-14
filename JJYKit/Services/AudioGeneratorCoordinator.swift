@@ -14,7 +14,6 @@ protocol PresentationControllerProtocol: AnyObject {
 
 // MARK: - AudioGeneratorCoordinatorProtocol
 /// Protocol for coordinating audio generation with presentation layer
-@preconcurrency
 protocol AudioGeneratorCoordinatorProtocol {
     var frequencyManager: FrequencyManagementProtocol { get }
     var uiStateManager: UIStateManagerProtocol { get }
@@ -122,6 +121,8 @@ final class AudioGeneratorCoordinator: AudioGeneratorCoordinatorProtocol {
     }
 }
 
+// Safety invariant: dependencies are immutable after init, presentation updates are funneled
+// through performPresentationUpdate on the main thread/queue, and mutable UI objects are not shared.
 extension AudioGeneratorCoordinator: @unchecked Sendable {}
 
 // MARK: - JJYAudioGeneratorDelegate

@@ -20,6 +20,8 @@ struct SchedulerConfiguration: Sendable {
 // MARK: - TransmissionScheduler
 /// Responsible for timer and host time scheduling, drift detection, resync policy
 final class TransmissionScheduler: @unchecked Sendable {
+    // Safety invariant: mutable scheduler state is confined to syncQueue,
+    // and public operations serialize via syncQueue.sync/reentrancy checks.
     private let logger = Logger(subsystem: "com.MyCometG3.JJYWave", category: "TransmissionScheduler")
     private let clock: Clock
     private let frameService: FrameService
@@ -197,8 +199,8 @@ final class TransmissionScheduler: @unchecked Sendable {
         }
 
         return await withCheckedContinuation { continuation in
-            syncQueue.async { [weak self] in
-                continuation.resume(returning: self?.configuration ?? SchedulerConfiguration())
+            syncQueue.async { [self] in
+                continuation.resume(returning: self.configuration)
             }
         }
     }
