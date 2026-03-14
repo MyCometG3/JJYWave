@@ -5,6 +5,16 @@ class ModularArchitectureIntegrationTests: XCTestCase {
     var audioGenerator: JJYAudioGenerator!
     var coordinator: AudioGeneratorCoordinator!
     var mockPresentationController: MockPresentationController!
+
+    private func onMain<T>(_ body: @MainActor () -> T) -> T {
+        if Thread.isMainThread {
+            return MainActor.assumeIsolated { body() }
+        }
+
+        return DispatchQueue.main.sync {
+            MainActor.assumeIsolated { body() }
+        }
+    }
     
     override func setUp() {
         super.setUp()
@@ -13,11 +23,15 @@ class ModularArchitectureIntegrationTests: XCTestCase {
         let mockAudioEngine = MockAudioEngine()
         audioGenerator = JJYAudioGenerator(audioEngine: mockAudioEngine)
         
-        mockPresentationController = MockPresentationController()
+        mockPresentationController = onMain {
+            MockPresentationController()
+        }
         
         // Initialize coordinator without automatic delegate setup (weak reference pattern)
         coordinator = AudioGeneratorCoordinator(audioGenerator: audioGenerator)
-        coordinator.setPresentationController(mockPresentationController)
+        onMain {
+            coordinator.setPresentationController(mockPresentationController)
+        }
         coordinator.setupAudioGeneratorDelegate()
     }
     
@@ -58,8 +72,14 @@ class ModularArchitectureIntegrationTests: XCTestCase {
         coordinator.handleFrequencyChange(to: 4, currentIndex: 0)
         
         // Verify change was blocked
-        XCTAssertTrue(mockPresentationController.revertSelectionWasCalled, "Should revert selection")
-        XCTAssertTrue(mockPresentationController.updateStatusWasCalled, "Should show error message")
+        let revertSelectionWasCalled = onMain {
+            mockPresentationController.revertSelectionWasCalled
+        }
+        let updateStatusWasCalled = onMain {
+            mockPresentationController.updateStatusWasCalled
+        }
+        XCTAssertTrue(revertSelectionWasCalled, "Should revert selection")
+        XCTAssertTrue(updateStatusWasCalled, "Should show error message")
         
         // Verify frequency didn't change
         XCTAssertTrue(audioGenerator.isTestModeEnabled, "Should remain in test mode")
@@ -70,10 +90,22 @@ class ModularArchitectureIntegrationTests: XCTestCase {
         coordinator.refreshUIState()
         
         // Verify UI updates were called
-        XCTAssertTrue(mockPresentationController.updateFrequencyDisplayWasCalled, "Should update frequency display")
-        XCTAssertTrue(mockPresentationController.updateSegmentSelectionWasCalled, "Should update segment selection")
-        XCTAssertTrue(mockPresentationController.updateButtonTitleWasCalled, "Should update button title")
-        XCTAssertTrue(mockPresentationController.updateTimeDisplayWasCalled, "Should update time display")
+        let updateFrequencyDisplayWasCalled = onMain {
+            mockPresentationController.updateFrequencyDisplayWasCalled
+        }
+        let updateSegmentSelectionWasCalled = onMain {
+            mockPresentationController.updateSegmentSelectionWasCalled
+        }
+        let updateButtonTitleWasCalled = onMain {
+            mockPresentationController.updateButtonTitleWasCalled
+        }
+        let updateTimeDisplayWasCalled = onMain {
+            mockPresentationController.updateTimeDisplayWasCalled
+        }
+        XCTAssertTrue(updateFrequencyDisplayWasCalled, "Should update frequency display")
+        XCTAssertTrue(updateSegmentSelectionWasCalled, "Should update segment selection")
+        XCTAssertTrue(updateButtonTitleWasCalled, "Should update button title")
+        XCTAssertTrue(updateTimeDisplayWasCalled, "Should update time display")
     }
     
     func testStartStopWorkflow() {

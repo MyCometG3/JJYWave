@@ -151,7 +151,11 @@ final class ViewController: NSViewController {
     }
     
     // MARK: - Lifecycle
-    deinit {}
+    deinit {
+        MainActor.assumeIsolated {
+            cleanupResources()
+        }
+    }
 
     override func viewWillDisappear() {
         super.viewWillDisappear()
@@ -184,7 +188,7 @@ final class ViewController: NSViewController {
 
 // MARK: - PresentationControllerProtocol
 @MainActor
-extension ViewController: @preconcurrency PresentationControllerProtocol {
+extension ViewController: PresentationControllerProtocol {
     func updateButtonTitle(_ title: String) {
         startStopButton?.title = title
     }

@@ -3,6 +3,7 @@ import Cocoa
 
 // MARK: - PresentationControllerProtocol
 /// Protocol for presentation layer to reduce coupling with business logic
+@MainActor
 protocol PresentationControllerProtocol: AnyObject {
     func updateButtonTitle(_ title: String)
     func updateStatusMessage(_ message: String)
@@ -53,8 +54,26 @@ class AudioGeneratorCoordinator: AudioGeneratorCoordinatorProtocol {
         self.audioGenerator.delegate = self
     }
     
+    @MainActor
     func setPresentationController(_ controller: PresentationControllerProtocol) {
         self.presentationController = controller
+    }
+
+    private func performPresentationUpdate(_ update: @escaping @MainActor (PresentationControllerProtocol) -> Void) {
+        if Thread.isMainThread {
+            MainActor.assumeIsolated {
+                guard let presentationController = self.presentationController else { return }
+                update(presentationController)
+            }
+            return
+        }
+
+        DispatchQueue.main.sync {
+            MainActor.assumeIsolated {
+                guard let presentationController = self.presentationController else { return }
+                update(presentationController)
+            }
+        }
     }
     
     // MARK: - Public Methods
@@ -76,9 +95,13 @@ class AudioGeneratorCoordinator: AudioGeneratorCoordinatorProtocol {
         
         if !validationResult.isAllowed {
             // Revert segment selection and show error
-            presentationController?.revertSegmentSelection(to: currentIndex)
+            performPresentationUpdate { presentationController in
+                presentationController.revertSegmentSelection(to: currentIndex)
+            }
             if let errorMessage = validationResult.errorMessage {
-                presentationController?.updateStatusMessage(errorMessage)
+                performPresentationUpdate { presentationController in
+                    presentationController.updateStatusMessage(errorMessage)
+                }
             }
             return
         }
@@ -90,21 +113,17 @@ class AudioGeneratorCoordinator: AudioGeneratorCoordinatorProtocol {
     }
     
     func refreshUIState() {
-        // Update frequency display
         let frequencyDisplay = frequencyManager.formatFrequencyDisplay(for: audioGenerator, sampleRate: audioGenerator.sampleRate)
-        presentationController?.updateFrequencyDisplay(frequencyDisplay)
-        
-        // Update segment selection
         let segmentIndex = frequencyManager.getSegmentIndex(for: audioGenerator)
-        presentationController?.updateSegmentSelection(segmentIndex)
-        
-        // Update button title
         let buttonTitle = uiStateManager.formatButtonTitle(isGenerating: audioGenerator.isActive)
-        presentationController?.updateButtonTitle(buttonTitle)
-        
-        // Update time display
         let timeDisplay = uiStateManager.updateTimeDisplay()
-        presentationController?.updateTimeDisplay(timeDisplay)
+
+        performPresentationUpdate { presentationController in
+            presentationController.updateFrequencyDisplay(frequencyDisplay)
+            presentationController.updateSegmentSelection(segmentIndex)
+            presentationController.updateButtonTitle(buttonTitle)
+            presentationController.updateTimeDisplay(timeDisplay)
+        }
     }
 }
 
@@ -112,33 +131,24 @@ class AudioGeneratorCoordinator: AudioGeneratorCoordinatorProtocol {
 @MainActor
 extension AudioGeneratorCoordinator: JJYAudioGeneratorDelegate {
     func audioGeneratorDidStart() {
-        Task { @MainActor [weak self] in
-            guard let self = self else { return }
-            let buttonTitle = self.uiStateManager.formatButtonTitle(isGenerating: true)
-            let statusMessage = self.uiStateManager.formatStatusMessage(state: .generating)
-            
-            self.presentationController?.updateButtonTitle(buttonTitle)
-            self.presentationController?.updateStatusMessage(statusMessage)
-        }
+        let buttonTitle = uiStateManager.formatButtonTitle(isGenerating: true)
+        let statusMessage = uiStateManager.formatStatusMessage(state: .generating)
+
+        presentationController?.updateButtonTitle(buttonTitle)
+        presentationController?.updateStatusMessage(statusMessage)
     }
     
     func audioGeneratorDidStop() {
-        Task { @MainActor [weak self] in
-            guard let self = self else { return }
-            let buttonTitle = self.uiStateManager.formatButtonTitle(isGenerating: false)
-            let statusMessage = self.uiStateManager.formatStatusMessage(state: .stopped)
-            
-            self.presentationController?.updateButtonTitle(buttonTitle)
-            self.presentationController?.updateStatusMessage(statusMessage)
-        }
+        let buttonTitle = uiStateManager.formatButtonTitle(isGenerating: false)
+        let statusMessage = uiStateManager.formatStatusMessage(state: .stopped)
+
+        presentationController?.updateButtonTitle(buttonTitle)
+        presentationController?.updateStatusMessage(statusMessage)
     }
     
     func audioGeneratorDidEncounterError(_ error: String) {
-        Task { @MainActor [weak self] in
-            guard let self = self else { return }
-            let statusMessage = self.uiStateManager.formatStatusMessage(state: .error(error))
-            
-            self.presentationController?.updateStatusMessage(statusMessage)
-        }
+        let statusMessage = uiStateManager.formatStatusMessage(state: .error(error))
+
+        presentationController?.updateStatusMessage(statusMessage)
     }
 }

@@ -17,18 +17,6 @@ struct SchedulerConfiguration: Sendable {
     var serviceStatusBits: (st1: Bool, st2: Bool, st3: Bool, st4: Bool, st5: Bool, st6: Bool) = (false, false, false, false, false, false)
 }
 
-actor SchedulerConfigurationActor {
-    private var configuration = SchedulerConfiguration()
-
-    func update(_ configuration: SchedulerConfiguration) {
-        self.configuration = configuration
-    }
-
-    func snapshot() -> SchedulerConfiguration {
-        configuration
-    }
-}
-
 // MARK: - TransmissionScheduler
 /// Responsible for timer and host time scheduling, drift detection, resync policy
 final class TransmissionScheduler: @unchecked Sendable {
@@ -54,7 +42,6 @@ final class TransmissionScheduler: @unchecked Sendable {
     
     // Configuration
     private var configuration = SchedulerConfiguration()
-    private let configurationActor = SchedulerConfigurationActor()
 
     private var isOnSyncQueue: Bool {
         DispatchQueue.getSpecific(key: syncQueueKey) != nil
@@ -112,16 +99,9 @@ final class TransmissionScheduler: @unchecked Sendable {
         newConfiguration.leapSecondPending = leapSecondPending
         newConfiguration.leapSecondInserted = leapSecondInserted
         newConfiguration.serviceStatusBits = serviceStatusBits
-        let configurationActor = self.configurationActor
         let applyUpdate = { [weak self] in
             guard let self = self else { return }
             self.configuration = newConfiguration
-            let semaphore = DispatchSemaphore(value: 0)
-            Task {
-                await configurationActor.update(newConfiguration)
-                semaphore.signal()
-            }
-            semaphore.wait()
         }
 
         if isOnSyncQueue {
@@ -212,7 +192,15 @@ final class TransmissionScheduler: @unchecked Sendable {
     }
 
     func configurationSnapshot() async -> SchedulerConfiguration {
-        await configurationActor.snapshot()
+        if isOnSyncQueue {
+            return configuration
+        }
+
+        return await withCheckedContinuation { continuation in
+            syncQueue.async { [weak self] in
+                continuation.resume(returning: self?.configuration ?? SchedulerConfiguration())
+            }
+        }
     }
     
     private func _stopScheduling() {
