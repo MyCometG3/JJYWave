@@ -58,13 +58,16 @@ def validate_project(project_root):
         print("✅ All required PBX sections present")
     
     # 3. Check file count consistency
-    swift_files = list(project_root.glob("**/*.swift"))
-    main_swift = [f for f in swift_files if "/Tests/" not in str(f) and "/JJYWaveTests/" not in str(f)]
-    test_swift = [f for f in swift_files if "/Tests/" in str(f) or "/JJYWaveTests/" in str(f)]
+    swift_files = [
+        f for f in project_root.glob("**/*.swift")
+        if "/build/" not in str(f)
+    ]
+    main_swift = [f for f in swift_files if "/Tests/" not in str(f)]
+    test_swift = [f for f in swift_files if "/Tests/" in str(f)]
     
     # Expected file counts (based on current working state)
     expected_main_swift = 17
-    expected_test_swift = 21
+    expected_test_swift = 20
     
     if len(main_swift) != expected_main_swift:
         issues.append(f"❌ Expected {expected_main_swift} main Swift files, found {len(main_swift)}")
@@ -84,8 +87,7 @@ def validate_project(project_root):
         "JJYKit/Generator",
         "JJYKit/Services", 
         "JJYKit/Time",
-        "Tests",
-        "JJYWaveTests"
+        "Tests"
     ]
     
     missing_dirs = []

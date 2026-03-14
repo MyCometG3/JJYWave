@@ -119,14 +119,6 @@
 		4BA6559D738E475B80BC2267 /* FrequencyPersistenceTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FrequencyPersistenceTests.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
-/* Begin PBXFileSystemSynchronizedRootGroup section */
-		16B3D3202E5ADEB600D1100F /* JJYWaveTests */ = {
-			isa = PBXFileSystemSynchronizedRootGroup;
-			path = JJYWaveTests;
-			sourceTree = "<group>";
-		};
-/* End PBXFileSystemSynchronizedRootGroup section */
-
 /* Begin PBXFrameworksBuildPhase section */
 		168B38FB2E53F2B300F5004F /* Frameworks */ = {
 			isa = PBXFrameworksBuildPhase;
@@ -177,7 +169,6 @@
 				164BC51C2E5AC94400E93007 /* App */,
 				16B3D30B2E5ADC8200D1100F /* JJYKit */,
 				16B3D2F62E5ADBB600D1100F /* Tests */,
-				16B3D3202E5ADEB600D1100F /* JJYWaveTests */,
 				1674EA902E5B381200B0F228 /* Frameworks */,
 				168B38FF2E53F2B300F5004F /* Products */,
 			);
@@ -325,9 +316,6 @@
 			);
 			dependencies = (
 				16B3D3242E5ADEB600D1100F /* PBXTargetDependency */,
-			);
-			fileSystemSynchronizedGroups = (
-				16B3D3202E5ADEB600D1100F /* JJYWaveTests */,
 			);
 			name = JJYWaveTests;
 			packageProductDependencies = (
