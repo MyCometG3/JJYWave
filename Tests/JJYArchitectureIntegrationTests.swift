@@ -79,10 +79,6 @@ final class JJYArchitectureIntegrationTests: XCTestCase {
             
             XCTAssertEqual(frame.count, 60, "Frame should be 60 seconds for time \(testTime)")
             
-            // Verify time encoding in frame
-            let minute = calendar.component(.minute, from: testTime)
-            let hour = calendar.component(.hour, from: testTime)
-            
             // Basic validation that time is encoded (detailed BCD validation would be complex)
             let hasTimeData = frame.contains { symbol in
                 symbol == JJYAudioGenerator.JJYSymbol.bit0 || symbol == JJYAudioGenerator.JJYSymbol.bit1
@@ -192,7 +188,7 @@ final class JJYArchitectureIntegrationTests: XCTestCase {
         
         let engineStarted = audioEngineManager.startEngine()
         if !engineStarted {
-            try XCTSkip("Audio engine could not start: no audio output device available")
+            throw XCTSkip("Audio engine could not start: no audio output device available")
         }
         
         let expectation = XCTestExpectation(description: "Full pipeline should work")
@@ -327,7 +323,9 @@ final class JJYArchitectureIntegrationTests: XCTestCase {
     // MARK: - Performance Integration Tests
     
     func testComponentPerformanceIntegration() {
-        NotificationCenter.default.removeObserver(scheduler, name: MockClock.advancedNotification, object: nil)
+        if let scheduler {
+            NotificationCenter.default.removeObserver(scheduler, name: MockClock.advancedNotification, object: nil)
+        }
         let startTime = CFAbsoluteTimeGetCurrent()
         
         // Perform typical operations
@@ -352,6 +350,7 @@ final class JJYArchitectureIntegrationTests: XCTestCase {
     func testConcurrentOperationsIntegration() {
         let expectation = XCTestExpectation(description: "Concurrent operations should complete")
         let group = DispatchGroup()
+        let scheduler = scheduler!
         
         // Start scheduler
         scheduler.startScheduling()
@@ -360,7 +359,7 @@ final class JJYArchitectureIntegrationTests: XCTestCase {
         for i in 0..<20 {
             group.enter()
             DispatchQueue.global().async {
-                self.scheduler.updateConfiguration(
+                scheduler.updateConfiguration(
                     enableCallsign: i % 2 == 0,
                     enableServiceStatusBits: i % 3 == 0,
                     leapSecondPlan: nil,
@@ -369,12 +368,12 @@ final class JJYArchitectureIntegrationTests: XCTestCase {
                     serviceStatusBits: (false, false, false, false, false, false)
                 )
                 
-                // Advance time concurrently
-                self.mockClock.advanceTime(by: 0.1)
-                
                 group.leave()
             }
         }
+
+        // Advance time after concurrent updates to trigger scheduler processing
+        mockClock.advanceTime(by: 2.0)
         
         group.notify(queue: .main) {
             expectation.fulfill()

@@ -70,10 +70,8 @@ final class FrameServiceTests: XCTestCase {
         // When callsign is enabled, certain positions should have morse code
         // This tests that the frame structure changes appropriately
         let morsePositions = Array(12...16) // Typical callsign morse positions
-        var hasMorse = false
         for position in morsePositions {
             if position < frame.count && frame[position] == .morse {
-                hasMorse = true
                 break
             }
         }
@@ -208,13 +206,11 @@ final class FrameServiceTests: XCTestCase {
     
     func testTimeZoneHandling() {
         // Test with different system time zones to ensure JST is always used
-        let originalTimeZone = TimeZone.current
-        
         // Temporarily change system time zone
         let utcTimeZone = TimeZone(identifier: "UTC")!
         let pstTimeZone = TimeZone(identifier: "America/Los_Angeles")!
         
-        for testTimeZone in [utcTimeZone, pstTimeZone] {
+        for _ in [utcTimeZone, pstTimeZone] {
             // Create a new frame service instance for each test
             let testFrameService = FrameService(clock: mockClock)
             let calendar = testFrameService.jstCalendar()
