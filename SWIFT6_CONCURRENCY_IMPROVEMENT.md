@@ -4,7 +4,7 @@
 
 This document tracks concurrency modernization in **JJYWave**, including what is already complete and what should be implemented next after PR #24.
 
-## Current State (Post-PR #23)
+## Current State (Post-PR #24)
 
 The codebase remains primarily queue-based (`DispatchQueue`, `DispatchSourceTimer`) for real-time audio safety, with selective Swift concurrency usage (`Task { @MainActor ... }`) for UI-facing callback hops.
 
