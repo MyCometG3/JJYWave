@@ -88,7 +88,6 @@ final class AudioEngineQualityTests: XCTestCase {
     // MARK: - Concurrent Access Tests
     
     func testConcurrentSetupAndAccess() {
-        let expectation = XCTestExpectation(description: "Concurrent operations should complete safely")
         let audioEngine = audioEngine!
         
         // Concurrent setup calls
@@ -105,24 +104,17 @@ final class AudioEngineQualityTests: XCTestCase {
             let _ = audioEngine.isPlayerPlaying
         }
         
-        expectation.fulfill()
-        
-        wait(for: [expectation], timeout: 5.0)
     }
     
     func testConcurrentStartStop() {
         audioEngine.setupAudioEngine(sampleRate: 96000, channelCount: 2)
-        
-        let expectation = XCTestExpectation(description: "Concurrent start/stop should be safe")
+
         let audioEngine = audioEngine!
         DispatchQueue.concurrentPerform(iterations: 5) { _ in
             let _ = audioEngine.startEngine()
             usleep(10000) // 10ms
             audioEngine.stopEngine()
         }
-        expectation.fulfill()
-        
-        wait(for: [expectation], timeout: 5.0)
     }
     
     // MARK: - Memory Management Tests

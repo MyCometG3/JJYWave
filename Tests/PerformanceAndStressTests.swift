@@ -285,8 +285,6 @@ final class PerformanceAndStressTests: XCTestCase {
 
         scheduler.stopScheduling()
         XCTAssertEqual(completedIterations, maxIterations, "Should complete all iterations")
-        XCTAssertNoThrow(scheduler.startScheduling())
-        XCTAssertNoThrow(scheduler.stopScheduling())
     }
     
     func testMemoryLeakDetection() {

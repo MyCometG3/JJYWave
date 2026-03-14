@@ -52,9 +52,9 @@ final class ThreadSafetyTests: XCTestCase {
     // MARK: - MockClock Thread Safety Tests
     
     func testMockClockConcurrentAccess() {
-        let expectation = XCTestExpectation(description: "Concurrent clock access should be thread-safe")
         let iterations = 100
         let mockClock = mockClock!
+        let initialDate = mockClock.currentDate()
 
         // Concurrent reads
         DispatchQueue.concurrentPerform(iterations: iterations) { _ in
@@ -66,10 +66,9 @@ final class ThreadSafetyTests: XCTestCase {
             mockClock.advanceTime(by: Double(i) * 0.1)
         }
 
-        expectation.fulfill()
-        
-        wait(for: [expectation], timeout: 5.0)
-        XCTAssertTrue(true, "Concurrent reads/writes completed")
+        let expectedAdvance: TimeInterval = (0..<10).reduce(0) { $0 + Double($1) * 0.1 }
+        let finalDate = mockClock.currentDate()
+        XCTAssertEqual(finalDate.timeIntervalSince(initialDate), expectedAdvance, accuracy: 0.0001)
     }
     
     func testMockClockStateConsistency() {
