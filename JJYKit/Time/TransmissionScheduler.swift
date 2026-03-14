@@ -10,7 +10,7 @@ protocol TransmissionSchedulerDelegate: AnyObject {
 
 // MARK: - TransmissionScheduler
 /// Responsible for timer and host time scheduling, drift detection, resync policy
-class TransmissionScheduler {
+final class TransmissionScheduler {
     private let logger = Logger(subsystem: "com.MyCometG3.JJYWave", category: "TransmissionScheduler")
     private let clock: Clock
     private let frameService: FrameService
@@ -38,6 +38,10 @@ class TransmissionScheduler {
     private var leapSecondPending: Bool = false
     private var leapSecondInserted: Bool = true
     private var serviceStatusBits: (st1: Bool, st2: Bool, st3: Bool, st4: Bool, st5: Bool, st6: Bool) = (false,false,false,false,false,false)
+
+    private var isOnSyncQueue: Bool {
+        DispatchQueue.getSpecific(key: syncQueueKey) != nil
+    }
     
     init(clock: Clock = SystemClock(), frameService: FrameService) {
         self.clock = clock
@@ -84,19 +88,28 @@ class TransmissionScheduler {
         leapSecondInserted: Bool,
         serviceStatusBits: (st1: Bool, st2: Bool, st3: Bool, st4: Bool, st5: Bool, st6: Bool)
     ) {
-        syncQueue.async { [weak self] in
-            self?.enableCallsign = enableCallsign
-            self?.enableServiceStatusBits = enableServiceStatusBits
-            self?.leapSecondPlan = leapSecondPlan
-            self?.leapSecondPending = leapSecondPending
-            self?.leapSecondInserted = leapSecondInserted
-            self?.serviceStatusBits = serviceStatusBits
+        let applyUpdate = { [weak self] in
+            guard let self = self else { return }
+            self.enableCallsign = enableCallsign
+            self.enableServiceStatusBits = enableServiceStatusBits
+            self.leapSecondPlan = leapSecondPlan
+            self.leapSecondPending = leapSecondPending
+            self.leapSecondInserted = leapSecondInserted
+            self.serviceStatusBits = serviceStatusBits
         }
+
+        if isOnSyncQueue {
+            applyUpdate()
+            return
+        }
+
+        // Keep configuration updates ordered with start/stop scheduling operations.
+        syncQueue.sync(execute: applyUpdate)
     }
     
     // MARK: - Public Methods
     func startScheduling() {
-        if DispatchQueue.getSpecific(key: syncQueueKey) != nil {
+        if isOnSyncQueue {
             _startScheduling()
             return
         }
@@ -161,7 +174,7 @@ class TransmissionScheduler {
     }
     
     func stopScheduling() {
-        if DispatchQueue.getSpecific(key: syncQueueKey) != nil {
+        if isOnSyncQueue {
             _stopScheduling()
             return
         }
