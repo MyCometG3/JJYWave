@@ -87,6 +87,15 @@ JJYWave/
 - 同一キュー再入時は追加 `async` を避け、即時実行で順序性を保つ。
 - オーディオのタイミングクリティカル経路では、挙動検証前に安易な並列化を行わない。
 
+### Strict Concurrency Check
+- Swift 6 移行準備として、以下の strict-concurrency 診断ゲートを実行できます。
+
+```bash
+./scripts/strict_concurrency_check.sh
+```
+
+- このスクリプトは `SWIFT_STRICT_CONCURRENCY=complete` かつ warnings-as-errors で `xcodebuild` を実行します。
+
 ## 貢献
 - 実験プロジェクトとして Issue / Pull Request を歓迎します。大きな変更は事前に議論してください。
 

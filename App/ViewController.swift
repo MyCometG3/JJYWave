@@ -151,15 +151,8 @@ final class ViewController: NSViewController {
     }
     
     // MARK: - Lifecycle
-    deinit {
-        let timer = timeUpdateTimer
-        let monitor = spaceKeyMonitor
-        Task { @MainActor in
-            timer?.invalidate()
-            if let monitor = monitor {
-                NSEvent.removeMonitor(monitor)
-            }
-        }
+    @MainActor deinit {
+        cleanupResources()
     }
 
     override func viewWillDisappear() {
