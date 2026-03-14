@@ -16,6 +16,8 @@ xcodebuild \
   SWIFT_STRICT_CONCURRENCY=complete \
   GCC_TREAT_WARNINGS_AS_ERRORS=YES \
   SWIFT_TREAT_WARNINGS_AS_ERRORS=YES \
+  CODE_SIGNING_ALLOWED=NO \
+  CODE_SIGNING_REQUIRED=NO \
   build
 
 echo "Strict-concurrency diagnostics check passed."
