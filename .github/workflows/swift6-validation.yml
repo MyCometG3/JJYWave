@@ -17,6 +17,22 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v6
 
+      - name: Select Latest Installed Xcode
+        run: |
+          python3 - <<'PY'
+          import glob
+          import os
+
+          candidates = sorted(glob.glob('/Applications/Xcode*.app'))
+          if not candidates:
+              raise SystemExit('No Xcode installation found under /Applications')
+
+          selected = candidates[-1]
+          print(f"Selected Xcode app: {selected}")
+          with open(os.environ['GITHUB_ENV'], 'a', encoding='utf-8') as env_file:
+              env_file.write(f"DEVELOPER_DIR={selected}/Contents/Developer\n")
+          PY
+
       - name: Show Xcode Version
         run: xcodebuild -version
 
@@ -40,6 +56,22 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v6
+
+      - name: Select Latest Installed Xcode
+        run: |
+          python3 - <<'PY'
+          import glob
+          import os
+
+          candidates = sorted(glob.glob('/Applications/Xcode*.app'))
+          if not candidates:
+              raise SystemExit('No Xcode installation found under /Applications')
+
+          selected = candidates[-1]
+          print(f"Selected Xcode app: {selected}")
+          with open(os.environ['GITHUB_ENV'], 'a', encoding='utf-8') as env_file:
+              env_file.write(f"DEVELOPER_DIR={selected}/Contents/Developer\n")
+          PY
 
       - name: Show Xcode Version
         run: xcodebuild -version
