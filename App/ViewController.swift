@@ -8,6 +8,7 @@
 import Cocoa
 import AVFoundation
 
+@MainActor
 class ViewController: NSViewController {
     
     // MARK: - Constants
@@ -124,9 +125,11 @@ class ViewController: NSViewController {
         
         // Update time every second
         timeUpdateTimer = Timer.scheduledTimer(withTimeInterval: 1.0, repeats: true) { [weak self] _ in
-            guard let self = self else { return }
-            let timeDisplay = self.audioGeneratorCoordinator.uiStateManager.updateTimeDisplay()
-            self.updateTimeDisplay(timeDisplay)
+            Task { @MainActor [weak self] in
+                guard let self = self else { return }
+                let timeDisplay = self.audioGeneratorCoordinator.uiStateManager.updateTimeDisplay()
+                self.updateTimeDisplay(timeDisplay)
+            }
         }
     }
     
@@ -170,38 +173,26 @@ class ViewController: NSViewController {
 // MARK: - PresentationControllerProtocol
 extension ViewController: PresentationControllerProtocol {
     func updateButtonTitle(_ title: String) {
-        DispatchQueue.main.async { [weak self] in
-            self?.startStopButton?.title = title
-        }
+        startStopButton?.title = title
     }
     
     func updateStatusMessage(_ message: String) {
-        DispatchQueue.main.async { [weak self] in
-            self?.statusLabel?.stringValue = message
-        }
+        statusLabel?.stringValue = message
     }
     
     func updateTimeDisplay(_ timeString: String) {
-        DispatchQueue.main.async { [weak self] in
-            self?.timeLabel?.stringValue = timeString
-        }
+        timeLabel?.stringValue = timeString
     }
     
     func updateFrequencyDisplay(_ frequencyString: String) {
-        DispatchQueue.main.async { [weak self] in
-            self?.frequencyLabel?.stringValue = frequencyString
-        }
+        frequencyLabel?.stringValue = frequencyString
     }
     
     func updateSegmentSelection(_ index: Int) {
-        DispatchQueue.main.async { [weak self] in
-            self?.frequencySegmentedControl?.selectedSegment = index
-        }
+        frequencySegmentedControl?.selectedSegment = index
     }
     
     func revertSegmentSelection(to index: Int) {
-        DispatchQueue.main.async { [weak self] in
-            self?.frequencySegmentedControl?.selectedSegment = index
-        }
+        frequencySegmentedControl?.selectedSegment = index
     }
 }

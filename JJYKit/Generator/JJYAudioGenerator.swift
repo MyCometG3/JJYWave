@@ -4,6 +4,7 @@ import AudioToolbox
 import CoreAudio
 import OSLog
 
+@MainActor
 protocol JJYAudioGeneratorDelegate: AnyObject {
     func audioGeneratorDidStart()
     func audioGeneratorDidStop()

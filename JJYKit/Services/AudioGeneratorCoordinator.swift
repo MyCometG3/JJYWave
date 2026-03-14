@@ -14,6 +14,7 @@ protocol PresentationControllerProtocol: AnyObject {
 
 // MARK: - AudioGeneratorCoordinatorProtocol
 /// Protocol for coordinating audio generation with presentation layer
+@preconcurrency
 protocol AudioGeneratorCoordinatorProtocol {
     var frequencyManager: FrequencyManagementProtocol { get }
     var uiStateManager: UIStateManagerProtocol { get }
@@ -108,6 +109,7 @@ class AudioGeneratorCoordinator: AudioGeneratorCoordinatorProtocol {
 }
 
 // MARK: - JJYAudioGeneratorDelegate
+@MainActor
 extension AudioGeneratorCoordinator: JJYAudioGeneratorDelegate {
     func audioGeneratorDidStart() {
         Task { @MainActor [weak self] in
