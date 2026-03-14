@@ -29,6 +29,8 @@ jobs:
             -scheme "JJYWave" \
             -configuration Debug \
             -destination "platform=macOS" \
+            SWIFT_TREAT_WARNINGS_AS_ERRORS=YES \
+            GCC_TREAT_WARNINGS_AS_ERRORS=YES \
             CODE_SIGNING_ALLOWED=NO \
             CODE_SIGNING_REQUIRED=NO \
             analyze
