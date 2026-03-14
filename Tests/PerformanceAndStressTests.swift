@@ -139,8 +139,6 @@ final class PerformanceAndStressTests: XCTestCase {
             }
         }
         
-        _ = getCurrentMemoryUsage()
-        
         // Clear buffers
         buffers.removeAll()
         
@@ -254,6 +252,7 @@ final class PerformanceAndStressTests: XCTestCase {
         scheduler.startScheduling()
         
         let maxIterations = 1000
+        var completedIterations = 0
 
         for iterationCount in 0..<maxIterations {
             // Simulate extended operation
@@ -280,11 +279,14 @@ final class PerformanceAndStressTests: XCTestCase {
                     serviceStatusBits: (false, false, false, false, false, false)
                 )
             }
-            
+
+            completedIterations += 1
         }
 
         scheduler.stopScheduling()
-        XCTAssertEqual(maxIterations, 1000, "Should complete all iterations")
+        XCTAssertEqual(completedIterations, maxIterations, "Should complete all iterations")
+        XCTAssertNoThrow(scheduler.startScheduling())
+        XCTAssertNoThrow(scheduler.stopScheduling())
     }
     
     func testMemoryLeakDetection() {

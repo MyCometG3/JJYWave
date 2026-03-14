@@ -298,14 +298,20 @@ final class AudioEngineTests: XCTestCase {
     func testConcurrentSetup() {
         let setupCount = 10
         let audioEngine = audioEngine!
+        let group = DispatchGroup()
 
-        DispatchQueue.concurrentPerform(iterations: setupCount) { i in
-            let sampleRate = [44100.0, 48000.0, 96000.0][i % 3]
-            let channelCount: AVAudioChannelCount = AVAudioChannelCount([1, 2][i % 2])
-            audioEngine.setupAudioEngine(sampleRate: sampleRate, channelCount: channelCount)
+        for i in 0..<setupCount {
+            group.enter()
+            DispatchQueue.global().async {
+                defer { group.leave() }
+
+                let sampleRate = [44100.0, 48000.0, 96000.0][i % 3]
+                let channelCount: AVAudioChannelCount = AVAudioChannelCount([1, 2][i % 2])
+                audioEngine.setupAudioEngine(sampleRate: sampleRate, channelCount: channelCount)
+            }
         }
 
-        XCTAssertTrue(true)
+        XCTAssertEqual(group.wait(timeout: .now() + 10.0), .success, "Concurrent setup timed out")
     }
     
     func testConcurrentStartStop() {
