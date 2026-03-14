@@ -117,9 +117,14 @@ class FrequencyPersistenceTests: XCTestCase {
             uiStateManager: mockUIStateManager
         )
         coordinator.setPresentationController(mockPresentation)
+        let revertExpectation = expectation(description: "revert selection callback")
+        mockPresentation.onRevertSelection = { [weak mockPresentation] in
+            revertExpectation.fulfill()
+            mockPresentation?.onRevertSelection = nil
+        }
 
         coordinator.handleFrequencyChange(to: 3, currentIndex: 1)
-        await Task.yield()
+        await fulfillment(of: [revertExpectation], timeout: 1.0)
 
         let revertSelectionWasCalled = mockPresentation.revertSelectionWasCalled
         XCTAssertTrue(revertSelectionWasCalled,

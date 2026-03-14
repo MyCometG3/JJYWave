@@ -54,10 +54,21 @@ class ModularArchitectureIntegrationTests: XCTestCase {
         
         // Verify generation started
         XCTAssertTrue(audioGenerator.isActive, "Should be generating")
+
+        let revertExpectation = expectation(description: "revert selection callback")
+        let statusExpectation = expectation(description: "status callback")
+        mockPresentationController.onRevertSelection = { [weak mockPresentationController] in
+            revertExpectation.fulfill()
+            mockPresentationController?.onRevertSelection = nil
+        }
+        mockPresentationController.onUpdateStatus = { [weak mockPresentationController] in
+            statusExpectation.fulfill()
+            mockPresentationController?.onUpdateStatus = nil
+        }
         
         // Try to change to JJY60 while generating (should be blocked)
         coordinator.handleFrequencyChange(to: 4, currentIndex: 0)
-        await Task.yield()
+        await fulfillment(of: [revertExpectation, statusExpectation], timeout: 1.0)
         
         // Verify change was blocked
         let revertSelectionWasCalled = mockPresentationController.revertSelectionWasCalled
@@ -70,9 +81,30 @@ class ModularArchitectureIntegrationTests: XCTestCase {
     }
     
     func testUIStateUpdatesCorrectly() async {
+        let frequencyExpectation = expectation(description: "frequency display callback")
+        let segmentExpectation = expectation(description: "segment selection callback")
+        let buttonExpectation = expectation(description: "button title callback")
+        let timeExpectation = expectation(description: "time display callback")
+        mockPresentationController.onUpdateFrequencyDisplay = { [weak mockPresentationController] in
+            frequencyExpectation.fulfill()
+            mockPresentationController?.onUpdateFrequencyDisplay = nil
+        }
+        mockPresentationController.onUpdateSegmentSelection = { [weak mockPresentationController] in
+            segmentExpectation.fulfill()
+            mockPresentationController?.onUpdateSegmentSelection = nil
+        }
+        mockPresentationController.onUpdateButtonTitle = { [weak mockPresentationController] in
+            buttonExpectation.fulfill()
+            mockPresentationController?.onUpdateButtonTitle = nil
+        }
+        mockPresentationController.onUpdateTimeDisplay = { [weak mockPresentationController] in
+            timeExpectation.fulfill()
+            mockPresentationController?.onUpdateTimeDisplay = nil
+        }
+
         // Refresh UI state
         coordinator.refreshUIState()
-        await Task.yield()
+        await fulfillment(of: [frequencyExpectation, segmentExpectation, buttonExpectation, timeExpectation], timeout: 1.0)
         
         // Verify UI updates were called
         let updateFrequencyDisplayWasCalled = mockPresentationController.updateFrequencyDisplayWasCalled
