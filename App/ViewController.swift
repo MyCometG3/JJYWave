@@ -152,8 +152,12 @@ final class ViewController: NSViewController {
     
     // MARK: - Lifecycle
     deinit {
-        MainActor.assumeIsolated {
-            cleanupResources()
+        DispatchQueue.main.async {
+            [timer = self.timeUpdateTimer, monitor = self.spaceKeyMonitor] in
+            timer?.invalidate()
+            if let monitor = monitor {
+                NSEvent.removeMonitor(monitor)
+            }
         }
     }
 

@@ -9,16 +9,6 @@ class FrequencyPersistenceTests: XCTestCase {
     private let key = "frequencySelectedIndex"
     private var userDefaults: UserDefaults!
 
-    private func onMain<T>(_ body: @MainActor () -> T) -> T {
-        if Thread.isMainThread {
-            return MainActor.assumeIsolated { body() }
-        }
-
-        return DispatchQueue.main.sync {
-            MainActor.assumeIsolated { body() }
-        }
-    }
-
     override func setUpWithError() throws {
         try super.setUpWithError()
         guard let defaults = UserDefaults(suiteName: suiteName) else {
@@ -92,9 +82,7 @@ class FrequencyPersistenceTests: XCTestCase {
         let audioGenerator = JJYAudioGenerator()
         let mockFrequencyManager = MockFrequencyManager()
         let mockUIStateManager = MockUIStateManager()
-        let mockPresentation = onMain {
-            MockPresentationController()
-        }
+        let mockPresentation = MockPresentationController()
 
         mockFrequencyManager.validationResult = .allowed
 
@@ -103,15 +91,11 @@ class FrequencyPersistenceTests: XCTestCase {
             frequencyManager: mockFrequencyManager,
             uiStateManager: mockUIStateManager
         )
-        onMain {
-            coordinator.setPresentationController(mockPresentation)
-        }
+        coordinator.setPresentationController(mockPresentation)
 
         coordinator.handleFrequencyChange(to: 1, currentIndex: 0)
 
-        let revertSelectionWasCalled = onMain {
-            mockPresentation.revertSelectionWasCalled
-        }
+        let revertSelectionWasCalled = mockPresentation.revertSelectionWasCalled
         XCTAssertFalse(revertSelectionWasCalled,
                        "Revert must not be called for an allowed change — save should proceed")
     }
@@ -122,9 +106,7 @@ class FrequencyPersistenceTests: XCTestCase {
         let audioGenerator = JJYAudioGenerator()
         let mockFrequencyManager = MockFrequencyManager()
         let mockUIStateManager = MockUIStateManager()
-        let mockPresentation = onMain {
-            MockPresentationController()
-        }
+        let mockPresentation = MockPresentationController()
 
         mockFrequencyManager.validationResult = .blocked("Cannot change while generating")
 
@@ -133,15 +115,11 @@ class FrequencyPersistenceTests: XCTestCase {
             frequencyManager: mockFrequencyManager,
             uiStateManager: mockUIStateManager
         )
-        onMain {
-            coordinator.setPresentationController(mockPresentation)
-        }
+        coordinator.setPresentationController(mockPresentation)
 
         coordinator.handleFrequencyChange(to: 3, currentIndex: 1)
 
-        let revertSelectionWasCalled = onMain {
-            mockPresentation.revertSelectionWasCalled
-        }
+        let revertSelectionWasCalled = mockPresentation.revertSelectionWasCalled
         XCTAssertTrue(revertSelectionWasCalled,
                       "Revert must be called for a blocked change — save must not proceed")
     }
@@ -154,9 +132,7 @@ class FrequencyPersistenceTests: XCTestCase {
         let audioGenerator = JJYAudioGenerator()
         let mockFrequencyManager = MockFrequencyManager()
         let mockUIStateManager = MockUIStateManager()
-        let mockPresentation = onMain {
-            MockPresentationController()
-        }
+        let mockPresentation = MockPresentationController()
 
         mockFrequencyManager.validationResult = .allowed
         mockFrequencyManager.lastConfiguredIndex = 0
@@ -166,9 +142,7 @@ class FrequencyPersistenceTests: XCTestCase {
             frequencyManager: mockFrequencyManager,
             uiStateManager: mockUIStateManager
         )
-        onMain {
-            coordinator.setPresentationController(mockPresentation)
-        }
+        coordinator.setPresentationController(mockPresentation)
 
         coordinator.handleFrequencyChange(to: 2, currentIndex: 0)
 
@@ -183,9 +157,7 @@ class FrequencyPersistenceTests: XCTestCase {
         let audioGenerator = JJYAudioGenerator()
         let mockFrequencyManager = MockFrequencyManager()
         let mockUIStateManager = MockUIStateManager()
-        let mockPresentation = onMain {
-            MockPresentationController()
-        }
+        let mockPresentation = MockPresentationController()
 
         mockFrequencyManager.validationResult = .blocked("Cannot change while generating")
         mockFrequencyManager.lastConfiguredIndex = 1  // original index
@@ -195,9 +167,7 @@ class FrequencyPersistenceTests: XCTestCase {
             frequencyManager: mockFrequencyManager,
             uiStateManager: mockUIStateManager
         )
-        onMain {
-            coordinator.setPresentationController(mockPresentation)
-        }
+        coordinator.setPresentationController(mockPresentation)
 
         coordinator.handleFrequencyChange(to: 3, currentIndex: 1)
 
