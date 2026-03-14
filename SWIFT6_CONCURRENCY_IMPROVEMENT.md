@@ -175,4 +175,4 @@ Suggested next:
 ### I2. Baseline maintenance
 
 1. Keep migration-related fixes minimal and scoped to concurrency correctness.
-2. Treat new Swift 6 isolation warnings in touched files as merge blockers.
+2. Treat new Swift 6 isolation warnings surfaced by the strict-concurrency gate and the warning-as-error Analyze path as merge blockers; track test-target warning debt cleanup separately before enabling warnings-as-errors for the full test job.
