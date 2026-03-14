@@ -140,7 +140,7 @@ class MockAudioEngine: AudioEngineProtocol {
         _isPlayerPlaying = false
     }
     
-    func scheduleBuffer(_ buffer: AVAudioPCMBuffer, at when: AVAudioTime?, completionHandler: AVAudioNodeCompletionHandler?) {
+    func scheduleBuffer(_ buffer: AVAudioPCMBuffer, at when: AVAudioTime?, completionHandler: (@Sendable () -> Void)?) {
         scheduleBufferWasCalled = true
         // Call completion handler immediately for testing
         completionHandler?()

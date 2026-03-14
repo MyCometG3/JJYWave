@@ -10,7 +10,7 @@ protocol TransmissionSchedulerDelegate: AnyObject {
 
 // MARK: - TransmissionScheduler
 /// Responsible for timer and host time scheduling, drift detection, resync policy
-final class TransmissionScheduler {
+final class TransmissionScheduler: @unchecked Sendable {
     private let logger = Logger(subsystem: "com.MyCometG3.JJYWave", category: "TransmissionScheduler")
     private let clock: Clock
     private let frameService: FrameService

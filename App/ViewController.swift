@@ -9,7 +9,7 @@ import Cocoa
 import AVFoundation
 
 @MainActor
-class ViewController: NSViewController {
+final class ViewController: NSViewController {
     
     // MARK: - Constants
     private enum UserDefaultsKeys {
@@ -22,6 +22,7 @@ class ViewController: NSViewController {
     private var uiDescriptionManager = UIDescriptionManager()
     private var timeUpdateTimer: Timer?
     private var spaceKeyMonitor: Any?
+    private var resourcesCleanedUp = false
     
     // UI Elements
     @IBOutlet weak var startStopButton: NSButton!
@@ -150,11 +151,11 @@ class ViewController: NSViewController {
     }
     
     // MARK: - Lifecycle
-    deinit {
-        timeUpdateTimer?.invalidate()
-        if let monitor = spaceKeyMonitor {
-            NSEvent.removeMonitor(monitor)
-        }
+    deinit {}
+
+    override func viewWillDisappear() {
+        super.viewWillDisappear()
+        cleanupResources()
     }
     
     override func viewDidLayout() {
@@ -168,10 +169,22 @@ class ViewController: NSViewController {
         if key == "bandButton" || key == "testModeButton" { return }
         super.setValue(value, forUndefinedKey: key)
     }
+
+    private func cleanupResources() {
+        guard !resourcesCleanedUp else { return }
+        resourcesCleanedUp = true
+        timeUpdateTimer?.invalidate()
+        timeUpdateTimer = nil
+        if let monitor = spaceKeyMonitor {
+            NSEvent.removeMonitor(monitor)
+            spaceKeyMonitor = nil
+        }
+    }
 }
 
 // MARK: - PresentationControllerProtocol
-extension ViewController: PresentationControllerProtocol {
+@MainActor
+extension ViewController: @preconcurrency PresentationControllerProtocol {
     func updateButtonTitle(_ title: String) {
         startStopButton?.title = title
     }

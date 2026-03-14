@@ -11,7 +11,7 @@ protocol JJYAudioGeneratorDelegate: AnyObject {
     func audioGeneratorDidEncounterError(_ error: String)
 }
 
-class JJYAudioGenerator {
+final class JJYAudioGenerator: @unchecked Sendable {
     
     // MARK: - Thread Safety
     private let concurrencyQueue = DispatchQueue(label: "com.MyCometG3.JJYWave.AudioGenerator", qos: .userInitiated)
@@ -226,7 +226,7 @@ class JJYAudioGenerator {
         DispatchQueue.getSpecific(key: concurrencyQueueKey) != nil
     }
 
-    private func enqueue(_ operation: @escaping () -> Void) {
+    private func enqueue(_ operation: @escaping @Sendable () -> Void) {
         if isOnConcurrencyQueue {
             operation()
             return
@@ -329,11 +329,12 @@ class JJYAudioGenerator {
     // MARK: - Private Implementation Methods
     private func _startGeneration() {
         guard !_isGenerating else { return }
+        let delegate = self.delegate
         
         let engineStarted = audioEngineManager.startEngine()
         if !engineStarted {
-            Task { @MainActor [weak self] in
-                self?.delegate?.audioGeneratorDidEncounterError("Failed to start audio engine")
+            Task { @MainActor in
+                delegate?.audioGeneratorDidEncounterError("Failed to start audio engine")
             }
             return
         }
@@ -341,8 +342,8 @@ class JJYAudioGenerator {
         audioEngineManager.startPlayer()
         _isGenerating = true
         
-        Task { @MainActor [weak self] in
-            self?.delegate?.audioGeneratorDidStart()
+        Task { @MainActor in
+            delegate?.audioGeneratorDidStart()
         }
         
         // Update scheduler configuration and start
@@ -359,6 +360,7 @@ class JJYAudioGenerator {
     
     private func _stopGeneration() {
         guard _isGenerating else { return }
+        let delegate = self.delegate
         
         audioEngineManager.stopEngine()
         scheduler.stopScheduling()
@@ -368,8 +370,8 @@ class JJYAudioGenerator {
         
         _isGenerating = false
         
-        Task { @MainActor [weak self] in
-            self?.delegate?.audioGeneratorDidStop()
+        Task { @MainActor in
+            delegate?.audioGeneratorDidStop()
         }
     }
     
