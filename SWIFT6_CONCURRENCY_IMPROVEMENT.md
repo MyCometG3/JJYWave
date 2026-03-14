@@ -74,17 +74,15 @@ The codebase remains primarily queue-based (`DispatchQueue`, `DispatchSourceTime
 
 ### Implemented
 
-1. Added a low-risk actor slice for scheduler configuration state:
-   - `SchedulerConfiguration`
-   - `SchedulerConfigurationActor`
-2. Kept timing-critical scheduling logic on existing sync queue.
-3. Added async snapshot API and test coverage for actor-backed configuration observation.
+1. Prototyped a low-risk actor-backed configuration slice for scheduler state.
+2. Validated behavior under tests, then removed the actor-backed path due blocking/complexity trade-offs in this code path.
+3. Finalized scheduler configuration as queue-isolated state (`SchedulerConfiguration` on `syncQueue`) with synchronous snapshot semantics.
 
 ### Outcome (Go/No-Go)
 
 - **Go for incremental actor use in non-real-time state boundaries.**
 - **No-Go for replacing timing-critical scheduling/audio paths with actors at this stage.**
-- Prototype confirms actor adoption can improve state-model clarity without destabilizing deterministic scheduling when confined to non-critical paths.
+- Prototype confirmed actor adoption can improve state-model clarity, but this scheduler path currently remains queue-isolated to preserve deterministic behavior and simpler call-site semantics.
 
 ## Next Step Strategy (Post-Phase D)
 
