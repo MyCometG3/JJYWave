@@ -89,20 +89,33 @@ final class AudioEngineQualityTests: XCTestCase {
     
     func testConcurrentSetupAndAccess() {
         let audioEngine = audioEngine!
+        let setupGroup = DispatchGroup()
         
         // Concurrent setup calls
-        DispatchQueue.concurrentPerform(iterations: 10) { i in
-            audioEngine.setupAudioEngine(
-                sampleRate: Double(44100 + i * 1000),
-                channelCount: AVAudioChannelCount(1 + i % 2)
-            )
+        for i in 0..<10 {
+            setupGroup.enter()
+            DispatchQueue.global().async {
+                defer { setupGroup.leave() }
+                audioEngine.setupAudioEngine(
+                    sampleRate: Double(44100 + i * 1000),
+                    channelCount: AVAudioChannelCount(1 + i % 2)
+                )
+            }
         }
+        XCTAssertEqual(setupGroup.wait(timeout: .now() + 5.0), .success, "Concurrent setup timed out")
+
+        let accessGroup = DispatchGroup()
         
         // Concurrent property access
-        DispatchQueue.concurrentPerform(iterations: 20) { _ in
-            let _ = audioEngine.isEngineRunning
-            let _ = audioEngine.isPlayerPlaying
+        for _ in 0..<20 {
+            accessGroup.enter()
+            DispatchQueue.global().async {
+                defer { accessGroup.leave() }
+                let _ = audioEngine.isEngineRunning
+                let _ = audioEngine.isPlayerPlaying
+            }
         }
+        XCTAssertEqual(accessGroup.wait(timeout: .now() + 5.0), .success, "Concurrent access timed out")
         
     }
     
@@ -110,11 +123,19 @@ final class AudioEngineQualityTests: XCTestCase {
         audioEngine.setupAudioEngine(sampleRate: 96000, channelCount: 2)
 
         let audioEngine = audioEngine!
-        DispatchQueue.concurrentPerform(iterations: 5) { _ in
-            let _ = audioEngine.startEngine()
-            usleep(10000) // 10ms
-            audioEngine.stopEngine()
+        let group = DispatchGroup()
+
+        for _ in 0..<5 {
+            group.enter()
+            DispatchQueue.global().async {
+                defer { group.leave() }
+                let _ = audioEngine.startEngine()
+                usleep(10000) // 10ms
+                audioEngine.stopEngine()
+            }
         }
+
+        XCTAssertEqual(group.wait(timeout: .now() + 5.0), .success, "Concurrent start/stop timed out")
     }
     
     // MARK: - Memory Management Tests

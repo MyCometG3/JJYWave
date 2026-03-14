@@ -317,16 +317,19 @@ final class AudioEngineTests: XCTestCase {
     func testConcurrentStartStop() {
         audioEngine.setupAudioEngine(sampleRate: 96000, channelCount: 2)
         let audioEngine = audioEngine!
+        let group = DispatchGroup()
         
-        let expectation = XCTestExpectation(description: "Concurrent start/stop should complete")
-        DispatchQueue.concurrentPerform(iterations: 20) { _ in
-            let _ = audioEngine.startEngine()
-            Thread.sleep(forTimeInterval: 0.001)
-            audioEngine.stopEngine()
+        for _ in 0..<20 {
+            group.enter()
+            DispatchQueue.global().async {
+                defer { group.leave() }
+                let _ = audioEngine.startEngine()
+                Thread.sleep(forTimeInterval: 0.001)
+                audioEngine.stopEngine()
+            }
         }
-        expectation.fulfill()
-        
-        wait(for: [expectation], timeout: 5.0)
+
+        XCTAssertEqual(group.wait(timeout: .now() + 5.0), .success, "Concurrent start/stop timed out")
         
         XCTAssertTrue(true) // If we get here, concurrent operations worked
     }
@@ -335,16 +338,19 @@ final class AudioEngineTests: XCTestCase {
         audioEngine.setupAudioEngine(sampleRate: 96000, channelCount: 2)
         let _ = audioEngine.startEngine()
         let audioEngine = audioEngine!
+        let group = DispatchGroup()
         
-        let expectation = XCTestExpectation(description: "Concurrent player operations should complete")
-        DispatchQueue.concurrentPerform(iterations: 10) { _ in
-            audioEngine.startPlayer()
-            Thread.sleep(forTimeInterval: 0.01)
-            audioEngine.stopPlayer()
+        for _ in 0..<10 {
+            group.enter()
+            DispatchQueue.global().async {
+                defer { group.leave() }
+                audioEngine.startPlayer()
+                Thread.sleep(forTimeInterval: 0.01)
+                audioEngine.stopPlayer()
+            }
         }
-        expectation.fulfill()
-        
-        wait(for: [expectation], timeout: 3.0)
+
+        XCTAssertEqual(group.wait(timeout: .now() + 3.0), .success, "Concurrent player operations timed out")
         
         XCTAssertTrue(true) // If we get here, concurrent player operations worked
     }

@@ -77,56 +77,60 @@ final class ThreadSafetyTests: XCTestCase {
     }
     
     func testMockClockStateConsistency() {
-        let expectation = XCTestExpectation(description: "Clock state should remain consistent")
         let mockClock = mockClock!
+        let group = DispatchGroup()
 
         // Multiple threads advancing time and reading state
-        DispatchQueue.concurrentPerform(iterations: 50) { _ in
-            let initialDate = mockClock.currentDate()
-            let initialHostTime = mockClock.currentHostTime()
+        for _ in 0..<50 {
+            group.enter()
+            DispatchQueue.global().async {
+                defer { group.leave() }
+                let initialDate = mockClock.currentDate()
+                let initialHostTime = mockClock.currentHostTime()
 
-            mockClock.advanceTime(by: 1.0)
+                mockClock.advanceTime(by: 1.0)
 
-            let newDate = mockClock.currentDate()
-            let newHostTime = mockClock.currentHostTime()
+                let newDate = mockClock.currentDate()
+                let newHostTime = mockClock.currentHostTime()
 
-            // Verify advancement occurred
-            XCTAssertGreaterThanOrEqual(newDate, initialDate)
-            XCTAssertGreaterThanOrEqual(newHostTime, initialHostTime)
+                // Verify advancement occurred
+                XCTAssertGreaterThanOrEqual(newDate, initialDate)
+                XCTAssertGreaterThanOrEqual(newHostTime, initialHostTime)
+            }
         }
 
-        expectation.fulfill()
-        
-        wait(for: [expectation], timeout: 10.0)
+        XCTAssertEqual(group.wait(timeout: .now() + 10.0), .success, "Clock state consistency test timed out")
     }
     
     // MARK: - FrameService Thread Safety Tests
     
     func testFrameServiceConcurrentFrameBuilding() {
-        let expectation = XCTestExpectation(description: "Concurrent frame building should be safe")
         let frameService = frameService!
         let resultQueue = DispatchQueue(label: "frameResults")
         var frameResults = Array(repeating: 0, count: 20)
+        let group = DispatchGroup()
 
         // Build frames concurrently with different configurations
-        DispatchQueue.concurrentPerform(iterations: 20) { i in
-            let frame = frameService.buildFrame(
-                enableCallsign: i % 2 == 0,
-                enableServiceStatusBits: i % 3 == 0,
-                leapSecondPlan: nil,
-                leapSecondPending: i % 5 == 0,
-                leapSecondInserted: true,
-                serviceStatusBits: (false, false, false, false, false, false)
-            )
+        for i in 0..<20 {
+            group.enter()
+            DispatchQueue.global().async {
+                defer { group.leave() }
+                let frame = frameService.buildFrame(
+                    enableCallsign: i % 2 == 0,
+                    enableServiceStatusBits: i % 3 == 0,
+                    leapSecondPlan: nil,
+                    leapSecondPending: i % 5 == 0,
+                    leapSecondInserted: true,
+                    serviceStatusBits: (false, false, false, false, false, false)
+                )
 
-            resultQueue.sync {
-                frameResults[i] = frame.count
+                resultQueue.sync {
+                    frameResults[i] = frame.count
+                }
             }
         }
 
-        expectation.fulfill()
-        
-        wait(for: [expectation], timeout: 5.0)
+        XCTAssertEqual(group.wait(timeout: .now() + 5.0), .success, "Concurrent frame building timed out")
         
         // All frames should be valid length
         XCTAssertEqual(frameResults.count, 20)
@@ -136,32 +140,34 @@ final class ThreadSafetyTests: XCTestCase {
     }
     
     func testFrameServiceWithConcurrentClockUpdates() {
-        let expectation = XCTestExpectation(description: "Frame service should handle concurrent clock updates")
         let mockClock = mockClock!
         let frameService = frameService!
+        let group = DispatchGroup()
 
         // Clock updates and frame building happening simultaneously
-        DispatchQueue.concurrentPerform(iterations: 30) { i in
-            if i % 2 == 0 {
-                // Update clock
-                mockClock.advanceTime(by: Double(i) * 0.1)
-            } else {
-                // Build frame
-                let frame = frameService.buildFrame(
-                    enableCallsign: false,
-                    enableServiceStatusBits: false,
-                    leapSecondPlan: nil,
-                    leapSecondPending: false,
-                    leapSecondInserted: true,
-                    serviceStatusBits: (false, false, false, false, false, false)
-                )
-                XCTAssertEqual(frame.count, 60)
+        for i in 0..<30 {
+            group.enter()
+            DispatchQueue.global().async {
+                defer { group.leave() }
+                if i % 2 == 0 {
+                    // Update clock
+                    mockClock.advanceTime(by: Double(i) * 0.1)
+                } else {
+                    // Build frame
+                    let frame = frameService.buildFrame(
+                        enableCallsign: false,
+                        enableServiceStatusBits: false,
+                        leapSecondPlan: nil,
+                        leapSecondPending: false,
+                        leapSecondInserted: true,
+                        serviceStatusBits: (false, false, false, false, false, false)
+                    )
+                    XCTAssertEqual(frame.count, 60)
+                }
             }
         }
 
-        expectation.fulfill()
-        
-        wait(for: [expectation], timeout: 5.0)
+        XCTAssertEqual(group.wait(timeout: .now() + 5.0), .success, "Concurrent clock update/frame build timed out")
     }
     
     // MARK: - TransmissionScheduler Thread Safety Tests
