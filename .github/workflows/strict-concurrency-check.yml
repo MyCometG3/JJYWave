@@ -1,0 +1,21 @@
+name: Strict Concurrency Check
+
+on:
+  pull_request:
+    branches:
+      - Gen2
+  push:
+    branches:
+      - Gen2
+
+jobs:
+  strict-concurrency:
+    runs-on: macos-latest
+    timeout-minutes: 30
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Run strict-concurrency diagnostics gate
+        run: ./scripts/strict_concurrency_check.sh
