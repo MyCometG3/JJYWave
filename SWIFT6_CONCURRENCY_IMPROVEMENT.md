@@ -111,13 +111,11 @@ The codebase remains primarily queue-based (`DispatchQueue`, `DispatchSourceTime
 1. After E1/E2 are green, pilot `SWIFT_VERSION = 6.0` on the smallest safe target surface first.
 2. Promote to repository-wide Swift 6 language mode only after pilot completes without timing regressions or flaky tests.
 
-## Should We Enable Strict Concurrency Now?
+## Should We Enable Strict Concurrency Now? (Historical)
 
-Short answer: **Yes, as diagnostics gate; not yet as full Swift 6 language-mode switch across the whole repository.**
+Original recommendation (at the time): **Yes, as diagnostics gate; not yet as full Swift 6 language-mode switch across the whole repository.**
 
-1. Immediate go: strict-concurrency diagnostics should be continuously enforced.
-2. Controlled follow-up: remove current workaround hotspots (especially UI protocol isolation boundary).
-3. Then switch: move to Swift 6 language mode once diagnostics are clean and stable under repeated test runs.
+Current status: app and test targets have now been migrated to Swift 6 language mode (see Phase E/F/G/H status below), and strict-concurrency diagnostics remain continuously enforced in CI.
 
 ## Phase E/F/G/H Status Update
 
