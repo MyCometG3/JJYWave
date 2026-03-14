@@ -3,30 +3,33 @@ import XCTest
 
 @MainActor
 class ModularArchitectureIntegrationTests: XCTestCase {
-    nonisolated(unsafe) var audioGenerator: JJYAudioGenerator!
-    nonisolated(unsafe) var coordinator: AudioGeneratorCoordinator!
-    nonisolated(unsafe) var mockPresentationController: MockPresentationController!
+    var audioGenerator: JJYAudioGenerator!
+    var coordinator: AudioGeneratorCoordinator!
+    var mockPresentationController: MockPresentationController!
     
-    override func setUp() {
-        super.setUp()
+    override func setUp() async throws {
+        try await super.setUp()
+        await MainActor.run {
+            // Use real audio generator with mock audio engine for testing
+            let mockAudioEngine = MockAudioEngine()
+            audioGenerator = JJYAudioGenerator(audioEngine: mockAudioEngine)
 
-        // Use real audio generator with mock audio engine for testing
-        let mockAudioEngine = MockAudioEngine()
-        audioGenerator = JJYAudioGenerator(audioEngine: mockAudioEngine)
+            mockPresentationController = MockPresentationController()
 
-        mockPresentationController = MainActor.assumeIsolated { MockPresentationController() }
-
-        // Initialize coordinator without automatic delegate setup (weak reference pattern)
-        coordinator = AudioGeneratorCoordinator(audioGenerator: audioGenerator)
-        coordinator.setPresentationController(mockPresentationController)
-        coordinator.setupAudioGeneratorDelegate()
+            // Initialize coordinator without automatic delegate setup (weak reference pattern)
+            coordinator = AudioGeneratorCoordinator(audioGenerator: audioGenerator)
+            coordinator.setPresentationController(mockPresentationController)
+            coordinator.setupAudioGeneratorDelegate()
+        }
     }
 
-    override func tearDown() {
-        coordinator = nil
-        audioGenerator = nil
-        mockPresentationController = nil
-        super.tearDown()
+    override func tearDown() async throws {
+        await MainActor.run {
+            coordinator = nil
+            audioGenerator = nil
+            mockPresentationController = nil
+        }
+        try await super.tearDown()
     }
     
     // MARK: - End-to-End Workflow Tests

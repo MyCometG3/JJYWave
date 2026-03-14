@@ -83,37 +83,41 @@ class UIStateManagerTests: XCTestCase {
 // MARK: - AudioGeneratorCoordinator Tests
 @MainActor
 class AudioGeneratorCoordinatorTests: XCTestCase {
-    nonisolated(unsafe) var coordinator: AudioGeneratorCoordinator!
-    nonisolated(unsafe) var mockAudioGenerator: MockJJYAudioGenerator!
-    nonisolated(unsafe) var mockFrequencyManager: MockFrequencyManager!
-    nonisolated(unsafe) var mockUIStateManager: MockUIStateManager!
-    nonisolated(unsafe) var mockPresentationController: MockPresentationController!
+    var coordinator: AudioGeneratorCoordinator!
+    var mockAudioGenerator: MockJJYAudioGenerator!
+    var mockFrequencyManager: MockFrequencyManager!
+    var mockUIStateManager: MockUIStateManager!
+    var mockPresentationController: MockPresentationController!
     
-    override func setUp() {
-        super.setUp()
-        mockAudioGenerator = MockJJYAudioGenerator()
-        mockFrequencyManager = MockFrequencyManager()
-        mockUIStateManager = MockUIStateManager()
-        mockPresentationController = MainActor.assumeIsolated { MockPresentationController() }
+    override func setUp() async throws {
+        try await super.setUp()
+        await MainActor.run {
+            mockAudioGenerator = MockJJYAudioGenerator()
+            mockFrequencyManager = MockFrequencyManager()
+            mockUIStateManager = MockUIStateManager()
+            mockPresentationController = MockPresentationController()
 
-        // Create coordinator with real audio generator for integration testing
-        let realAudioGenerator = JJYAudioGenerator()
-        coordinator = AudioGeneratorCoordinator(
-            audioGenerator: realAudioGenerator,
-            frequencyManager: mockFrequencyManager,
-            uiStateManager: mockUIStateManager
-        )
-        coordinator.setPresentationController(mockPresentationController)
-        coordinator.setupAudioGeneratorDelegate()
+            // Create coordinator with real audio generator for integration testing
+            let realAudioGenerator = JJYAudioGenerator()
+            coordinator = AudioGeneratorCoordinator(
+                audioGenerator: realAudioGenerator,
+                frequencyManager: mockFrequencyManager,
+                uiStateManager: mockUIStateManager
+            )
+            coordinator.setPresentationController(mockPresentationController)
+            coordinator.setupAudioGeneratorDelegate()
+        }
     }
     
-    override func tearDown() {
-        coordinator = nil
-        mockAudioGenerator = nil
-        mockFrequencyManager = nil
-        mockUIStateManager = nil
-        mockPresentationController = nil
-        super.tearDown()
+    override func tearDown() async throws {
+        await MainActor.run {
+            coordinator = nil
+            mockAudioGenerator = nil
+            mockFrequencyManager = nil
+            mockUIStateManager = nil
+            mockPresentationController = nil
+        }
+        try await super.tearDown()
     }
     
     // MARK: - Frequency Change Tests
