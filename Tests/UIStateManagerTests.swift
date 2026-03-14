@@ -129,12 +129,12 @@ class AudioGeneratorCoordinatorTests: XCTestCase {
         XCTAssertFalse(mockPresentationController.revertSelectionWasCalled, "Should not revert selection when allowed")
     }
     
-    func testHandleFrequencyChangeBlocked() {
+    func testHandleFrequencyChangeBlocked() async {
         // Setup mocks
         mockFrequencyManager.validationResult = .blocked("Test error")
         
         coordinator.handleFrequencyChange(to: 3, currentIndex: 0)
-        RunLoop.main.run(until: Date().addingTimeInterval(0.01))
+        await Task.yield()
         
         XCTAssertTrue(mockFrequencyManager.validateChangeWasCalled, "Should validate frequency change")
         XCTAssertFalse(mockFrequencyManager.configureFrequencyWasCalled, "Should not configure frequency when blocked")

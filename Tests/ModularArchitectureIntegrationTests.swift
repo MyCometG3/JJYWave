@@ -48,7 +48,7 @@ class ModularArchitectureIntegrationTests: XCTestCase {
         XCTAssertEqual(audioGenerator.band, .jjy40, "Should switch to JJY40")
     }
     
-    func testFrequencyChangeBlockedWhileGenerating() {
+    func testFrequencyChangeBlockedWhileGenerating() async {
         // Start generation
         coordinator.handleStartStopAction()
         
@@ -57,7 +57,7 @@ class ModularArchitectureIntegrationTests: XCTestCase {
         
         // Try to change to JJY60 while generating (should be blocked)
         coordinator.handleFrequencyChange(to: 4, currentIndex: 0)
-        RunLoop.main.run(until: Date().addingTimeInterval(0.01))
+        await Task.yield()
         
         // Verify change was blocked
         let revertSelectionWasCalled = mockPresentationController.revertSelectionWasCalled
@@ -69,10 +69,10 @@ class ModularArchitectureIntegrationTests: XCTestCase {
         XCTAssertTrue(audioGenerator.isTestModeEnabled, "Should remain in test mode")
     }
     
-    func testUIStateUpdatesCorrectly() {
+    func testUIStateUpdatesCorrectly() async {
         // Refresh UI state
         coordinator.refreshUIState()
-        RunLoop.main.run(until: Date().addingTimeInterval(0.01))
+        await Task.yield()
         
         // Verify UI updates were called
         let updateFrequencyDisplayWasCalled = mockPresentationController.updateFrequencyDisplayWasCalled

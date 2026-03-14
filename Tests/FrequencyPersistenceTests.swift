@@ -103,7 +103,7 @@ class FrequencyPersistenceTests: XCTestCase {
 
     /// Verifies that a blocked frequency change triggers a revert,
     /// which is the precondition for NOT saving.
-    func testBlockedFrequencyChangeTriggersRevert() {
+    func testBlockedFrequencyChangeTriggersRevert() async {
         let audioGenerator = JJYAudioGenerator()
         let mockFrequencyManager = MockFrequencyManager()
         let mockUIStateManager = MockUIStateManager()
@@ -119,7 +119,7 @@ class FrequencyPersistenceTests: XCTestCase {
         coordinator.setPresentationController(mockPresentation)
 
         coordinator.handleFrequencyChange(to: 3, currentIndex: 1)
-        RunLoop.main.run(until: Date().addingTimeInterval(0.01))
+        await Task.yield()
 
         let revertSelectionWasCalled = mockPresentation.revertSelectionWasCalled
         XCTAssertTrue(revertSelectionWasCalled,
