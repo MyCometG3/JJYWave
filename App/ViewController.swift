@@ -152,12 +152,9 @@ final class ViewController: NSViewController {
     
     // MARK: - Lifecycle
     deinit {
-        DispatchQueue.main.async {
-            [timer = self.timeUpdateTimer, monitor = self.spaceKeyMonitor] in
-            timer?.invalidate()
-            if let monitor = monitor {
-                NSEvent.removeMonitor(monitor)
-            }
+        timeUpdateTimer?.invalidate()
+        if let monitor = spaceKeyMonitor {
+            NSEvent.removeMonitor(monitor)
         }
     }
 
@@ -192,7 +189,7 @@ final class ViewController: NSViewController {
 
 // MARK: - PresentationControllerProtocol
 @MainActor
-extension ViewController: PresentationControllerProtocol {
+extension ViewController: @preconcurrency PresentationControllerProtocol {
     func updateButtonTitle(_ title: String) {
         startStopButton?.title = title
     }
