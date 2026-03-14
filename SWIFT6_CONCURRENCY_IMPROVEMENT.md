@@ -9,7 +9,7 @@ It replaces earlier generic guidance with recommendations validated against the 
 
 After reviewing the branch and repository, these are the key findings:
 
-1. The project is currently **GCD-first** (`DispatchQueue`, `DispatchSourceTimer`, `DispatchQueue.main.async`) and does not yet use Swift structured concurrency (`async/await`, `Task`, `actor`) in production code.
+1. The project is currently **GCD-first** (`DispatchQueue`, `DispatchSourceTimer`) and now uses Swift structured concurrency in limited production paths (for example `Task { @MainActor ... }` main-actor hops), while core scheduling/state isolation remains queue-based.
 2. There is **no existing Swift concurrency proposal file** in the repo; this document is added as the authoritative version.
 3. Thread safety is currently achieved with private serial queues (for example in `JJYAudioGenerator`, `AudioEngine`, `TransmissionScheduler`), which works, but increases complexity and makes correctness harder to reason about over time.
 4. UI updates are manually dispatched to main queue in many places; this is a good candidate for `@MainActor` isolation.

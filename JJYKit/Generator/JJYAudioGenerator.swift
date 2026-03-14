@@ -233,10 +233,23 @@ class JJYAudioGenerator {
 
         concurrencyQueue.async(execute: operation)
     }
+
+    private func performSynchronousCleanup() {
+        guard _isGenerating else { return }
+        audioEngineManager.stopEngine()
+        scheduler.stopScheduling()
+        _phase = 0.0
+        _isGenerating = false
+    }
     
     deinit {
-        enqueue { [weak self] in
-            self?.stopGeneration()
+        if isOnConcurrencyQueue {
+            performSynchronousCleanup()
+            return
+        }
+
+        concurrencyQueue.sync {
+            self.performSynchronousCleanup()
         }
     }
     

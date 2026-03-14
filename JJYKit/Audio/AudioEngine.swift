@@ -109,15 +109,23 @@ class AudioEngine {
             return false
         }
     }
+
+    private func _stopEngine() {
+        engineRunningFlag = false
+        audioEngine?.stop()
+        playerStartScheduled = false
+        playerStartToken &+= 1
+        playerNode?.stop()
+    }
     
     func stopEngine() {
-        enqueue { [weak self] in
-            guard let self = self else { return }
-            self.engineRunningFlag = false
-            self.audioEngine?.stop()
-            self.playerStartScheduled = false
-            self.playerStartToken &+= 1
-            self.playerNode?.stop()
+        if isOnConcurrencyQueue {
+            _stopEngine()
+            return
+        }
+
+        concurrencyQueue.sync {
+            self._stopEngine()
         }
     }
     
