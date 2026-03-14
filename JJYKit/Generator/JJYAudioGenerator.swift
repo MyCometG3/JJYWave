@@ -302,7 +302,7 @@ class JJYAudioGenerator {
         
         let engineStarted = audioEngineManager.startEngine()
         if !engineStarted {
-            DispatchQueue.main.async { [weak self] in
+            Task { @MainActor [weak self] in
                 self?.delegate?.audioGeneratorDidEncounterError("Failed to start audio engine")
             }
             return
@@ -311,8 +311,7 @@ class JJYAudioGenerator {
         audioEngineManager.startPlayer()
         _isGenerating = true
         
-        // Ensure delegate callback is on main queue
-        DispatchQueue.main.async { [weak self] in
+        Task { @MainActor [weak self] in
             self?.delegate?.audioGeneratorDidStart()
         }
         
@@ -339,8 +338,7 @@ class JJYAudioGenerator {
         
         _isGenerating = false
         
-        // Ensure delegate callback is on main queue
-        DispatchQueue.main.async { [weak self] in
+        Task { @MainActor [weak self] in
             self?.delegate?.audioGeneratorDidStop()
         }
     }
