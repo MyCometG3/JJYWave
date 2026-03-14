@@ -129,11 +129,22 @@ class AudioGeneratorCoordinatorTests: XCTestCase {
         XCTAssertFalse(mockPresentationController.revertSelectionWasCalled, "Should not revert selection when allowed")
     }
     
-    func testHandleFrequencyChangeBlocked() {
+    func testHandleFrequencyChangeBlocked() async {
         // Setup mocks
         mockFrequencyManager.validationResult = .blocked("Test error")
+        let revertExpectation = expectation(description: "revert selection callback")
+        let statusExpectation = expectation(description: "status callback")
+        mockPresentationController.onRevertSelection = { [weak mockPresentationController] in
+            revertExpectation.fulfill()
+            mockPresentationController?.onRevertSelection = nil
+        }
+        mockPresentationController.onUpdateStatus = { [weak mockPresentationController] in
+            statusExpectation.fulfill()
+            mockPresentationController?.onUpdateStatus = nil
+        }
         
         coordinator.handleFrequencyChange(to: 3, currentIndex: 0)
+        await fulfillment(of: [revertExpectation, statusExpectation], timeout: 1.0)
         
         XCTAssertTrue(mockFrequencyManager.validateChangeWasCalled, "Should validate frequency change")
         XCTAssertFalse(mockFrequencyManager.configureFrequencyWasCalled, "Should not configure frequency when blocked")

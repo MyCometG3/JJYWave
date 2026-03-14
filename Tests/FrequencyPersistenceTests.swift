@@ -3,6 +3,7 @@ import XCTest
 
 // MARK: - FrequencyPersistenceTests
 /// Tests for UserDefaults-based persistence of the frequency segment selection.
+@MainActor
 class FrequencyPersistenceTests: XCTestCase {
 
     private let suiteName = "JJYWave.FrequencyPersistenceTests"
@@ -102,7 +103,7 @@ class FrequencyPersistenceTests: XCTestCase {
 
     /// Verifies that a blocked frequency change triggers a revert,
     /// which is the precondition for NOT saving.
-    func testBlockedFrequencyChangeTriggersRevert() {
+    func testBlockedFrequencyChangeTriggersRevert() async {
         let audioGenerator = JJYAudioGenerator()
         let mockFrequencyManager = MockFrequencyManager()
         let mockUIStateManager = MockUIStateManager()
@@ -116,8 +117,14 @@ class FrequencyPersistenceTests: XCTestCase {
             uiStateManager: mockUIStateManager
         )
         coordinator.setPresentationController(mockPresentation)
+        let revertExpectation = expectation(description: "revert selection callback")
+        mockPresentation.onRevertSelection = { [weak mockPresentation] in
+            revertExpectation.fulfill()
+            mockPresentation?.onRevertSelection = nil
+        }
 
         coordinator.handleFrequencyChange(to: 3, currentIndex: 1)
+        await fulfillment(of: [revertExpectation], timeout: 1.0)
 
         let revertSelectionWasCalled = mockPresentation.revertSelectionWasCalled
         XCTAssertTrue(revertSelectionWasCalled,

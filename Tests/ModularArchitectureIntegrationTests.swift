@@ -1,6 +1,7 @@
 import XCTest
 @testable import JJYWave
 
+@MainActor
 class ModularArchitectureIntegrationTests: XCTestCase {
     var audioGenerator: JJYAudioGenerator!
     var coordinator: AudioGeneratorCoordinator!
@@ -47,15 +48,27 @@ class ModularArchitectureIntegrationTests: XCTestCase {
         XCTAssertEqual(audioGenerator.band, .jjy40, "Should switch to JJY40")
     }
     
-    func testFrequencyChangeBlockedWhileGenerating() {
+    func testFrequencyChangeBlockedWhileGenerating() async {
         // Start generation
         coordinator.handleStartStopAction()
         
         // Verify generation started
         XCTAssertTrue(audioGenerator.isActive, "Should be generating")
+
+        let revertExpectation = expectation(description: "revert selection callback")
+        let statusExpectation = expectation(description: "status callback")
+        mockPresentationController.onRevertSelection = { [weak mockPresentationController] in
+            revertExpectation.fulfill()
+            mockPresentationController?.onRevertSelection = nil
+        }
+        mockPresentationController.onUpdateStatus = { [weak mockPresentationController] in
+            statusExpectation.fulfill()
+            mockPresentationController?.onUpdateStatus = nil
+        }
         
         // Try to change to JJY60 while generating (should be blocked)
         coordinator.handleFrequencyChange(to: 4, currentIndex: 0)
+        await fulfillment(of: [revertExpectation, statusExpectation], timeout: 1.0)
         
         // Verify change was blocked
         let revertSelectionWasCalled = mockPresentationController.revertSelectionWasCalled
@@ -67,9 +80,31 @@ class ModularArchitectureIntegrationTests: XCTestCase {
         XCTAssertTrue(audioGenerator.isTestModeEnabled, "Should remain in test mode")
     }
     
-    func testUIStateUpdatesCorrectly() {
+    func testUIStateUpdatesCorrectly() async {
+        let frequencyExpectation = expectation(description: "frequency display callback")
+        let segmentExpectation = expectation(description: "segment selection callback")
+        let buttonExpectation = expectation(description: "button title callback")
+        let timeExpectation = expectation(description: "time display callback")
+        mockPresentationController.onUpdateFrequencyDisplay = { [weak mockPresentationController] in
+            frequencyExpectation.fulfill()
+            mockPresentationController?.onUpdateFrequencyDisplay = nil
+        }
+        mockPresentationController.onUpdateSegmentSelection = { [weak mockPresentationController] in
+            segmentExpectation.fulfill()
+            mockPresentationController?.onUpdateSegmentSelection = nil
+        }
+        mockPresentationController.onUpdateButtonTitle = { [weak mockPresentationController] in
+            buttonExpectation.fulfill()
+            mockPresentationController?.onUpdateButtonTitle = nil
+        }
+        mockPresentationController.onUpdateTimeDisplay = { [weak mockPresentationController] in
+            timeExpectation.fulfill()
+            mockPresentationController?.onUpdateTimeDisplay = nil
+        }
+
         // Refresh UI state
         coordinator.refreshUIState()
+        await fulfillment(of: [frequencyExpectation, segmentExpectation, buttonExpectation, timeExpectation], timeout: 1.0)
         
         // Verify UI updates were called
         let updateFrequencyDisplayWasCalled = mockPresentationController.updateFrequencyDisplayWasCalled
@@ -152,12 +187,13 @@ class ModularArchitectureIntegrationTests: XCTestCase {
     func testConcurrentOperations() {
         let expectation = XCTestExpectation(description: "Concurrent operations should complete")
         let group = DispatchGroup()
+        let coordinator = self.coordinator!
         
         // Test concurrent frequency changes
         for i in 0..<10 {
             group.enter()
             DispatchQueue.global().async {
-                self.coordinator.handleFrequencyChange(to: i % 3, currentIndex: 0)
+                coordinator.handleFrequencyChange(to: i % 3, currentIndex: 0)
                 group.leave()
             }
         }
@@ -166,7 +202,7 @@ class ModularArchitectureIntegrationTests: XCTestCase {
         for _ in 0..<10 {
             group.enter()
             DispatchQueue.global().async {
-                self.coordinator.refreshUIState()
+                coordinator.refreshUIState()
                 group.leave()
             }
         }

@@ -3,6 +3,7 @@ import Cocoa
 
 // MARK: - PresentationControllerProtocol
 /// Protocol for presentation layer to reduce coupling with business logic
+@MainActor
 protocol PresentationControllerProtocol: AnyObject {
     func updateButtonTitle(_ title: String)
     func updateStatusMessage(_ message: String)
@@ -56,14 +57,8 @@ final class AudioGeneratorCoordinator: AudioGeneratorCoordinatorProtocol {
         self.presentationController = controller
     }
 
-    private func performPresentationUpdate(_ update: @escaping @Sendable (PresentationControllerProtocol) -> Void) {
-        if Thread.isMainThread {
-            guard let presentationController = self.presentationController else { return }
-            update(presentationController)
-            return
-        }
-
-        DispatchQueue.main.sync { [weak self] in
+    private func performPresentationUpdate(_ update: @escaping @MainActor @Sendable (PresentationControllerProtocol) -> Void) {
+        Task { @MainActor [weak self] in
             guard let self = self else { return }
             guard let presentationController = self.presentationController else { return }
             update(presentationController)
