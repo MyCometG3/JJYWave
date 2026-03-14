@@ -14,6 +14,7 @@ class JJYAudioGenerator {
     
     // MARK: - Thread Safety
     private let concurrencyQueue = DispatchQueue(label: "com.MyCometG3.JJYWave.AudioGenerator", qos: .userInitiated)
+    private let concurrencyQueueKey = DispatchSpecificKey<Void>()
     
     // MARK: - Properties
     private let audioEngineManager: AudioEngineProtocol
@@ -206,6 +207,8 @@ class JJYAudioGenerator {
         // Initialize scheduler with frame service
         scheduler = TransmissionScheduler(frameService: frameService)
         scheduler.delegate = self
+
+        concurrencyQueue.setSpecific(key: concurrencyQueueKey, value: ())
         
         concurrencyQueue.sync {
             setupAudioEngine()
@@ -217,10 +220,36 @@ class JJYAudioGenerator {
             _updateWaveform(_isTestModeEnabled ? .square : .sine)
         }
     }
+
+    private var isOnConcurrencyQueue: Bool {
+        DispatchQueue.getSpecific(key: concurrencyQueueKey) != nil
+    }
+
+    private func enqueue(_ operation: @escaping () -> Void) {
+        if isOnConcurrencyQueue {
+            operation()
+            return
+        }
+
+        concurrencyQueue.async(execute: operation)
+    }
+
+    private func performSynchronousCleanup() {
+        guard _isGenerating else { return }
+        audioEngineManager.stopEngine()
+        scheduler.stopScheduling()
+        _phase = 0.0
+        _isGenerating = false
+    }
     
     deinit {
-        concurrencyQueue.async { [weak self] in
-            self?.stopGeneration()
+        if isOnConcurrencyQueue {
+            performSynchronousCleanup()
+            return
+        }
+
+        concurrencyQueue.sync {
+            self.performSynchronousCleanup()
         }
     }
     
@@ -281,13 +310,13 @@ class JJYAudioGenerator {
     
     // MARK: - Public Methods
     func startGeneration() {
-        concurrencyQueue.async { [weak self] in
+        enqueue { [weak self] in
             self?._startGeneration()
         }
     }
     
     func stopGeneration() {
-        concurrencyQueue.async { [weak self] in
+        enqueue { [weak self] in
             self?._stopGeneration()
         }
     }
@@ -302,7 +331,7 @@ class JJYAudioGenerator {
         
         let engineStarted = audioEngineManager.startEngine()
         if !engineStarted {
-            DispatchQueue.main.async { [weak self] in
+            Task { @MainActor [weak self] in
                 self?.delegate?.audioGeneratorDidEncounterError("Failed to start audio engine")
             }
             return
@@ -311,8 +340,7 @@ class JJYAudioGenerator {
         audioEngineManager.startPlayer()
         _isGenerating = true
         
-        // Ensure delegate callback is on main queue
-        DispatchQueue.main.async { [weak self] in
+        Task { @MainActor [weak self] in
             self?.delegate?.audioGeneratorDidStart()
         }
         
@@ -339,8 +367,7 @@ class JJYAudioGenerator {
         
         _isGenerating = false
         
-        // Ensure delegate callback is on main queue
-        DispatchQueue.main.async { [weak self] in
+        Task { @MainActor [weak self] in
             self?.delegate?.audioGeneratorDidStop()
         }
     }
@@ -482,7 +509,7 @@ class JJYAudioGenerator {
     
     // MARK: - Buffer generation per second（ディスパッチャ）
     private func scheduleSecond(symbol: JJYSymbol, secondIndex: Int, when: AVAudioTime?) {
-        concurrencyQueue.async { [weak self] in
+        enqueue { [weak self] in
             self?._scheduleSecond(symbol: symbol, secondIndex: secondIndex, when: when)
         }
     }

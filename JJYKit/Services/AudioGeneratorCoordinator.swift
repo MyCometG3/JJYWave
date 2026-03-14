@@ -110,7 +110,7 @@ class AudioGeneratorCoordinator: AudioGeneratorCoordinatorProtocol {
 // MARK: - JJYAudioGeneratorDelegate
 extension AudioGeneratorCoordinator: JJYAudioGeneratorDelegate {
     func audioGeneratorDidStart() {
-        DispatchQueue.main.async { [weak self] in
+        Task { @MainActor [weak self] in
             guard let self = self else { return }
             let buttonTitle = self.uiStateManager.formatButtonTitle(isGenerating: true)
             let statusMessage = self.uiStateManager.formatStatusMessage(state: .generating)
@@ -121,7 +121,7 @@ extension AudioGeneratorCoordinator: JJYAudioGeneratorDelegate {
     }
     
     func audioGeneratorDidStop() {
-        DispatchQueue.main.async { [weak self] in
+        Task { @MainActor [weak self] in
             guard let self = self else { return }
             let buttonTitle = self.uiStateManager.formatButtonTitle(isGenerating: false)
             let statusMessage = self.uiStateManager.formatStatusMessage(state: .stopped)
@@ -132,7 +132,7 @@ extension AudioGeneratorCoordinator: JJYAudioGeneratorDelegate {
     }
     
     func audioGeneratorDidEncounterError(_ error: String) {
-        DispatchQueue.main.async { [weak self] in
+        Task { @MainActor [weak self] in
             guard let self = self else { return }
             let statusMessage = self.uiStateManager.formatStatusMessage(state: .error(error))
             
