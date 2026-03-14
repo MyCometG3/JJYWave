@@ -51,8 +51,7 @@ JJYWave/
 ├── JJYWave.xcodeproj/
 ├── JJYWave.entitlements
 ├── Localizable.xcstrings
-├── Tests/                   # Test docs and notes
-├── JJYWaveTests/            # Unit/integration tests
+├── Tests/                   # Unit/integration tests and test notes
 ├── JJYWaveTests.xctestplan
 ├── LICENSE.txt
 ├── README.md
@@ -115,8 +114,7 @@ Validation requirements:
 - App/: Application UI, controllers, lifecycle
 - JJYKit/: Core audio generation and JJY time code frame building
 - Base.lproj/: Interface (Main.storyboard)
-- JJYWaveTests/: Unit and integration tests
-- Tests/: Test documentation and guidance
+- Tests/: Unit/integration tests and test documentation
 
 ## Audio Generation Details
 - Uses AVFoundation/CoreAudio

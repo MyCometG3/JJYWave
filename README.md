@@ -63,8 +63,7 @@ JJYWave/
 ├── JJYWave.xcodeproj/       # Xcode プロジェクト
 ├── JJYWave.entitlements     # サンドボックス権限
 ├── Localizable.xcstrings    # Strings Catalog
-├── Tests/                   # テスト関連ドキュメント
-├── JJYWaveTests/            # 単体/統合テスト
+├── Tests/                   # 単体/統合テストとテスト関連ドキュメント
 ├── JJYWaveTests.xctestplan  # テストプラン
 ├── LICENSE.txt
 ├── README.md
