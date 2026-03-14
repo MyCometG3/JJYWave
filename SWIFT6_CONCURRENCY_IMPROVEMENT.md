@@ -1,241 +1,152 @@
-# Swift Concurrency Review and Improvement Plan (Swift 6)
+# Swift Concurrency Improvement Plan (Swift 6)
 
 ## Scope
 
-This document is a revised, implementation-focused proposal for improving concurrency in **JJYWave**.
-It replaces earlier generic guidance with recommendations validated against the current codebase.
+This document tracks concurrency modernization in **JJYWave**, including what is already complete and what should be implemented next after PR #23.
 
-## Review Summary
+## Current State (Post-PR #23)
 
-After reviewing the branch and repository, these are the key findings:
+The codebase remains primarily queue-based (`DispatchQueue`, `DispatchSourceTimer`) for real-time audio safety, with selective Swift concurrency usage (`Task { @MainActor ... }`) for UI-facing callback hops.
 
-1. The project is currently **GCD-first** (`DispatchQueue`, `DispatchSourceTimer`) and now uses Swift structured concurrency in limited production paths (for example `Task { @MainActor ... }` main-actor hops), while core scheduling/state isolation remains queue-based.
-2. There is **no existing Swift concurrency proposal file** in the repo; this document is added as the authoritative version.
-3. Thread safety is currently achieved with private serial queues (for example in `JJYAudioGenerator`, `AudioEngine`, `TransmissionScheduler`), which works, but increases complexity and makes correctness harder to reason about over time.
-4. UI updates are manually dispatched to main queue in many places; this is a good candidate for `@MainActor` isolation.
+## Completed Work
 
-## Why the Prior Proposal Needed Correction
+### Implemented and merged
 
-The prior draft contained suggestions that were either too generic or not aligned with this codebase.
-Specific issues:
+1. Main-actor callback hops for UI-facing delegate events.
+   - `JJYKit/Generator/JJYAudioGenerator.swift`
+   - `JJYKit/Services/AudioGeneratorCoordinator.swift`
+2. Queue reentrancy hardening for scheduler/generator/engine.
+   - `JJYKit/Time/TransmissionScheduler.swift`
+   - `JJYKit/Generator/JJYAudioGenerator.swift`
+   - `JJYKit/Audio/AudioEngine.swift`
+3. Synchronous teardown safety improvements.
+   - `JJYAudioGenerator.deinit` synchronous cleanup with reentrancy handling.
+   - `AudioEngine.stopEngine()` synchronous cleanup path with reentrancy handling.
+4. Repository-level concurrency guidance added.
+   - `README.md` section: `Concurrency Guidelines`.
 
-- It assumed existing heavy use of `Task`, `TaskGroup`, `TaskLocal`, and continuations, but those patterns are mostly not present.
-- It overemphasized APIs not needed for this app's current architecture.
-- It lacked a staged migration plan and clear file-by-file implementation targets.
+### Plan items removed as already done
 
-This revision focuses on practical, low-risk migration steps for the current code.
+- The prior “Phase 1/2/3 initial hardening” tasks from the first draft are complete and are no longer listed as next actions.
 
-## Codebase-Constrained Recommendations
+## Observed Gap Requiring Immediate Follow-up
 
-### A. Introduce Actor/Global Actor Boundaries Deliberately
+There is an existing flaky test that should be stabilized before deeper actor migration:
 
-#### Target files
+- `AudioEngineTests.testConcurrentSetup()` intermittently fails in CI/local test runs.
+
+This test currently uses a fixed timeout while performing concurrent setup work that can exceed the timeout under load.
+
+## Next Step Strategy (Recommended)
+
+## Phase A: Stabilize Test Reliability First
+
+### Goal
+
+Eliminate false-negative test failures before introducing larger concurrency refactors.
+
+### Implementation plan
+
+1. Refactor `testConcurrentSetup()` to avoid fragile fixed wait assumptions.
+2. Use deterministic completion criteria (`group.wait` with robust timeout handling or expectation fulfillment tied to actual operation completion).
+3. Add additional diagnostics in the test when timeout occurs (operation count completed vs expected).
+4. Re-run this test repeatedly (at least 20 times) to verify stability.
+
+### Target files
+
+- `Tests/AudioEngineTests.swift`
+
+### Exit criteria
+
+- No flake observed in repeated runs.
+- Full `JJYWaveTests` passes consistently across multiple runs.
+
+---
+
+## Phase B: Expand MainActor Isolation to Presentation Boundary
+
+### Goal
+
+Move from ad-hoc main hops to explicit actor boundaries in presentation/UI orchestration code.
+
+### Implementation plan
+
+1. Audit `App/ViewController.swift` UI mutation methods.
+2. Mark UI-only methods (or the type where safe) with `@MainActor`.
+3. Remove redundant dispatches now covered by actor isolation.
+4. Validate behavior with manual smoke tests (start/stop generation, frequency switching, UI labels).
+
+### Target files
 
 - `App/ViewController.swift`
-- `JJYKit/Services/AudioGeneratorCoordinator.swift`
+- `JJYKit/Services/AudioGeneratorCoordinator.swift` (follow-up cleanup only if needed)
 
-#### Recommendation
+### Exit criteria
 
-1. Annotate UI-facing types/functions with `@MainActor`.
-2. Remove repetitive `DispatchQueue.main.async` calls where main-actor isolation already guarantees correctness.
-
-#### Expected impact
-
-- Safer UI updates.
-- Less boilerplate and fewer accidental off-main UI accesses.
+- No UI-thread warnings.
+- Same runtime behavior as current release path.
 
 ---
 
-### B. Convert Queue-Owned Mutable State to Actors (Phase 2)
+## Phase C: Strict Concurrency Readiness (Incremental)
 
-#### Candidate types
+### Goal
 
-- `JJYKit/Time/TransmissionScheduler.swift`
-- `JJYKit/Audio/AudioEngine.swift`
-- `JJYKit/Generator/JJYAudioGenerator.swift`
+Prepare for stricter Swift 6 concurrency checks without destabilizing real-time paths.
 
-#### Recommendation
+### Implementation plan
 
-Migrate one component at a time from manual serial queue synchronization to actor isolation.
+1. Enable stricter concurrency diagnostics in build settings for local validation.
+2. Audit closure boundaries for safe `@Sendable` adoption.
+3. Add `Sendable` only to value types that are semantically safe.
+4. Avoid broad `@Sendable` application that introduces non-Sendable capture warnings in queue-bound classes.
 
-Example migration direction:
+### Target files
 
-- `TransmissionScheduler` -> `actor TransmissionScheduler`
-- Convert internal mutating methods to actor-isolated methods.
-- Keep AVAudio scheduling delegate protocol boundaries explicit and minimal.
+- Build settings (`.xcodeproj`)
+- `JJYKit/Audio/*`
+- `JJYKit/Generator/*`
+- `JJYKit/Services/*`
 
-#### Expected impact
+### Exit criteria
 
-- Centralized state isolation enforced by compiler.
-- Fewer queue reentrancy edge cases.
-
----
-
-### C. Keep Real-Time Audio Path Deterministic
-
-The app has audio scheduling constraints. Not all code should be converted to arbitrary `Task` usage.
-
-#### Recommendation
-
-1. Preserve deterministic scheduling in audio-critical paths.
-2. Introduce structured concurrency around orchestration and state transitions, not inside timing-critical callbacks unless measured safe.
-3. Avoid `Task.detached` in audio pipeline unless a strong reason exists.
-
-#### Expected impact
-
-- Concurrency modernization without real-time regressions.
+- Concurrency warnings trend downward without changing runtime behavior.
+- No new race-condition regressions in tests.
 
 ---
 
-### D. Replace Callback-Style Main Thread Dispatch with Main-Actor Methods
+## Phase D: Actor Feasibility Prototype (Do not replace production path yet)
 
-#### Current pattern
+### Goal
 
-- `DispatchQueue.main.async { ... }` appears repeatedly in:
-  - `App/ViewController.swift`
-  - `JJYKit/Services/AudioGeneratorCoordinator.swift`
-  - `JJYKit/Generator/JJYAudioGenerator.swift`
+Evaluate actor-based isolation for one non-audio-critical slice before broader migration.
 
-#### Recommendation
+### Implementation plan
 
-Refactor to:
+1. Choose a low-risk candidate (configuration/state coordination only).
+2. Implement a prototype actor behind existing interfaces.
+3. Benchmark against current queue-based path.
+4. Decide go/no-go based on determinism and complexity.
 
-- `@MainActor` methods for UI/presentation updates.
-- `await MainActor.run { ... }` only when crossing from non-main contexts.
+### Candidate area
 
-#### Expected impact
+- `TransmissionScheduler` configuration state path only (not timing-critical dispatch internals)
 
-- Stronger compile-time guarantees.
-- Clearer ownership of UI mutations.
+### Exit criteria
 
----
+- No timing regression.
+- Clear maintainability gain vs current queue approach.
 
-### E. Strengthen Sendable and Isolation Annotations (Swift 6 readiness)
+## Suggested Branch/PR Order
 
-#### Recommendation
+1. `swift6-concurrency-phase-a-test-stability`
+2. `swift6-concurrency-phase-b-mainactor-boundary`
+3. `swift6-concurrency-phase-c-strict-diagnostics`
+4. `swift6-concurrency-phase-d-actor-prototype`
 
-1. Audit closure parameters that cross concurrency domains; add `@Sendable` where appropriate.
-2. For shared immutable value types used across tasks/actors, add `Sendable` conformance where valid.
-3. Enable strict concurrency checking in build settings and resolve warnings incrementally.
+## Definition of Done (Updated)
 
-#### Expected impact
-
-- Better Swift 6 diagnostics.
-- Earlier detection of unsafe captures.
-
-## Detailed Implementation Plan
-
-## Phase 0: Baseline and Safety Net
-
-1. Enable Swift 6 strict concurrency warnings in project settings.
-2. Run full test suite and record baseline timing for key audio/scheduler tests.
-3. Add/extend tests for thread and state transitions before migration.
-
-Exit criteria:
-
-- Baseline tests are green.
-- Baseline performance metrics captured.
-
----
-
-## Phase 1: UI/MainActor Cleanup (Low risk, high value)
-
-1. Mark `ViewController` UI update methods as `@MainActor` (or type-level if acceptable).
-2. Mark `AudioGeneratorCoordinator` presentation update paths as `@MainActor`.
-3. Remove redundant `DispatchQueue.main.async` wrappers where isolation already guarantees main-thread execution.
-
-Suggested file edits:
-
-- `App/ViewController.swift`
-- `JJYKit/Services/AudioGeneratorCoordinator.swift`
-
-Validation:
-
-- Build without main-thread warnings.
-- UI tests and manual smoke test (start/stop, frequency switching).
-
----
-
-## Phase 2: Scheduler Isolation Migration (Moderate risk)
-
-1. Convert `TransmissionScheduler` to actor-based state ownership.
-2. Keep external delegate interface stable initially to reduce churn.
-3. Replace queue-specific checks (`DispatchQueue.getSpecific`) with actor-isolated logic.
-4. Re-run scheduler drift and boundary tests.
-
-Suggested file edits:
-
-- `JJYKit/Time/TransmissionScheduler.swift`
-- `Tests/TransmissionSchedulerTests.swift`
-- `Tests/ThreadSafetyTests.swift`
-
-Validation:
-
-- No regressions in minute rollover and drift handling tests.
-- Comparable or improved scheduling determinism.
-
----
-
-## Phase 3: Generator/Engine Isolation Hardening (Higher risk)
-
-1. Introduce actor-backed state container(s) for `JJYAudioGenerator` and/or `AudioEngine`.
-2. Separate real-time callback execution path from orchestration/state mutation path.
-3. Remove legacy queue synchronization only after parity is confirmed.
-
-Suggested file edits:
-
-- `JJYKit/Generator/JJYAudioGenerator.swift`
-- `JJYKit/Audio/AudioEngine.swift`
-- `JJYKit/Audio/AudioEngineProtocol.swift`
-- related tests under `Tests/`
-
-Validation:
-
-- Audio start/stop reliability unchanged.
-- No buffer scheduling regressions.
-- Stress tests remain stable.
-
----
-
-## Phase 4: Sendable + Diagnostics Closure
-
-1. Add `@Sendable` to escaping closures crossing async boundaries.
-2. Add `Sendable` conformance for safe value types.
-3. Resolve all remaining strict concurrency warnings.
-4. Document rules in README ("Concurrency Guidelines").
-
-Validation:
-
-- Zero strict-concurrency warnings in CI.
-- Documentation updated.
-
-## Recommended PR Breakdown
-
-To reduce risk, use multiple PRs:
-
-1. PR-1: MainActor/UI cleanup only.
-2. PR-2: TransmissionScheduler isolation migration.
-3. PR-3: Generator/Engine isolation improvements.
-4. PR-4: Sendable audit + docs.
-
-## Risk Register
-
-- **Audio timing regressions**: mitigate with benchmark/stress tests and phased rollout.
-- **Behavioral drift during actor migration**: keep public interfaces stable while migrating internals.
-- **Test flakiness**: update tests to avoid race-prone assumptions tied to queue timing.
-
-## Definition of Done
-
-1. Strict concurrency checks enabled and clean.
-2. UI code main-actor isolated.
-3. At least one core stateful component migrated from serial queue synchronization to actor isolation.
-4. No regression in audio and scheduler integration tests.
-5. README includes a short concurrency guideline section.
-
-## Appendix: Concrete Next Actions
-
-Immediate next steps (recommended order):
-
-1. Implement Phase 1 in `App/ViewController.swift` and `JJYKit/Services/AudioGeneratorCoordinator.swift`.
-2. Add a focused PR with test evidence.
-3. Start Phase 2 migration for `TransmissionScheduler` behind tests.
+1. Existing flaky concurrency test is stabilized.
+2. UI boundary isolation is explicit and consistent.
+3. Strict concurrency diagnostics are improved with no functional regressions.
+4. Actor migration decisions are based on measured prototype results, not assumptions.
