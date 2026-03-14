@@ -1,6 +1,7 @@
 import XCTest
 @testable import JJYWave
 
+@MainActor
 class ModularArchitectureIntegrationTests: XCTestCase {
     var audioGenerator: JJYAudioGenerator!
     var coordinator: AudioGeneratorCoordinator!
@@ -56,6 +57,7 @@ class ModularArchitectureIntegrationTests: XCTestCase {
         
         // Try to change to JJY60 while generating (should be blocked)
         coordinator.handleFrequencyChange(to: 4, currentIndex: 0)
+        RunLoop.main.run(until: Date().addingTimeInterval(0.01))
         
         // Verify change was blocked
         let revertSelectionWasCalled = mockPresentationController.revertSelectionWasCalled
@@ -70,6 +72,7 @@ class ModularArchitectureIntegrationTests: XCTestCase {
     func testUIStateUpdatesCorrectly() {
         // Refresh UI state
         coordinator.refreshUIState()
+        RunLoop.main.run(until: Date().addingTimeInterval(0.01))
         
         // Verify UI updates were called
         let updateFrequencyDisplayWasCalled = mockPresentationController.updateFrequencyDisplayWasCalled
@@ -152,12 +155,13 @@ class ModularArchitectureIntegrationTests: XCTestCase {
     func testConcurrentOperations() {
         let expectation = XCTestExpectation(description: "Concurrent operations should complete")
         let group = DispatchGroup()
+        let coordinator = self.coordinator!
         
         // Test concurrent frequency changes
         for i in 0..<10 {
             group.enter()
             DispatchQueue.global().async {
-                self.coordinator.handleFrequencyChange(to: i % 3, currentIndex: 0)
+                coordinator.handleFrequencyChange(to: i % 3, currentIndex: 0)
                 group.leave()
             }
         }
@@ -166,7 +170,7 @@ class ModularArchitectureIntegrationTests: XCTestCase {
         for _ in 0..<10 {
             group.enter()
             DispatchQueue.global().async {
-                self.coordinator.refreshUIState()
+                coordinator.refreshUIState()
                 group.leave()
             }
         }

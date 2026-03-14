@@ -134,6 +134,7 @@ class AudioGeneratorCoordinatorTests: XCTestCase {
         mockFrequencyManager.validationResult = .blocked("Test error")
         
         coordinator.handleFrequencyChange(to: 3, currentIndex: 0)
+        RunLoop.main.run(until: Date().addingTimeInterval(0.01))
         
         XCTAssertTrue(mockFrequencyManager.validateChangeWasCalled, "Should validate frequency change")
         XCTAssertFalse(mockFrequencyManager.configureFrequencyWasCalled, "Should not configure frequency when blocked")

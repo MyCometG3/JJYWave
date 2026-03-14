@@ -3,6 +3,7 @@ import XCTest
 
 // MARK: - FrequencyPersistenceTests
 /// Tests for UserDefaults-based persistence of the frequency segment selection.
+@MainActor
 class FrequencyPersistenceTests: XCTestCase {
 
     private let suiteName = "JJYWave.FrequencyPersistenceTests"
@@ -118,6 +119,7 @@ class FrequencyPersistenceTests: XCTestCase {
         coordinator.setPresentationController(mockPresentation)
 
         coordinator.handleFrequencyChange(to: 3, currentIndex: 1)
+        RunLoop.main.run(until: Date().addingTimeInterval(0.01))
 
         let revertSelectionWasCalled = mockPresentation.revertSelectionWasCalled
         XCTAssertTrue(revertSelectionWasCalled,

@@ -3,6 +3,7 @@ import Foundation
 
 // MARK: - Shared Mock Presentation Controller
 /// Shared mock implementation for presentation controller to avoid duplication across test files
+@MainActor
 class MockPresentationController: PresentationControllerProtocol {
     // MARK: - Call Tracking Properties
     var updateStatusWasCalled = false
