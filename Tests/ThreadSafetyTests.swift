@@ -7,11 +7,57 @@
 //
 
 import XCTest
-import Foundation
+@preconcurrency import Foundation
 @preconcurrency import AVFoundation
 @testable import JJYWave
 
 final class ThreadSafetyTests: XCTestCase {
+
+    private struct UnsafeSendableRef<T>: @unchecked Sendable {
+        let value: T
+    }
+
+    private final class LockedInt: @unchecked Sendable {
+        private var value: Int
+        private let queue = DispatchQueue(label: "ThreadSafetyTests.LockedInt")
+
+        init(_ value: Int = 0) {
+            self.value = value
+        }
+
+        func increment() {
+            queue.sync { value += 1 }
+        }
+
+        func get() -> Int {
+            queue.sync { value }
+        }
+    }
+
+    private final class LockedArray<Element>: @unchecked Sendable {
+        private var storage: [Element]
+        private let queue = DispatchQueue(label: "ThreadSafetyTests.LockedArray")
+
+        init(_ initial: [Element]) {
+            self.storage = initial
+        }
+
+        func append(_ element: Element) {
+            queue.sync { storage.append(element) }
+        }
+
+        func set(_ index: Int, _ element: Element) {
+            queue.sync { storage[index] = element }
+        }
+
+        func values() -> [Element] {
+            queue.sync { storage }
+        }
+
+        func count() -> Int {
+            queue.sync { storage.count }
+        }
+    }
     
     var mockClock: MockClock!
     var frameService: FrameService!
@@ -53,8 +99,8 @@ final class ThreadSafetyTests: XCTestCase {
     
     func testMockClockConcurrentAccess() {
         let iterations = 100
-        let mockClock = mockClock!
-        let initialDate = mockClock.currentDate()
+        let mockClock = UnsafeSendableRef(value: mockClock!)
+        let initialDate = mockClock.value.currentDate()
         let group = DispatchGroup()
 
         for i in 0..<iterations {
@@ -62,9 +108,9 @@ final class ThreadSafetyTests: XCTestCase {
             DispatchQueue.global().async {
                 defer { group.leave() }
                 if i % 10 == 0 {
-                    mockClock.advanceTime(by: Double(i / 10) * 0.1)
+                    mockClock.value.advanceTime(by: Double(i / 10) * 0.1)
                 } else {
-                    let _ = mockClock.currentDate()
+                    let _ = mockClock.value.currentDate()
                 }
             }
         }
@@ -72,12 +118,12 @@ final class ThreadSafetyTests: XCTestCase {
         XCTAssertEqual(group.wait(timeout: .now() + 5.0), .success, "Concurrent clock access timed out")
 
         let expectedAdvance: TimeInterval = (0..<10).reduce(0) { $0 + Double($1) * 0.1 }
-        let finalDate = mockClock.currentDate()
+        let finalDate = mockClock.value.currentDate()
         XCTAssertEqual(finalDate.timeIntervalSince(initialDate), expectedAdvance, accuracy: 0.0001)
     }
     
     func testMockClockStateConsistency() {
-        let mockClock = mockClock!
+        let mockClock = UnsafeSendableRef(value: mockClock!)
         let group = DispatchGroup()
 
         // Multiple threads advancing time and reading state
@@ -85,13 +131,13 @@ final class ThreadSafetyTests: XCTestCase {
             group.enter()
             DispatchQueue.global().async {
                 defer { group.leave() }
-                let initialDate = mockClock.currentDate()
-                let initialHostTime = mockClock.currentHostTime()
+                let initialDate = mockClock.value.currentDate()
+                let initialHostTime = mockClock.value.currentHostTime()
 
-                mockClock.advanceTime(by: 1.0)
+                mockClock.value.advanceTime(by: 1.0)
 
-                let newDate = mockClock.currentDate()
-                let newHostTime = mockClock.currentHostTime()
+                let newDate = mockClock.value.currentDate()
+                let newHostTime = mockClock.value.currentHostTime()
 
                 // Verify advancement occurred
                 XCTAssertGreaterThanOrEqual(newDate, initialDate)
@@ -105,9 +151,8 @@ final class ThreadSafetyTests: XCTestCase {
     // MARK: - FrameService Thread Safety Tests
     
     func testFrameServiceConcurrentFrameBuilding() {
-        let frameService = frameService!
-        let resultQueue = DispatchQueue(label: "frameResults")
-        var frameResults = Array(repeating: 0, count: 20)
+        let frameService = UnsafeSendableRef(value: frameService!)
+        let frameResults = LockedArray(Array(repeating: 0, count: 20))
         let group = DispatchGroup()
 
         // Build frames concurrently with different configurations
@@ -115,7 +160,7 @@ final class ThreadSafetyTests: XCTestCase {
             group.enter()
             DispatchQueue.global().async {
                 defer { group.leave() }
-                let frame = frameService.buildFrame(
+                let frame = frameService.value.buildFrame(
                     enableCallsign: i % 2 == 0,
                     enableServiceStatusBits: i % 3 == 0,
                     leapSecondPlan: nil,
@@ -124,24 +169,23 @@ final class ThreadSafetyTests: XCTestCase {
                     serviceStatusBits: (false, false, false, false, false, false)
                 )
 
-                resultQueue.sync {
-                    frameResults[i] = frame.count
-                }
+                frameResults.set(i, frame.count)
             }
         }
 
         XCTAssertEqual(group.wait(timeout: .now() + 5.0), .success, "Concurrent frame building timed out")
         
         // All frames should be valid length
-        XCTAssertEqual(frameResults.count, 20)
-        for frameLength in frameResults {
+        let values = frameResults.values()
+        XCTAssertEqual(values.count, 20)
+        for frameLength in values {
             XCTAssertTrue((59...61).contains(frameLength), "All frames should be 59..61 seconds long (allowing leap-second variations)")
         }
     }
     
     func testFrameServiceWithConcurrentClockUpdates() {
-        let mockClock = mockClock!
-        let frameService = frameService!
+        let mockClock = UnsafeSendableRef(value: mockClock!)
+        let frameService = UnsafeSendableRef(value: frameService!)
         let group = DispatchGroup()
 
         // Clock updates and frame building happening simultaneously
@@ -151,10 +195,10 @@ final class ThreadSafetyTests: XCTestCase {
                 defer { group.leave() }
                 if i % 2 == 0 {
                     // Update clock
-                    mockClock.advanceTime(by: Double(i) * 0.1)
+                    mockClock.value.advanceTime(by: Double(i) * 0.1)
                 } else {
                     // Build frame
-                    let frame = frameService.buildFrame(
+                    let frame = frameService.value.buildFrame(
                         enableCallsign: false,
                         enableServiceStatusBits: false,
                         leapSecondPlan: nil,
@@ -175,11 +219,12 @@ final class ThreadSafetyTests: XCTestCase {
     func testSchedulerConcurrentConfigurationUpdates() {
         let expectation = XCTestExpectation(description: "Concurrent configuration updates should be safe")
         let group = DispatchGroup()
+        let scheduler = UnsafeSendableRef(value: scheduler!)
         
         for i in 0..<25 {
             group.enter()
             DispatchQueue.global().async {
-                self.scheduler.updateConfiguration(
+                scheduler.value.updateConfiguration(
                     enableCallsign: i % 2 == 0,
                     enableServiceStatusBits: i % 3 == 0,
                     leapSecondPlan: i % 7 == 0 ? (yearUTC: 2025, monthUTC: 6, kind: .insert) : nil,
@@ -204,14 +249,15 @@ final class ThreadSafetyTests: XCTestCase {
     func testSchedulerStartStopConcurrency() {
         let expectation = XCTestExpectation(description: "Concurrent start/stop should be handled safely")
         let group = DispatchGroup()
+        let scheduler = UnsafeSendableRef(value: scheduler!)
         
         // Rapid start/stop cycles from multiple threads
         for _ in 0..<15 {
             group.enter()
             DispatchQueue.global().async {
-                self.scheduler.startScheduling()
+                scheduler.value.startScheduling()
                 usleep(10000) // 10ms
-                self.scheduler.stopScheduling()
+                scheduler.value.stopScheduling()
                 group.leave()
             }
         }
@@ -223,7 +269,7 @@ final class ThreadSafetyTests: XCTestCase {
         wait(for: [expectation], timeout: 10.0)
         
         // Should end in a consistent state
-        XCTAssertNoThrow(scheduler.stopScheduling())
+        XCTAssertNoThrow(scheduler.value.stopScheduling())
     }
     
     // MARK: - AudioBufferFactory Thread Safety Tests
@@ -231,8 +277,8 @@ final class ThreadSafetyTests: XCTestCase {
     func testBufferFactoryConcurrentGeneration() {
         let expectation = XCTestExpectation(description: "Concurrent buffer generation should be safe")
         let group = DispatchGroup()
-        var bufferResults: [AVAudioPCMBuffer?] = []
-        let resultsQueue = DispatchQueue(label: "bufferResults")
+        let bufferFactory = UnsafeSendableRef(value: bufferFactory!)
+        let bufferResults = LockedArray<AVAudioPCMBuffer?>([])
         
         let symbols: [JJYAudioGenerator.JJYSymbol] = [.mark, .bit0, .bit1, .morse]
         
@@ -241,16 +287,13 @@ final class ThreadSafetyTests: XCTestCase {
             group.enter()
             DispatchQueue.global().async {
                 let symbol = symbols[i % symbols.count]
-                let buffer = self.bufferFactory.createBuffer(
+                let buffer = bufferFactory.value.createBuffer(
                     for: symbol,
                     secondIndex: i % 60,
                     carrierFrequency: Double(40000 + i * 100)
                 )
-                
-                resultsQueue.async {
-                    bufferResults.append(buffer)
-                    group.leave()
-                }
+                bufferResults.append(buffer)
+                group.leave()
             }
         }
         
@@ -260,10 +303,11 @@ final class ThreadSafetyTests: XCTestCase {
         
         wait(for: [expectation], timeout: 10.0)
         
-        XCTAssertEqual(bufferResults.count, 40)
+        let results = bufferResults.values()
+        XCTAssertEqual(results.count, 40)
         
         // Check that buffers were created successfully
-        let successfulBuffers = bufferResults.compactMap { $0 }
+        let successfulBuffers = results.compactMap { $0 }
         XCTAssertGreaterThan(successfulBuffers.count, 0, "Should create some valid buffers")
     }
     
@@ -272,8 +316,8 @@ final class ThreadSafetyTests: XCTestCase {
     func testMorseGeneratorConcurrentAccess() {
         let expectation = XCTestExpectation(description: "Concurrent morse generation should be safe")
         let group = DispatchGroup()
-        var results: [Bool] = []
-        let resultsQueue = DispatchQueue(label: "morseResults")
+        let morseGenerator = UnsafeSendableRef(value: morseGenerator!)
+        let resultsCount = LockedInt(0)
         
         // Access morse generator from multiple threads
         for i in 0..<100 {
@@ -281,12 +325,9 @@ final class ThreadSafetyTests: XCTestCase {
             DispatchQueue.global().async {
                 let time = Double(i) * 0.1
                 let dit = 0.1
-                let result = self.morseGenerator.isOnAt(timeInWindow: time, dit: dit)
-                
-                resultsQueue.async {
-                    results.append(result)
-                    group.leave()
-                }
+                let _ = morseGenerator.value.isOnAt(timeInWindow: time, dit: dit)
+                resultsCount.increment()
+                group.leave()
             }
         }
         
@@ -296,7 +337,7 @@ final class ThreadSafetyTests: XCTestCase {
         
         wait(for: [expectation], timeout: 5.0)
         
-        XCTAssertEqual(results.count, 100, "All morse evaluations should complete")
+        XCTAssertEqual(resultsCount.get(), 100, "All morse evaluations should complete")
     }
     
     // MARK: - Cross-Component Thread Safety Tests
@@ -304,9 +345,13 @@ final class ThreadSafetyTests: XCTestCase {
     func testFullSystemConcurrentOperations() {
         let expectation = XCTestExpectation(description: "Full system concurrent operations should be stable")
         let group = DispatchGroup()
+        let mockClock = UnsafeSendableRef(value: mockClock!)
+        let frameService = UnsafeSendableRef(value: frameService!)
+        let scheduler = UnsafeSendableRef(value: scheduler!)
+        let morseGenerator = UnsafeSendableRef(value: morseGenerator!)
         
         // Start scheduler
-        scheduler.startScheduling()
+        scheduler.value.startScheduling()
         
         // Mix of operations across all components
         for i in 0..<30 {
@@ -315,10 +360,10 @@ final class ThreadSafetyTests: XCTestCase {
                 switch i % 4 {
                 case 0:
                     // Clock advancement
-                    self.mockClock.advanceTime(by: 0.1)
+                    mockClock.value.advanceTime(by: 0.1)
                 case 1:
                     // Frame building
-                    let _ = self.frameService.buildFrame(
+                    let _ = frameService.value.buildFrame(
                         enableCallsign: i % 2 == 0,
                         enableServiceStatusBits: false,
                         leapSecondPlan: nil,
@@ -328,7 +373,7 @@ final class ThreadSafetyTests: XCTestCase {
                     )
                 case 2:
                     // Configuration update
-                    self.scheduler.updateConfiguration(
+                    scheduler.value.updateConfiguration(
                         enableCallsign: i % 3 == 0,
                         enableServiceStatusBits: i % 5 == 0,
                         leapSecondPlan: nil,
@@ -338,7 +383,7 @@ final class ThreadSafetyTests: XCTestCase {
                     )
                 case 3:
                     // Morse generation
-                    let _ = self.morseGenerator.isOnAt(timeInWindow: Double(i) * 0.1, dit: 0.1)
+                    let _ = morseGenerator.value.isOnAt(timeInWindow: Double(i) * 0.1, dit: 0.1)
                 default:
                     break
                 }
@@ -353,7 +398,7 @@ final class ThreadSafetyTests: XCTestCase {
         wait(for: [expectation], timeout: 10.0)
         
         // System should remain stable
-        XCTAssertNoThrow(scheduler.stopScheduling())
+        XCTAssertNoThrow(scheduler.value.stopScheduling())
     }
     
     // MARK: - Race Condition Detection Tests
@@ -362,18 +407,19 @@ final class ThreadSafetyTests: XCTestCase {
         let expectation = XCTestExpectation(description: "Race condition detection")
         let iterations = 1000
         let group = DispatchGroup()
-        var inconsistencies = 0
-        let inconsistencyQueue = DispatchQueue(label: "inconsistencies")
+        let mockClock = UnsafeSendableRef(value: mockClock!)
+        let frameService = UnsafeSendableRef(value: frameService!)
+        let inconsistencies = LockedInt(0)
         
         // Rapid operations that could expose race conditions
-        for i in 0..<iterations {
+        for _ in 0..<iterations {
             group.enter()
             DispatchQueue.global().async {
-                let startDate = self.mockClock.currentDate()
+                let startDate = mockClock.value.currentDate()
                 
                 // Rapid sequence of operations
-                self.mockClock.advanceTime(by: 0.001)
-                let _ = self.frameService.buildFrame(
+                mockClock.value.advanceTime(by: 0.001)
+                let _ = frameService.value.buildFrame(
                     enableCallsign: false,
                     enableServiceStatusBits: false,
                     leapSecondPlan: nil,
@@ -382,13 +428,11 @@ final class ThreadSafetyTests: XCTestCase {
                     serviceStatusBits: (false, false, false, false, false, false)
                 )
                 
-                let endDate = self.mockClock.currentDate()
+                let endDate = mockClock.value.currentDate()
                 
                 // Check for consistency
                 if endDate < startDate {
-                    inconsistencyQueue.async {
-                        inconsistencies += 1
-                    }
+                    inconsistencies.increment()
                 }
                 
                 group.leave()
@@ -402,7 +446,7 @@ final class ThreadSafetyTests: XCTestCase {
         wait(for: [expectation], timeout: 15.0)
         
         // Should not have any inconsistencies
-        XCTAssertEqual(inconsistencies, 0, "Should not have any timing inconsistencies")
+        XCTAssertEqual(inconsistencies.get(), 0, "Should not have any timing inconsistencies")
     }
     
     // MARK: - Memory Safety Tests
