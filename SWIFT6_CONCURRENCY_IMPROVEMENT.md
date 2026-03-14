@@ -92,7 +92,9 @@ The codebase remains primarily queue-based (`DispatchQueue`, `DispatchSourceTime
 4. Keep validating with strict diagnostics build plus focused and full test suites per phase.
 5. Reassess broader actor migration only after strict checks remain stable with zero timing regressions.
 
-## Recommended Immediate Next Tasks (Phase E)
+## Recommended Immediate Next Tasks (Phase E, Historical)
+
+This section is kept as the original execution plan. Phase E1/E2 and subsequent Swift 6 migration phases are now completed (see status updates below).
 
 ### E1. Strict Concurrency by default (Swift 5 mode)
 
