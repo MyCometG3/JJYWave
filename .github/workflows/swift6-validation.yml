@@ -22,12 +22,35 @@ jobs:
           python3 - <<'PY'
           import glob
           import os
+          import plistlib
+          import re
 
-          candidates = sorted(glob.glob('/Applications/Xcode*.app'))
+          candidates = glob.glob('/Applications/Xcode*.app')
           if not candidates:
               raise SystemExit('No Xcode installation found under /Applications')
 
-          selected = candidates[-1]
+          preferred = '/Applications/Xcode.app'
+          if preferred in candidates:
+              selected = preferred
+          else:
+              def parse_version(app_path: str):
+                  info_plist = os.path.join(app_path, 'Contents', 'Info.plist')
+                  try:
+                      with open(info_plist, 'rb') as fp:
+                          version = plistlib.load(fp).get('CFBundleShortVersionString', '')
+                  except Exception:
+                      version = ''
+                  parts = [int(p) for p in re.findall(r'\d+', str(version))]
+                  return tuple(parts) if parts else (0,)
+
+              stable = [
+                  p for p in candidates
+                  if 'beta' not in os.path.basename(p).lower()
+                  and 'rc' not in os.path.basename(p).lower()
+              ]
+              pool = stable or candidates
+              selected = max(pool, key=parse_version)
+
           print(f"Selected Xcode app: {selected}")
           with open(os.environ['GITHUB_ENV'], 'a', encoding='utf-8') as env_file:
               env_file.write(f"DEVELOPER_DIR={selected}/Contents/Developer\n")
@@ -62,12 +85,35 @@ jobs:
           python3 - <<'PY'
           import glob
           import os
+          import plistlib
+          import re
 
-          candidates = sorted(glob.glob('/Applications/Xcode*.app'))
+          candidates = glob.glob('/Applications/Xcode*.app')
           if not candidates:
               raise SystemExit('No Xcode installation found under /Applications')
 
-          selected = candidates[-1]
+          preferred = '/Applications/Xcode.app'
+          if preferred in candidates:
+              selected = preferred
+          else:
+              def parse_version(app_path: str):
+                  info_plist = os.path.join(app_path, 'Contents', 'Info.plist')
+                  try:
+                      with open(info_plist, 'rb') as fp:
+                          version = plistlib.load(fp).get('CFBundleShortVersionString', '')
+                  except Exception:
+                      version = ''
+                  parts = [int(p) for p in re.findall(r'\d+', str(version))]
+                  return tuple(parts) if parts else (0,)
+
+              stable = [
+                  p for p in candidates
+                  if 'beta' not in os.path.basename(p).lower()
+                  and 'rc' not in os.path.basename(p).lower()
+              ]
+              pool = stable or candidates
+              selected = max(pool, key=parse_version)
+
           print(f"Selected Xcode app: {selected}")
           with open(os.environ['GITHUB_ENV'], 'a', encoding='utf-8') as env_file:
               env_file.write(f"DEVELOPER_DIR={selected}/Contents/Developer\n")
