@@ -10,21 +10,25 @@ class FrequencyPersistenceTests: XCTestCase {
     private let key = "frequencySelectedIndex"
     private var userDefaults: UserDefaults!
 
-    override func setUpWithError() throws {
-        try super.setUpWithError()
+    override func setUp() async throws {
+        try await super.setUp()
         guard let defaults = UserDefaults(suiteName: suiteName) else {
             throw XCTSkip("Unable to create UserDefaults suite for frequency persistence tests")
         }
-        userDefaults = defaults
-        userDefaults.removePersistentDomain(forName: suiteName)
-    }
-
-    override func tearDown() {
-        if let userDefaults = userDefaults {
+        await MainActor.run {
+            userDefaults = defaults
             userDefaults.removePersistentDomain(forName: suiteName)
         }
-        userDefaults = nil
-        super.tearDown()
+    }
+
+    override func tearDown() async throws {
+        await MainActor.run {
+            if let userDefaults = userDefaults {
+                userDefaults.removePersistentDomain(forName: suiteName)
+            }
+            userDefaults = nil
+        }
+        try await super.tearDown()
     }
 
     // MARK: - Default / Initial State

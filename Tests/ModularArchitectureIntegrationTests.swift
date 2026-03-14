@@ -7,26 +7,29 @@ class ModularArchitectureIntegrationTests: XCTestCase {
     var coordinator: AudioGeneratorCoordinator!
     var mockPresentationController: MockPresentationController!
     
-    override func setUp() {
-        super.setUp()
-        
-        // Use real audio generator with mock audio engine for testing
-        let mockAudioEngine = MockAudioEngine()
-        audioGenerator = JJYAudioGenerator(audioEngine: mockAudioEngine)
-        
-        mockPresentationController = MockPresentationController()
-        
-        // Initialize coordinator without automatic delegate setup (weak reference pattern)
-        coordinator = AudioGeneratorCoordinator(audioGenerator: audioGenerator)
-        coordinator.setPresentationController(mockPresentationController)
-        coordinator.setupAudioGeneratorDelegate()
+    override func setUp() async throws {
+        try await super.setUp()
+        await MainActor.run {
+            // Use real audio generator with mock audio engine for testing
+            let mockAudioEngine = MockAudioEngine()
+            audioGenerator = JJYAudioGenerator(audioEngine: mockAudioEngine)
+
+            mockPresentationController = MockPresentationController()
+
+            // Initialize coordinator without automatic delegate setup (weak reference pattern)
+            coordinator = AudioGeneratorCoordinator(audioGenerator: audioGenerator)
+            coordinator.setPresentationController(mockPresentationController)
+            coordinator.setupAudioGeneratorDelegate()
+        }
     }
-    
-    override func tearDown() {
-        coordinator = nil
-        audioGenerator = nil
-        mockPresentationController = nil
-        super.tearDown()
+
+    override func tearDown() async throws {
+        await MainActor.run {
+            coordinator = nil
+            audioGenerator = nil
+            mockPresentationController = nil
+        }
+        try await super.tearDown()
     }
     
     // MARK: - End-to-End Workflow Tests
