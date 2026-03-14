@@ -61,7 +61,7 @@ final class AudioEngineQualityTests: XCTestCase {
         // Multiple start/stop cycles should be safe
         for _ in 0..<5 {
             let success = audioEngine.startEngine()
-            if !success { try XCTSkip("Audio engine could not start: no audio output device available") }
+            if !success { throw XCTSkip("Audio engine could not start: no audio output device available") }
             // Engine state can lag briefly on some environments; wait a short time before asserting.
             if !audioEngine.isEngineRunning {
                 let expectation = XCTestExpectation(description: "Engine running")
@@ -72,7 +72,7 @@ final class AudioEngineQualityTests: XCTestCase {
             }
             let running = audioEngine.isEngineRunning
             if !running {
-                try XCTSkip("Audio engine did not remain running in this environment")
+                throw XCTSkip("Audio engine did not remain running in this environment")
             }
             
             audioEngine.stopEngine()
@@ -89,33 +89,23 @@ final class AudioEngineQualityTests: XCTestCase {
     
     func testConcurrentSetupAndAccess() {
         let expectation = XCTestExpectation(description: "Concurrent operations should complete safely")
-        let group = DispatchGroup()
+        let audioEngine = audioEngine!
         
         // Concurrent setup calls
-        for i in 0..<10 {
-            group.enter()
-            DispatchQueue.global().async {
-                self.audioEngine.setupAudioEngine(
-                    sampleRate: Double(44100 + i * 1000),
-                    channelCount: AVAudioChannelCount(1 + i % 2)
-                )
-                group.leave()
-            }
+        DispatchQueue.concurrentPerform(iterations: 10) { i in
+            audioEngine.setupAudioEngine(
+                sampleRate: Double(44100 + i * 1000),
+                channelCount: AVAudioChannelCount(1 + i % 2)
+            )
         }
         
         // Concurrent property access
-        for _ in 0..<20 {
-            group.enter()
-            DispatchQueue.global().async {
-                let _ = self.audioEngine.isEngineRunning
-                let _ = self.audioEngine.isPlayerPlaying
-                group.leave()
-            }
+        DispatchQueue.concurrentPerform(iterations: 20) { _ in
+            let _ = audioEngine.isEngineRunning
+            let _ = audioEngine.isPlayerPlaying
         }
         
-        group.notify(queue: .main) {
-            expectation.fulfill()
-        }
+        expectation.fulfill()
         
         wait(for: [expectation], timeout: 5.0)
     }
@@ -124,22 +114,13 @@ final class AudioEngineQualityTests: XCTestCase {
         audioEngine.setupAudioEngine(sampleRate: 96000, channelCount: 2)
         
         let expectation = XCTestExpectation(description: "Concurrent start/stop should be safe")
-        let group = DispatchGroup()
-        
-        // Concurrent start/stop operations
-        for _ in 0..<5 {
-            group.enter()
-            DispatchQueue.global().async {
-                let _ = self.audioEngine.startEngine()
-                usleep(10000) // 10ms
-                self.audioEngine.stopEngine()
-                group.leave()
-            }
+        let audioEngine = audioEngine!
+        DispatchQueue.concurrentPerform(iterations: 5) { _ in
+            let _ = audioEngine.startEngine()
+            usleep(10000) // 10ms
+            audioEngine.stopEngine()
         }
-        
-        group.notify(queue: .main) {
-            expectation.fulfill()
-        }
+        expectation.fulfill()
         
         wait(for: [expectation], timeout: 5.0)
     }
@@ -162,7 +143,7 @@ final class AudioEngineQualityTests: XCTestCase {
         }
         
         if !didStart {
-            try XCTSkip("Audio engine could not start: no audio output device available")
+            throw XCTSkip("Audio engine could not start: no audio output device available")
         }
         
         // Allow time for cleanup
@@ -187,7 +168,7 @@ final class AudioEngineQualityTests: XCTestCase {
             
             // Should be able to start with any reasonable sample rate
             let success = audioEngine.startEngine()
-            if !success { try XCTSkip("Audio engine could not start: no audio output device available") }
+            if !success { throw XCTSkip("Audio engine could not start: no audio output device available") }
             audioEngine.stopEngine()
             
             // Allow time for cleanup
@@ -201,7 +182,7 @@ final class AudioEngineQualityTests: XCTestCase {
         audioEngine.setupAudioEngine(sampleRate: 96000, channelCount: 2)
         
         let success = audioEngine.startEngine()
-        if !success { try XCTSkip("Audio engine could not start: no audio output device available") }
+        if !success { throw XCTSkip("Audio engine could not start: no audio output device available") }
         
         // Create a test buffer
         guard let format = AVAudioFormat(standardFormatWithSampleRate: 96000, channels: 2) else {
@@ -250,7 +231,7 @@ final class AudioEngineQualityTests: XCTestCase {
         
         // 3. After start
         let success = audioEngine.startEngine()
-        if !success { try XCTSkip("Audio engine could not start: no audio output device available") }
+        if !success { throw XCTSkip("Audio engine could not start: no audio output device available") }
         XCTAssertNoThrow(audioEngine.stopEngine())
         
         // 4. Multiple stops
@@ -259,7 +240,7 @@ final class AudioEngineQualityTests: XCTestCase {
         
         // 5. Start after stop
         let success2 = audioEngine.startEngine()
-        if !success2 { try XCTSkip("Audio engine could not restart after stop: no audio output device available") }
+        if !success2 { throw XCTSkip("Audio engine could not restart after stop: no audio output device available") }
         audioEngine.stopEngine()
     }
 }

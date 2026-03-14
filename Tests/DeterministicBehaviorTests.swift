@@ -99,7 +99,7 @@ final class DeterministicBehaviorTests: XCTestCase {
                 let frameService = FrameService(clock: clock)
                 
                 var currentFrames: [[JJYSymbol]] = []
-                for minute in 0..<5 {
+                for _ in 0..<5 {
                     clock.advanceTime(by: 60.0) // Advance by one minute
                     
                     let frame = frameService.buildFrame(

@@ -263,6 +263,7 @@ final class TransmissionSchedulerTests: XCTestCase {
     func testConcurrentConfigurationUpdates() {
         let expectation = XCTestExpectation(description: "Concurrent configuration updates should complete")
         let iterations = 100
+        let scheduler = scheduler!
         
         DispatchQueue.concurrentPerform(iterations: iterations) { index in
             scheduler.updateConfiguration(
@@ -311,14 +312,15 @@ final class TransmissionSchedulerTests: XCTestCase {
     func testConcurrentStartStop() {
         let expectation = XCTestExpectation(description: "Concurrent start/stop should complete")
         let group = DispatchGroup()
+        let scheduler = scheduler!
         
         // Multiple concurrent start/stop operations
         for _ in 0..<10 {
             group.enter()
             DispatchQueue.global().async {
-                self.scheduler.startScheduling()
+                scheduler.startScheduling()
                 Thread.sleep(forTimeInterval: 0.01)
-                self.scheduler.stopScheduling()
+                scheduler.stopScheduling()
                 group.leave()
             }
         }

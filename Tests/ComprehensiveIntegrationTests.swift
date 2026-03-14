@@ -49,41 +49,32 @@ final class ComprehensiveIntegrationTests: XCTestCase {
         XCTAssertNoThrow(audioEngine.setupAudioEngine(sampleRate: 96000, channelCount: 2))
         let success = audioEngine.startEngine()
         if !success {
-            try XCTSkip("Audio engine could not start: no audio output device available")
+            throw XCTSkip("Audio engine could not start: no audio output device available")
         }
         
         // Start transmission scheduling
         scheduler.startScheduling()
         
         // Simulate system operation
-        let expectation = XCTestExpectation(description: "Complete system integration")
-        
-        DispatchQueue.global().async {
-            // Simulate 30 seconds of operation
-            for second in 0..<30 {
-                mockClock.advanceTime(by: 1.0)
-                
-                // Generate audio buffers for each second
-                if let symbol = delegate.getCurrentSymbol(for: second % 60) {
-                    let buffer = bufferFactory.createBuffer(
-                        for: symbol,
-                        secondIndex: second % 60,
-                        carrierFrequency: 40000
-                    )
-                    
-                    if let audioBuffer = buffer {
-                        // Schedule the buffer (would normally play audio)
-                        audioEngine.scheduleBuffer(audioBuffer, at: nil, completionHandler: nil)
-                    }
+        for second in 0..<30 {
+            mockClock.advanceTime(by: 1.0)
+
+            // Generate audio buffers for each second
+            if let symbol = delegate.getCurrentSymbol(for: second % 60) {
+                let buffer = bufferFactory.createBuffer(
+                    for: symbol,
+                    secondIndex: second % 60,
+                    carrierFrequency: 40000
+                )
+
+                if let audioBuffer = buffer {
+                    // Schedule the buffer (would normally play audio)
+                    audioEngine.scheduleBuffer(audioBuffer, at: nil, completionHandler: nil)
                 }
-                
-                usleep(10000) // 10ms to allow processing
             }
-            
-            expectation.fulfill()
+
+            usleep(10000) // 10ms to allow processing
         }
-        
-        wait(for: [expectation], timeout: 10.0)
         
         // Cleanup
         scheduler.stopScheduling()
@@ -202,7 +193,7 @@ final class ComprehensiveIntegrationTests: XCTestCase {
     func testMemoryStabilityOverTime() throws {
         // Test that memory usage remains stable over extended operation
         let initialMemory = getCurrentMemoryUsage()
-        if initialMemory == 0 { try XCTSkip("Memory measurement API unavailable in this environment") }
+        if initialMemory == 0 { throw XCTSkip("Memory measurement API unavailable in this environment") }
         
         var components: [(MockClock, FrameService, TransmissionScheduler)] = []
         

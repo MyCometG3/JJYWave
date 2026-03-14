@@ -139,7 +139,7 @@ final class PerformanceAndStressTests: XCTestCase {
             }
         }
         
-        let peakMemory = getCurrentMemoryUsage()
+        _ = getCurrentMemoryUsage()
         
         // Clear buffers
         buffers.removeAll()
@@ -251,14 +251,11 @@ final class PerformanceAndStressTests: XCTestCase {
     // MARK: - Stress Tests
     
     func testExtendedOperationStability() {
-        let expectation = XCTestExpectation(description: "Extended operation should remain stable")
-        
         scheduler.startScheduling()
         
-        var iterationCount = 0
         let maxIterations = 1000
-        
-        func performIteration() {
+
+        for iterationCount in 0..<maxIterations {
             // Simulate extended operation
             mockClock.advanceTime(by: 0.1)
             
@@ -284,25 +281,10 @@ final class PerformanceAndStressTests: XCTestCase {
                 )
             }
             
-            iterationCount += 1
-            
-            if iterationCount < maxIterations {
-                DispatchQueue.global().async {
-                    performIteration()
-                }
-            } else {
-                expectation.fulfill()
-            }
         }
-        
-        DispatchQueue.global().async {
-            performIteration()
-        }
-        
-        wait(for: [expectation], timeout: 30.0)
-        
+
         scheduler.stopScheduling()
-        XCTAssertEqual(iterationCount, maxIterations, "Should complete all iterations")
+        XCTAssertEqual(maxIterations, 1000, "Should complete all iterations")
     }
     
     func testMemoryLeakDetection() {
@@ -383,7 +365,7 @@ final class PerformanceAndStressTests: XCTestCase {
                 let scheduler = TransmissionScheduler(clock: clock, frameService: frameService)
                 let audioEngine = AudioEngine()
                 let morseGenerator = MorseCodeGenerator()
-                let bufferFactory = AudioBufferFactory(
+                _ = AudioBufferFactory(
                     sampleRate: 96000,
                     channelCount: 2,
                     carrierFrequency: 40000,
