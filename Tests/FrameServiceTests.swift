@@ -205,19 +205,10 @@ final class FrameServiceTests: XCTestCase {
     }
     
     func testTimeZoneHandling() {
-        // Test with different system time zones to ensure JST is always used
-        // Temporarily change system time zone
-        let utcTimeZone = TimeZone(identifier: "UTC")!
-        let pstTimeZone = TimeZone(identifier: "America/Los_Angeles")!
-        
-        for _ in [utcTimeZone, pstTimeZone] {
-            // Create a new frame service instance for each test
-            let testFrameService = FrameService(clock: mockClock)
-            let calendar = testFrameService.jstCalendar()
-            
-            // Should always use JST regardless of system time zone
-            XCTAssertEqual(calendar.timeZone.identifier, "Asia/Tokyo")
-        }
+        // FrameService should always use JST.
+        let testFrameService = FrameService(clock: mockClock)
+        let calendar = testFrameService.jstCalendar()
+        XCTAssertEqual(calendar.timeZone.identifier, "Asia/Tokyo")
     }
     
     // MARK: - Edge Cases and Error Handling

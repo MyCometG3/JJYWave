@@ -372,10 +372,9 @@ final class JJYArchitectureIntegrationTests: XCTestCase {
             }
         }
 
-        // Advance time after concurrent updates to trigger scheduler processing
-        mockClock.advanceTime(by: 2.0)
-        
         group.notify(queue: .main) {
+            // Advance time after concurrent updates to trigger scheduler processing
+            self.mockClock.advanceTime(by: 2.0)
             expectation.fulfill()
         }
         

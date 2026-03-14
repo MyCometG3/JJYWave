@@ -9,7 +9,7 @@
 import XCTest
 @preconcurrency import Foundation
 @preconcurrency import AVFoundation
-@preconcurrency @testable import JJYWave
+@testable import JJYWave
 
 final class ThreadSafetyTests: XCTestCase {
 
