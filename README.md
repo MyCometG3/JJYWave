@@ -94,6 +94,7 @@ JJYWave/
 ### Swift 6 Validation (CI)
 - Swift 6 移行は完了しており、CI では `xcodebuild analyze` と `xcodebuild test` を継続実行しています。
 - ワークフロー: `.github/workflows/swift6-validation.yml`
+- 旧 strict-concurrency 専用ゲート（`scripts/strict_concurrency_check.sh` / `.github/workflows/strict-concurrency-check.yml`）は廃止済みです。
 
 ## 貢献
 - 実験プロジェクトとして Issue / Pull Request を歓迎します。大きな変更は事前に議論してください。
