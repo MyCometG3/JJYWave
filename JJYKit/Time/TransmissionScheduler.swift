@@ -8,6 +8,27 @@ protocol TransmissionSchedulerDelegate: AnyObject {
     func schedulerDidRequestSecondScheduling(symbol: JJYSymbol, secondIndex: Int, when: AVAudioTime)
 }
 
+struct SchedulerConfiguration: Sendable {
+    var enableCallsign: Bool = true
+    var enableServiceStatusBits: Bool = true
+    var leapSecondPlan: (yearUTC: Int, monthUTC: Int, kind: JJYAudioGenerator.LeapKind)? = nil
+    var leapSecondPending: Bool = false
+    var leapSecondInserted: Bool = true
+    var serviceStatusBits: (st1: Bool, st2: Bool, st3: Bool, st4: Bool, st5: Bool, st6: Bool) = (false, false, false, false, false, false)
+}
+
+actor SchedulerConfigurationActor {
+    private var configuration = SchedulerConfiguration()
+
+    func update(_ configuration: SchedulerConfiguration) {
+        self.configuration = configuration
+    }
+
+    func snapshot() -> SchedulerConfiguration {
+        configuration
+    }
+}
+
 // MARK: - TransmissionScheduler
 /// Responsible for timer and host time scheduling, drift detection, resync policy
 final class TransmissionScheduler: @unchecked Sendable {
@@ -32,12 +53,8 @@ final class TransmissionScheduler: @unchecked Sendable {
     private var dispatchTimer: DispatchSourceTimer?
     
     // Configuration
-    private var enableCallsign: Bool = true
-    private var enableServiceStatusBits: Bool = true
-    private var leapSecondPlan: (yearUTC: Int, monthUTC: Int, kind: JJYAudioGenerator.LeapKind)? = nil
-    private var leapSecondPending: Bool = false
-    private var leapSecondInserted: Bool = true
-    private var serviceStatusBits: (st1: Bool, st2: Bool, st3: Bool, st4: Bool, st5: Bool, st6: Bool) = (false,false,false,false,false,false)
+    private var configuration = SchedulerConfiguration()
+    private let configurationActor = SchedulerConfigurationActor()
 
     private var isOnSyncQueue: Bool {
         DispatchQueue.getSpecific(key: syncQueueKey) != nil
@@ -88,14 +105,23 @@ final class TransmissionScheduler: @unchecked Sendable {
         leapSecondInserted: Bool,
         serviceStatusBits: (st1: Bool, st2: Bool, st3: Bool, st4: Bool, st5: Bool, st6: Bool)
     ) {
+        var newConfiguration = SchedulerConfiguration()
+        newConfiguration.enableCallsign = enableCallsign
+        newConfiguration.enableServiceStatusBits = enableServiceStatusBits
+        newConfiguration.leapSecondPlan = leapSecondPlan
+        newConfiguration.leapSecondPending = leapSecondPending
+        newConfiguration.leapSecondInserted = leapSecondInserted
+        newConfiguration.serviceStatusBits = serviceStatusBits
+        let configurationActor = self.configurationActor
         let applyUpdate = { [weak self] in
             guard let self = self else { return }
-            self.enableCallsign = enableCallsign
-            self.enableServiceStatusBits = enableServiceStatusBits
-            self.leapSecondPlan = leapSecondPlan
-            self.leapSecondPending = leapSecondPending
-            self.leapSecondInserted = leapSecondInserted
-            self.serviceStatusBits = serviceStatusBits
+            self.configuration = newConfiguration
+            let semaphore = DispatchSemaphore(value: 0)
+            Task {
+                await configurationActor.update(newConfiguration)
+                semaphore.signal()
+            }
+            semaphore.wait()
         }
 
         if isOnSyncQueue {
@@ -131,12 +157,12 @@ final class TransmissionScheduler: @unchecked Sendable {
         // Build initial frame using the same captured minute base.
         self.currentFrame = self.frameService.buildFrameForTime(
             currentMinuteStart,
-            enableCallsign: self.enableCallsign,
-            enableServiceStatusBits: self.enableServiceStatusBits,
-            leapSecondPlan: self.leapSecondPlan,
-            leapSecondPending: self.leapSecondPending,
-            leapSecondInserted: self.leapSecondInserted,
-            serviceStatusBits: self.serviceStatusBits
+            enableCallsign: self.configuration.enableCallsign,
+            enableServiceStatusBits: self.configuration.enableServiceStatusBits,
+            leapSecondPlan: self.configuration.leapSecondPlan,
+            leapSecondPending: self.configuration.leapSecondPending,
+            leapSecondInserted: self.configuration.leapSecondInserted,
+            serviceStatusBits: self.configuration.serviceStatusBits
         )
 
         // Request initial frame rebuild for the current minute
@@ -184,6 +210,10 @@ final class TransmissionScheduler: @unchecked Sendable {
             self?._stopScheduling()
         }
     }
+
+    func configurationSnapshot() async -> SchedulerConfiguration {
+        await configurationActor.snapshot()
+    }
     
     private func _stopScheduling() {
         // Cancel timer atomically
@@ -230,12 +260,12 @@ final class TransmissionScheduler: @unchecked Sendable {
             if currentBase > lastBase {
                 let newFrame = frameService.buildFrameForTime(
                     currentBase,
-                    enableCallsign: enableCallsign,
-                    enableServiceStatusBits: enableServiceStatusBits,
-                    leapSecondPlan: leapSecondPlan,
-                    leapSecondPending: leapSecondPending,
-                    leapSecondInserted: leapSecondInserted,
-                    serviceStatusBits: serviceStatusBits
+                    enableCallsign: configuration.enableCallsign,
+                    enableServiceStatusBits: configuration.enableServiceStatusBits,
+                    leapSecondPlan: configuration.leapSecondPlan,
+                    leapSecondPending: configuration.leapSecondPending,
+                    leapSecondInserted: configuration.leapSecondInserted,
+                    serviceStatusBits: configuration.serviceStatusBits
                 )
                 currentFrame = newFrame
                 if !currentFrame.isEmpty {
@@ -276,12 +306,12 @@ final class TransmissionScheduler: @unchecked Sendable {
             let baseTime2 = frameService.currentMinuteStart(from: upcomingDate, calendar: cal)
             let newFrame = frameService.buildFrameForTime(
                 baseTime2,
-                enableCallsign: enableCallsign,
-                enableServiceStatusBits: enableServiceStatusBits,
-                leapSecondPlan: leapSecondPlan,
-                leapSecondPending: leapSecondPending,
-                leapSecondInserted: leapSecondInserted,
-                serviceStatusBits: serviceStatusBits
+                enableCallsign: configuration.enableCallsign,
+                enableServiceStatusBits: configuration.enableServiceStatusBits,
+                leapSecondPlan: configuration.leapSecondPlan,
+                leapSecondPending: configuration.leapSecondPending,
+                leapSecondInserted: configuration.leapSecondInserted,
+                serviceStatusBits: configuration.serviceStatusBits
             )
             currentFrame = newFrame
             // 次に再生される整数秒境界に合わせ直す
@@ -309,12 +339,12 @@ final class TransmissionScheduler: @unchecked Sendable {
                 if lastRequestedBaseTime != scheduledBaseTime {
                     let newFrame = frameService.buildFrameForTime(
                         scheduledBaseTime,
-                        enableCallsign: enableCallsign,
-                        enableServiceStatusBits: enableServiceStatusBits,
-                        leapSecondPlan: leapSecondPlan,
-                        leapSecondPending: leapSecondPending,
-                        leapSecondInserted: leapSecondInserted,
-                        serviceStatusBits: serviceStatusBits
+                        enableCallsign: configuration.enableCallsign,
+                        enableServiceStatusBits: configuration.enableServiceStatusBits,
+                        leapSecondPlan: configuration.leapSecondPlan,
+                        leapSecondPending: configuration.leapSecondPending,
+                        leapSecondInserted: configuration.leapSecondInserted,
+                        serviceStatusBits: configuration.serviceStatusBits
                     )
                     currentFrame = newFrame
                     delegate?.schedulerDidRequestFrameRebuild(for: scheduledBaseTime)

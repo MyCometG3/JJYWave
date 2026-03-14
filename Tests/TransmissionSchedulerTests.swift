@@ -281,6 +281,32 @@ final class TransmissionSchedulerTests: XCTestCase {
         
         XCTAssertTrue(true) // If we get here, concurrent updates worked
     }
+
+    func testConfigurationSnapshotReflectsLatestUpdate() async {
+        scheduler.updateConfiguration(
+            enableCallsign: false,
+            enableServiceStatusBits: true,
+            leapSecondPlan: (yearUTC: 2027, monthUTC: 12, kind: .delete),
+            leapSecondPending: true,
+            leapSecondInserted: false,
+            serviceStatusBits: (true, true, false, false, true, false)
+        )
+
+        let snapshot = await scheduler.configurationSnapshot()
+        XCTAssertFalse(snapshot.enableCallsign)
+        XCTAssertTrue(snapshot.enableServiceStatusBits)
+        XCTAssertEqual(snapshot.leapSecondPlan?.yearUTC, 2027)
+        XCTAssertEqual(snapshot.leapSecondPlan?.monthUTC, 12)
+        XCTAssertEqual(snapshot.leapSecondPlan?.kind, .delete)
+        XCTAssertTrue(snapshot.leapSecondPending)
+        XCTAssertFalse(snapshot.leapSecondInserted)
+        XCTAssertEqual(snapshot.serviceStatusBits.st1, true)
+        XCTAssertEqual(snapshot.serviceStatusBits.st2, true)
+        XCTAssertEqual(snapshot.serviceStatusBits.st3, false)
+        XCTAssertEqual(snapshot.serviceStatusBits.st4, false)
+        XCTAssertEqual(snapshot.serviceStatusBits.st5, true)
+        XCTAssertEqual(snapshot.serviceStatusBits.st6, false)
+    }
     
     func testConcurrentStartStop() {
         let expectation = XCTestExpectation(description: "Concurrent start/stop should complete")
