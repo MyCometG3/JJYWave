@@ -14,13 +14,54 @@ jobs:
     timeout-minutes: 30
 
     steps:
-      - name: Checkout
-        uses: actions/checkout@v4
+      - &checkout_step
+        name: Checkout
+        uses: actions/checkout@v6
 
-      - name: Select Xcode
-        uses: maxim-lobanov/setup-xcode@v1
-        with:
-          xcode-version: latest-stable
+      - &select_xcode_step
+        name: Select Latest Installed Xcode
+        run: |
+          python3 - <<'PY'
+          import glob
+          import os
+          import plistlib
+          import re
+
+          candidates = glob.glob('/Applications/Xcode*.app')
+          if not candidates:
+              raise SystemExit('No Xcode installation found under /Applications')
+
+          def parse_version(app_path: str):
+              info_plist = os.path.join(app_path, 'Contents', 'Info.plist')
+              try:
+                  with open(info_plist, 'rb') as fp:
+                      version = plistlib.load(fp).get('CFBundleShortVersionString', '')
+              except Exception as exc:
+                  raise SystemExit(f'Failed to read Xcode version from {info_plist}: {exc}')
+
+              parts = [int(p) for p in re.findall(r'\d+', str(version))]
+              if not parts:
+                  raise SystemExit(
+                      f'Failed to parse CFBundleShortVersionString for {app_path}: {version!r}'
+                  )
+              return tuple(parts)
+
+          stable = [
+              p for p in candidates
+              if 'beta' not in os.path.basename(p).lower()
+              and 'rc' not in os.path.basename(p).lower()
+          ]
+          pool = stable or candidates
+          selected = max(pool, key=parse_version)
+
+          print(f"Selected Xcode app: {selected}")
+          with open(os.environ['GITHUB_ENV'], 'a', encoding='utf-8') as env_file:
+              env_file.write(f"DEVELOPER_DIR={selected}/Contents/Developer\n")
+          PY
+
+      - &show_xcode_step
+        name: Show Xcode Version
+        run: xcodebuild -version
 
       - name: Run Xcode Analyze
         run: |
@@ -40,13 +81,9 @@ jobs:
     timeout-minutes: 30
 
     steps:
-      - name: Checkout
-        uses: actions/checkout@v4
-
-      - name: Select Xcode
-        uses: maxim-lobanov/setup-xcode@v1
-        with:
-          xcode-version: latest-stable
+      - *checkout_step
+      - *select_xcode_step
+      - *show_xcode_step
 
       - name: Run Xcode Tests
         run: |
