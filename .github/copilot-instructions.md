@@ -84,6 +84,11 @@ Swift 6 concurrency validation:
   - `xcodebuild test` for `JJYWaveTests`
 - Treat new concurrency warnings as regressions unless they are explicitly documented as intentional and bounded.
 
+Copilot review operation:
+- Do not trigger re-review via `@copilot review` comments on PRs; this can create unintended follow-up PRs from `copilot-swe-agent`.
+- Preferred flow is push-based: push updates to the PR branch and wait for the `Copilot code review` workflow to run automatically.
+- If the review workflow does not appear, report that state in the PR conversation instead of using comment-triggered review commands.
+
 3) Manual Functional Testing
 - Launch with ⌘R
 - UI: all controls render and update state correctly
