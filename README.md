@@ -26,9 +26,9 @@
 
 CI/自動検証では `xcodebuild` を利用できます。
 
-- 通常テスト: `xcodebuild test -project JJYWave.xcodeproj -scheme JJYWave -destination 'platform=macOS'`
+- 通常テスト: `xcodebuild test -project JJYWave.xcodeproj -scheme JJYWaveTests -destination 'platform=macOS'`
 - Analyze: `xcodebuild analyze -project JJYWave.xcodeproj -scheme JJYWave -destination 'platform=macOS'`
-- warnings-as-errors 検証: `xcodebuild test -project JJYWave.xcodeproj -scheme JJYWave -destination 'platform=macOS' GCC_TREAT_WARNINGS_AS_ERRORS=YES SWIFT_TREAT_WARNINGS_AS_ERRORS=YES`
+- warnings-as-errors 検証: `xcodebuild test -project JJYWave.xcodeproj -scheme JJYWaveTests -destination 'platform=macOS' SWIFT_TREAT_WARNINGS_AS_ERRORS=YES GCC_TREAT_WARNINGS_AS_ERRORS=YES`
 
 ## 使い方（概要）
 - Start/Stop ボタンで生成の開始／停止
@@ -43,7 +43,14 @@ CI/自動検証では `xcodebuild` を利用できます。
   - オーディオ（サンプルレート、バッファ生成、周波数・振幅・デューティ精度）
 
 ## 変更履歴
-### v1.1（Tag 1.0 以降）
+### v1.2
+- Swift 6 移行後の検証フローを整理し、CI を `Swift 6 Validation`（Analyze + Tests）に一本化
+- CI の Xcode 選択を自動・決定的にし、Node20 非互換アクション依存を解消（`actions/checkout@v6`）
+- テストソース運用を `Tests/` に統一し、未使用のテンプレート参照を削除
+- Copilot 再レビュー運用（push 後の自動実行を基本）を文書化
+- ローカル生成物 `build/` を Git 管理対象外に設定
+
+### v1.1
 - 周波数選択（13.333 / 15.000 / 20.000 / 40.000 / 60.000 kHz）の永続化を追加（`UserDefaults`）
 - スケジューラとオーディオ生成の安定性を改善（分境界処理・再開整合・再入防止の見直し）
 - 関連テストを拡充し、スケジューリング／オーディオ挙動の検証を強化
